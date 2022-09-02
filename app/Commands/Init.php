@@ -1,9 +1,10 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 namespace App\Commands;
 
+use App\Recipes\Recipe;
+use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
-use function Termwind\ask;
 
 class Init extends Command
 {
@@ -14,13 +15,17 @@ class Init extends Command
     protected $description = 'Initialize and configure a new project';
 
 
-    public function handle(): int
+    public function handle(RecipeService $cookbook): int
     {
         if ($this->dotEnvExists()) {
             return self::INVALID;
         }
 
-        $this->components->twoColumnDetail('aaaa', 'bbbb');
+        $recipeSlug = $this->argument('recipe') ?? $this->components->choice("Select a recipe", $cookbook->availableRecipes()->map(fn(Recipe $recipe) => $recipe->name())->toArray());
+
+        $cookbook->activate($recipeSlug);
+
+        $cookbook->recipe()->setup();
 
         return self::SUCCESS;
     }
