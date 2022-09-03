@@ -10,4 +10,9 @@ class TestRecipe extends Recipe
     {
         return "Test Recipe";
     }
+
+    public function options(): array
+    {
+        return [];
+    }
 }

@@ -40,10 +40,4 @@ class ConfigurationSection
     {
         return $this->options;
     }
-
-
-    public function setup(): void
-    {
-        $this->options->each(fn(ConfigurationOption $option) => $option->setup());
-    }
 }

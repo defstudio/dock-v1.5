@@ -11,4 +11,9 @@ class ExampleRecipe extends Recipe
     {
         return "Example Recipe";
     }
+
+    public function options(): array
+    {
+        return [];
+    }
 }

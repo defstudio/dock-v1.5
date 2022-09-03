@@ -1,4 +1,7 @@
 <?php
+/** @noinspection PhpDocSignatureIsNotCompleteInspection */
+
+declare(strict_types=1);
 
 namespace App\Recipes;
 
@@ -10,31 +13,27 @@ use function Termwind\render;
 
 class ConfigurationOption
 {
-    private string $key;
-    private string $description;
-    private string $question;
-    private string $value;
-    private string $defaultValue = '';
-    private bool $required = true;
-    private bool $confirm = false;
-    private bool $hidden = false;
-    private bool|Closure $when = true;
+    protected string $key;
+    protected string $description;
+    protected string $question;
+    protected string|int|bool $value;
+    protected string|int|bool $defaultValue = '';
+    protected bool $required = true;
+    protected bool $confirm = false;
+    protected bool $hidden = false;
 
-    /** @var Closure(string $value): bool */
-    private Closure $validationClosure;
+    /** @var Closure(string|int|bool $value, Configuration $configuration): (bool|string) */
+    protected bool|Closure $when = true;
 
-    /** @var Closure(Configuration $configuration): bool */
-    private Closure $afterSet;
+    /** @var Closure(string|int|bool $value, Configuration $configuration): (bool|string) */
+    protected Closure $validationClosure;
+
+    /** @var Closure(string|int|bool $value, Configuration $configuration): bool */
+    protected Closure $afterSet;
 
 
     /** @var string[] */
-    private array $choices = [];
-
-
-    public function __construct()
-    {
-
-    }
+    protected array $choices = [];
 
     public static function make(string $key): self
     {
@@ -66,11 +65,11 @@ class ConfigurationOption
     public function confirm(): self
     {
         $this->confirm = true;
-        $this->choices = ['yes', 'no'];
+        $this->choices = [true, false];
         return $this;
     }
 
-    public function default(string $default): self
+    public function default(string|int|bool $default): self
     {
         $this->defaultValue = $default;
         return $this;
@@ -95,7 +94,7 @@ class ConfigurationOption
     }
 
     /**
-     * @param Closure(string $value): bool $closure
+     * @param Closure(string|int|bool $value, Configuration $configuration): (bool|string) $closure
      */
     public function validate(Closure $closure): self
     {
@@ -104,7 +103,7 @@ class ConfigurationOption
     }
 
     /**
-     * @param Closure(Configuration $configuration): bool $closure
+     * @param Closure(string|int|bool $value, Configuration $configuration): bool $closure
      */
     public function afterSet(Closure $closure): self
     {
@@ -118,51 +117,90 @@ class ConfigurationOption
             return;
         }
 
-        while (!$this->valid()) {
+        while (!isset($this->value) || !$this->valid($configuration)) {
             $this->ask();
+            $this->normalizeValue();
+        }
 
-            if ($this->optional() && in_array($this->value, ['x', 'X'])) {
-                $this->value = '';
-            }
+        $this->notifyValueSet($configuration);
+    }
+
+    protected function notifyValueSet(Configuration $configuration): void
+    {
+        if (isset($this->afterSet)) {
+            call_user_func($this->afterSet, $this->value(), $configuration);
+        }
+    }
+
+    protected function computeDefaultValue(): string|int
+    {
+        return match ($this->defaultValue) {
+            true => 'yes',
+            false => 'no',
+            default => $this->defaultValue,
+        };
+    }
+
+    protected function computeHint(): string
+    {
+        $default = $this->computeDefaultValue();
+
+        return empty($this->choices) && !empty($default)
+            ? "<span class='text-white'>$default</span>"
+            : (string) collect($this->choices)
+                ->map(fn (string|int|bool $choice) => match ($choice) {
+                    true => 'yes',
+                    false => 'no',
+                    default => $choice,
+                })
+                ->map(function (string|int $choice) use ($default) {
+                    return $choice === $default
+                        ? "<span class='text-white'>$choice</span>"
+                        : $choice;
+                })
+                ->join(", ");
+    }
+
+    protected function computeQuestion(): string
+    {
+        $default = $this->computeDefaultValue();
+        $hint = $this->computeHint();
+
+        return Str::of("<ul class='mx-2'><li><span class='text-green'>")
+            ->append($this->question ?? $this->description)
+            ->append("</span>")
+            ->when($hint, fn (Stringable $str) => $str->append(" <span class='text-gray'>[$hint]</span>"))
+            ->when($default && !$this->required, fn (Stringable $str) => $str->append(" <span class='text-gray'>(press 'x' to skip)</span>"))
+            ->append("<span class='text-green'>:</span></li></ul>")
+            ->toString();
+    }
+
+    protected function normalizeValue(): void
+    {
+        if (!$this->required && in_array($this->value, ['x', 'X'])) {
+            $this->value = '';
         }
 
         if ($this->confirm) {
-            $this->value = match ($this->value) {
-                'yes' => 1,
-                'no' => 0,
+            $this->value = match (Str::of($this->value)->lower()->toString()) {
+                'yes' => true,
+                'no' => false,
             };
         }
-
-        if (isset($this->afterSet)) {
-            call_user_func($this->afterSet, $configuration);
-        }
     }
 
-
-    private function ask(): void
+    protected function ask(): void
     {
-        $defaultHint = empty($this->choices)
-            ? "<span class='text-white'>$this->defaultValue</span>"
-            : collect($this->choices)->map(fn (string $choice) => $choice === $this->defaultValue ? "<span class='text-white'>$choice</span>" : $choice)->join(", ");
-
-        $question = Str::of("<ul class='mx-2'><li><span class='text-green'>")
-            ->append($this->question ?? $this->description)
-            ->append("</span>")
-            ->when($defaultHint, fn (Stringable $str) => $str->append(" <span class='text-gray'>[$defaultHint]</span>"))
-            ->append("<span class='text-green'>:</span></li></ul>")
-            ->when($this->defaultValue && !$this->required, fn (Stringable $str) => $str->append(" <span class='text-gray'>(press 'x' to skip)</span>"));
-
-
-        $this->value = ask($question) ?? $this->defaultValue;
+        $this->value = ask($this->computeQuestion()) ?? $this->computeHint();
     }
 
-    private function valid(): bool
+    protected function valid(Configuration $configuration): bool
     {
-        if (!isset($this->value)) {
-            return false;
+        if (empty($this->value) && !$this->required) {
+            return true;
         }
 
-        if (empty($this->value) && $this->required) {
+        if (empty($this->value)) {
             render('<div class="mx-5 mb-1"><span class="text-red font-bold">Error:</span> A value is required');
             return false;
         }
@@ -172,14 +210,25 @@ class ConfigurationOption
             return false;
         }
 
-        if (!empty($this->validationClosure) && !call_user_func($this->validationClosure, $this->value)) {
-            return false;
+        if (!empty($this->validationClosure)) {
+            /** @var bool|string $validation */
+            $validation = call_user_func($this->validationClosure, $this->value, $configuration);
+
+            if (is_string($validation)) {
+                render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $validation");
+                return false;
+            }
+
+            if (!$validation) {
+                render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
+                return false;
+            }
         }
 
         return true;
     }
 
-    private function isActive(Configuration $configuration): bool
+    protected function isActive(Configuration $configuration): bool
     {
         if (is_bool($this->when)) {
             return $this->when;
@@ -193,8 +242,8 @@ class ConfigurationOption
         return $this->key;
     }
 
-    public function value(): string
+    public function value(): string|int|bool
     {
-        return $this->value;
+        return $this->value ?? '';
     }
 }
