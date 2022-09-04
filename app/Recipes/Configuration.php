@@ -2,6 +2,7 @@
 
 namespace App\Recipes;
 
+use App\Facades\Terminal;
 use Illuminate\Support\Collection;
 use function Termwind\render;
 
@@ -17,7 +18,7 @@ class Configuration
     public function setup(): void
     {
         $this->sections->each(function (ConfigurationSection $section) {
-            render("<div class='m-1 p-1 min-w-50 bg-green text-black text-center'>{$section->name()}</div>");
+            Terminal::render("<div class='m-1 p-1 min-w-50 bg-green text-black text-center'>{$section->name()}</div>");
             $section->options()->each(fn (ConfigurationOption $option) => $option->setup($this));
         });
     }
@@ -58,4 +59,5 @@ class Configuration
     {
         return $this->extraOptions;
     }
+
 }

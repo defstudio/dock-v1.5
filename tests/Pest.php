@@ -12,15 +12,14 @@
 */
 
 use Illuminate\Support\Env;
-use Illuminate\Support\Facades\Storage;
 
 uses(Tests\TestCase::class)->in('Feature');
 
-function with_env(array $values, bool $overwriteAll = true): void
+function withEnv(array $values, bool $overwriteAll = true): void
 {
-    if($overwriteAll){
-        foreach (array_keys($_ENV) as $key){
-            if($key === 'SHELL_VERBOSITY'){
+    if ($overwriteAll) {
+        foreach (array_keys($_ENV) as $key) {
+            if ($key === 'SHELL_VERBOSITY') {
                 continue;
             }
 
@@ -29,8 +28,7 @@ function with_env(array $values, bool $overwriteAll = true): void
     }
 
 
-    foreach ($values as $key => $value){
+    foreach ($values as $key => $value) {
         Env::getRepository()->set($key, $value);
     }
 }
-

@@ -3,7 +3,6 @@
 namespace App\Recipes;
 
 use Illuminate\Support\Collection;
-use function Termwind\render;
 
 class ConfigurationSection
 {

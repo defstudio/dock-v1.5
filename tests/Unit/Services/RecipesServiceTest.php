@@ -12,17 +12,17 @@ it('can retrieve recipes', function () {
 });
 
 it('throws an exception if no recipe is active', function () {
-    with_env(['RECIPE' => '']);
+    withEnv(['RECIPE' => '']);
     $this->service->recipe();
 })->throws(RecipeException::class, "No recipe defined in .env 'RECIPE' value");
 
 it("throws an exception if recipe doesn't exist", function () {
-    with_env(['RECIPE' => 'foo']);
+    withEnv(['RECIPE' => 'foo']);
     $this->service->recipe();
 })->throws(RecipeException::class, "Recipe [foo] not found");
 
 it('returns active recipe', function(){
-   with_env(['RECIPE' => 'test-recipe']);
+   withEnv(['RECIPE' => 'test-recipe']);
 
    expect($this->service->recipe())->toBeInstanceOf(TestRecipe::class);
 });

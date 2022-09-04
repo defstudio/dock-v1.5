@@ -72,10 +72,11 @@ class Laravel extends \App\Recipes\Recipe
                         }
 
                         return true;
-                    }),
+                    })
+                ->when(fn(Configuration $configuration) => $configuration->get('EXTERNAL_CERTIFICATE')),
                 ConfigurationOption::make('NGINX_CUSTOM_CERTIFICATES_HOSTNAME')
                     ->question("Enter the hostname contained in the certificate")
-                    ->when(fn (Configuration $configuration) => $configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get('BEHIND_PROXY') && $configuration->get('EXTERNAL_CERTIFICATE')),
                 ConfigurationOption::make('NGINX_PORT')
                     ->question('Enter nginx exposed port')
                     ->default(80)

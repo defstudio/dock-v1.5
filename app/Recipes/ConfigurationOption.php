@@ -5,11 +5,9 @@ declare(strict_types=1);
 
 namespace App\Recipes;
 
+use App\Facades\Terminal;
 use Closure;
 use Illuminate\Support\Str;
-use Illuminate\Support\Stringable;
-use function Termwind\ask;
-use function Termwind\render;
 
 class ConfigurationOption
 {
@@ -132,52 +130,13 @@ class ConfigurationOption
         }
     }
 
-    protected function computeDefaultValue(): string|int
-    {
-        return match ($this->defaultValue) {
-            true => 'yes',
-            false => 'no',
-            default => $this->defaultValue,
-        };
-    }
-
-    protected function computeHint(): string
-    {
-        $default = $this->computeDefaultValue();
-
-        return empty($this->choices) && !empty($default)
-            ? "<span class='text-white'>$default</span>"
-            : (string) collect($this->choices)
-                ->map(fn (string|int|bool $choice) => match ($choice) {
-                    true => 'yes',
-                    false => 'no',
-                    default => $choice,
-                })
-                ->map(function (string|int $choice) use ($default) {
-                    return $choice === $default
-                        ? "<span class='text-white'>$choice</span>"
-                        : $choice;
-                })
-                ->join(", ");
-    }
-
-    protected function computeQuestion(): string
-    {
-        $default = $this->computeDefaultValue();
-        $hint = $this->computeHint();
-
-        return Str::of("<ul class='mx-2'><li><span class='text-green'>")
-            ->append($this->question ?? $this->description)
-            ->append("</span>")
-            ->when($hint, fn (Stringable $str) => $str->append(" <span class='text-gray'>[$hint]</span>"))
-            ->when($default && !$this->required, fn (Stringable $str) => $str->append(" <span class='text-gray'>(press 'x' to skip)</span>"))
-            ->append("<span class='text-green'>:</span></li></ul>")
-            ->toString();
-    }
-
     protected function normalizeValue(): void
     {
-        if (!$this->required && in_array($this->value, ['x', 'X'])) {
+        if (!empty($this->defaultValue) && empty($this->value)) {
+            $this->value = $this->computeDefaultValue();
+        }
+
+        if (!$this->required && !empty($this->defaultValue) && in_array($this->value, ['x', 'X'])) {
             $this->value = '';
         }
 
@@ -189,9 +148,30 @@ class ConfigurationOption
         }
     }
 
+    protected function computeDefaultValue(): string|int
+    {
+        return match ($this->defaultValue) {
+            true => 'yes',
+            false => 'no',
+            default => $this->defaultValue,
+        };
+    }
+
+    protected function computeChoices(): array
+    {
+        return collect($this->choices)
+                ->map(fn (string|int|bool $choice) => match ($choice) {
+                    true => 'yes',
+                    false => 'no',
+                    default => $choice,
+                })->toArray();
+    }
+
     protected function ask(): void
     {
-        $this->value = ask($this->computeQuestion()) ?? $this->computeHint();
+        $this->value = empty($this->choices)
+            ? Terminal::ask($this->question ?? $this->description, $this->computeDefaultValue(), !$this->required)
+            : Terminal::choose($this->question ?? $this->description, $this->computeChoices(), $this->computeDefaultValue(), !$this->required);
     }
 
     protected function valid(Configuration $configuration): bool
@@ -200,13 +180,13 @@ class ConfigurationOption
             return true;
         }
 
-        if (empty($this->value)) {
-            render('<div class="mx-5 mb-1"><span class="text-red font-bold">Error:</span> A value is required');
+        if (blank($this->value)) {
+            Terminal::render('<div class="mx-5 mb-1"><span class="text-red font-bold">Error:</span> A value is required');
             return false;
         }
 
         if (!empty($this->choices) && !in_array($this->value, $this->choices)) {
-            render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
+            Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
             return false;
         }
 
@@ -215,12 +195,12 @@ class ConfigurationOption
             $validation = call_user_func($this->validationClosure, $this->value, $configuration);
 
             if (is_string($validation)) {
-                render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $validation");
+                Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $validation");
                 return false;
             }
 
             if (!$validation) {
-                render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
+                Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
                 return false;
             }
         }

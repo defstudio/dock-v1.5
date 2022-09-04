@@ -2,6 +2,7 @@
 
 namespace App\Recipes;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 abstract class Recipe

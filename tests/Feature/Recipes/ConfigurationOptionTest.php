@@ -2,8 +2,14 @@
 
 /** @noinspection PhpUndefinedFieldInspection */
 
+use App\Facades\Terminal;
 use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
+use League\Flysystem\Config;
+use Symfony\Component\Console\Input\StreamableInputInterface;
+use Symfony\Component\Console\Output\NullOutput;
+use Termwind\Question;
+use function Termwind\renderUsing;
 
 it('can make a new option', function(){
     $option = ConfigurationOption::make('foo');
@@ -182,13 +188,13 @@ it('trigger value set callback after set', function () {
     expect($called)->toBeTrue();
 });
 
-it('computes its default value', function () {
-    $option = ConfigurationOption::make('foo')->default(true);
-    expect(invade($option)->computeDefaultValue())->toBe('yes');
-
-    $option = ConfigurationOption::make('foo')->default(false);
-    expect(invade($option)->computeDefaultValue())->toBe('no');
-});
+it('computes its default value', function (string|int|bool $default, string $computed) {
+    $option = ConfigurationOption::make('foo')->default($default);
+    expect(invade($option)->computeDefaultValue())->toBe($computed);
+})->with([
+    'true' => ['default' => true, 'computed' => 'yes'],
+    'false' => ['default' => false, 'computed' => 'no'],
+]);
 
 it('computes the hint text', function(ConfigurationOption $option, string $hint){
     expect(invade($option)->computeHint())->toBe($hint);
@@ -239,3 +245,182 @@ it('computes the question text', function(ConfigurationOption $option, string $t
         'text' => "<ul class='mx-2'><li><span class='text-green'>quz quuz?</span> <span class='text-gray'>[<span class='text-white'>baz</span>]</span> <span class='text-gray'>(press 'x' to skip)</span><span class='text-green'>:</span></li></ul>",
     ],
 ]);
+
+it('normalize its value', function (ConfigurationOption $option, string|int|bool $value, string|int|bool $normalized) {
+    invade($option)->value = $value;
+    invade($option)->normalizeValue();
+    expect(invade($option)->value)->toBe($normalized);
+})->with([
+    'default value' => [
+        'option' => ConfigurationOption::make('foo')->default('bar'),
+        'value' => '', 'normalized' => 'bar',
+    ],
+    'x' => [
+        'option' => ConfigurationOption::make('foo'),
+        'value' => 'x', 'normalized' => 'x'
+    ],
+    'X' => [
+        'option' => ConfigurationOption::make('foo'),
+        'value' => 'X', 'normalized' => 'X'
+    ],
+    'x with optional and default value' => [
+        'option' => ConfigurationOption::make('foo')->optional()->default('foo'),
+        'value' => 'x', 'normalized' => ''
+    ],
+    'X with optional and default value' => [
+        'option' => ConfigurationOption::make('foo')->optional()->default('foo'),
+        'value' => 'X', 'normalized' => ''
+    ],
+    'foo with optional and default value' => [
+        'option' => ConfigurationOption::make('bar')->optional()->default('baz'),
+        'value' => 'foo', 'normalized' => 'foo'
+    ],
+    'foo' => [
+        'option' => ConfigurationOption::make('bar'),
+        'value' => 'foo', 'normalized' => 'foo'
+    ],
+    'true' => [
+        'option' => ConfigurationOption::make('bar'),
+        'value' => true, 'normalized' => true
+    ],
+    'false' => [
+        'option' => ConfigurationOption::make('bar'),
+        'value' => false, 'normalized' => false
+    ],
+    'yes' => [
+        'option' => ConfigurationOption::make('bar'),
+        'value' => 'yes', 'normalized' => 'yes'
+    ],
+    'no' => [
+        'option' => ConfigurationOption::make('bar'),
+        'value' => 'no', 'normalized' => 'no'
+    ],
+    'yes for confirm' => [
+        'option' => ConfigurationOption::make('bar')->confirm(),
+        'value' => 'yes', 'normalized' => true
+    ],
+    'no for confirm' => [
+        'option' => ConfigurationOption::make('bar')->confirm(),
+        'value' => 'no', 'normalized' => false
+    ],
+]);
+
+it('prompts the question', function(ConfigurationOption $option, string $rendered){
+    Terminal::fake();
+
+    invade($option)->ask();
+
+    Terminal::assertSent($rendered);
+})->with([
+    'plain question' => [
+        'option' => ConfigurationOption::make('foo')->question('bar baz?'),
+        'rendered' => "bar baz?",
+    ],
+    'question with default value' => [
+        'option' => ConfigurationOption::make('foo')->question('bar baz?')->default('quuz'),
+        'rendered' => "bar baz? [quuz]:",
+    ],
+    'question with choices' => [
+        'option' => ConfigurationOption::make('foo')->question('bar baz?')->choices(['quuz', 'quz']),
+        'rendered' => "bar baz? [quuz, quz]:",
+    ],
+    'question with choices and default' => [
+        'option' => ConfigurationOption::make('foo')->question('bar baz?')->choices(['quuz', 'quz'])->default('quz'),
+        'rendered' => "bar baz? [quuz, quz]",
+    ],
+    'question with optional default' => [
+        'option' => ConfigurationOption::make('foo')->question('bar baz?')->default('quuz')->optional(),
+        'rendered' => "bar baz? [quuz] (press 'x' to skip)",
+    ],
+])->only();
+
+it('validate answer', function (ConfigurationOption $option, string|int|bool $value, bool $valid, string $message = null) {
+    $output = fakeOutput();
+
+    invade($option)->value = $value;
+
+    expect(invade($option)->valid(new Configuration(collect())))->toBe($valid);
+
+    if(!empty($message)){
+        expect($output->message)->toBe("<fg=red;options=bold>Error:</> $message");
+    }
+})->with([
+    'valid' => [
+        'option' => ConfigurationOption::make('foo'),
+        'value' => 'bar',
+        'valid' => true
+    ],
+    'not required' => [
+        'option' => ConfigurationOption::make('foo')->optional(),
+        'value' => '',
+        'valid' => true
+    ],
+    'missing' => [
+        'option' => ConfigurationOption::make('foo'),
+        'value' => '',
+        'valid' => false,
+        'message' => 'A value is required',
+    ],
+    'invalid' => [
+        'option' => ConfigurationOption::make('foo')->choices(['foo', 'bar']),
+        'value' => 'baz',
+        'valid' => false,
+        'message' => '[baz] is not a valid value',
+    ],
+    'invalid from closure' => [
+        'option' => ConfigurationOption::make('foo')
+            ->choices(['foo', 'bar'])
+            ->validate(fn() => false),
+        'value' => 'baz',
+        'valid' => false,
+        'message' => '[baz] is not a valid value',
+    ],
+    'invalid from closure with custom message' => [
+        'option' => ConfigurationOption::make('foo')
+            ->validate(fn($value) => "$value is absolutely wrong"),
+        'value' => 'baz',
+        'valid' => false,
+        'message' => 'baz is absolutely wrong',
+    ],
+]);
+
+it('checks if is active', function(ConfigurationOption $option, bool $active){
+    expect(invade($option)->isActive(new Configuration(collect())))->toBe($active);
+})->with([
+    'default' => [
+        'option' => ConfigurationOption::make('foo'),
+        'active' => true,
+    ],
+    'active with bool' => [
+        'option' => ConfigurationOption::make('foo')->when(true),
+        'active' => true,
+    ],
+    'inactive with bool' => [
+        'option' => ConfigurationOption::make('foo')->when(false),
+        'active' => false,
+    ],
+    'active with closure' => [
+        'option' => ConfigurationOption::make('foo')->when(fn() => true),
+        'active' => true,
+    ],
+    'inactive with closure' => [
+        'option' => ConfigurationOption::make('foo')->when(fn() => false),
+        'active' => false,
+    ],
+]);
+
+it('returns its key', function () {
+    $option = ConfigurationOption::make('BAR');
+
+    expect($option->key())->toBe('BAR');
+});
+
+it('returns its value', function () {
+    $option = ConfigurationOption::make('foo');
+
+    expect($option->value())->toBe('');
+
+    invade($option)->value = 'bar';
+
+    expect($option->value())->toBe('bar');
+});
