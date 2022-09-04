@@ -196,56 +196,6 @@ it('computes its default value', function (string|int|bool $default, string $com
     'false' => ['default' => false, 'computed' => 'no'],
 ]);
 
-it('computes the hint text', function(ConfigurationOption $option, string $hint){
-    expect(invade($option)->computeHint())->toBe($hint);
-})->with([
-    'no hint' => [
-        'option' => ConfigurationOption::make('foo'),
-        'hint' => '',
-    ],
-    'single hint' => [
-        'option' => ConfigurationOption::make('foo')->default('bar'),
-        'hint' => "<span class='text-white'>bar</span>",
-    ],
-    'hit for confirm()' => [
-        'option' => ConfigurationOption::make('foo')->confirm(),
-        'hint' => "yes, no",
-    ],
-    'hit for confirm() with default' => [
-        'option' => ConfigurationOption::make('foo')->confirm()->default(false),
-        'hint' => "yes, <span class='text-white'>no</span>",
-    ],
-    'hit for choices()' => [
-        'option' => ConfigurationOption::make('foo')->choices(['foo', 'bar', 'baz']),
-        'hint' => "foo, bar, baz",
-    ],
-    'hit for choices() with default' => [
-        'option' => ConfigurationOption::make('foo')->choices(['foo', 'bar', 'baz'])->default('bar'),
-        'hint' => "foo, <span class='text-white'>bar</span>, baz",
-    ],
-]);
-
-it('computes the question text', function(ConfigurationOption $option, string $text){
-    expect(invade($option)->computeQuestion())->toBe($text);
-})->with([
-    'from question' => [
-        'option' => ConfigurationOption::make('foo')->description('quz quuz?')->question('bar baz?'),
-        'text' => "<ul class='mx-2'><li><span class='text-green'>bar baz?</span><span class='text-green'>:</span></li></ul>",
-    ],
-    'from description' => [
-        'option' => ConfigurationOption::make('foo')->description('quz quuz?'),
-        'text' => "<ul class='mx-2'><li><span class='text-green'>quz quuz?</span><span class='text-green'>:</span></li></ul>",
-    ],
-    'with hint' => [
-        'option' => ConfigurationOption::make('foo')->description('quz quuz?')->confirm()->default(true),
-        'text' => "<ul class='mx-2'><li><span class='text-green'>quz quuz?</span> <span class='text-gray'>[<span class='text-white'>yes</span>, no]</span><span class='text-green'>:</span></li></ul>",
-    ],
-    'with optional default' => [
-        'option' => ConfigurationOption::make('foo')->description('quz quuz?')->default('baz')->optional(),
-        'text' => "<ul class='mx-2'><li><span class='text-green'>quz quuz?</span> <span class='text-gray'>[<span class='text-white'>baz</span>]</span> <span class='text-gray'>(press 'x' to skip)</span><span class='text-green'>:</span></li></ul>",
-    ],
-]);
-
 it('normalize its value', function (ConfigurationOption $option, string|int|bool $value, string|int|bool $normalized) {
     invade($option)->value = $value;
     invade($option)->normalizeValue();
@@ -312,37 +262,25 @@ it('prompts the question', function(ConfigurationOption $option, string $rendere
 
     Terminal::assertSent($rendered);
 })->with([
-    'plain question' => [
+    'question' => [
         'option' => ConfigurationOption::make('foo')->question('bar baz?'),
         'rendered' => "bar baz?",
     ],
-    'question with default value' => [
-        'option' => ConfigurationOption::make('foo')->question('bar baz?')->default('quuz'),
-        'rendered' => "bar baz? [quuz]:",
-    ],
     'question with choices' => [
         'option' => ConfigurationOption::make('foo')->question('bar baz?')->choices(['quuz', 'quz']),
-        'rendered' => "bar baz? [quuz, quz]:",
+        'rendered' => "bar baz?",
     ],
-    'question with choices and default' => [
-        'option' => ConfigurationOption::make('foo')->question('bar baz?')->choices(['quuz', 'quz'])->default('quz'),
-        'rendered' => "bar baz? [quuz, quz]",
-    ],
-    'question with optional default' => [
-        'option' => ConfigurationOption::make('foo')->question('bar baz?')->default('quuz')->optional(),
-        'rendered' => "bar baz? [quuz] (press 'x' to skip)",
-    ],
-])->only();
+]);
 
 it('validate answer', function (ConfigurationOption $option, string|int|bool $value, bool $valid, string $message = null) {
-    $output = fakeOutput();
+    Terminal::fake();
 
     invade($option)->value = $value;
 
     expect(invade($option)->valid(new Configuration(collect())))->toBe($valid);
 
     if(!empty($message)){
-        expect($output->message)->toBe("<fg=red;options=bold>Error:</> $message");
+        Terminal::assertSent("Error: $message");
     }
 })->with([
     'valid' => [

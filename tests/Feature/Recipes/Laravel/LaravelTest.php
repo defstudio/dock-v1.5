@@ -61,4 +61,4 @@ test('setup', function (array $steps) {
             '<2>Database root password' => 'foo',
         ],
     ],
-])->skip();
+]);
