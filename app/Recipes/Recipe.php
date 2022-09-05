@@ -4,11 +4,22 @@ declare(strict_types=1);
 
 namespace App\Recipes;
 
+use App\Docker\Service;
 use App\Facades\Terminal;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 abstract class Recipe
 {
+    /** @var Collection<string, Service> $services */
+    public Collection $services;
+
+    public function __construct()
+    {
+        $this->services = Collection::empty();
+    }
+
+
     abstract public function name(): string;
 
     public function slug(): string
@@ -31,4 +42,18 @@ abstract class Recipe
      * @return ConfigurationSection[]
      */
     abstract public function options(): array;
+
+    abstract protected function buildServices(): void;
+
+    public function build(): void
+    {
+        $this->buildServices();
+    }
+
+    public function commands(): array
+    {
+        return [];
+    }
+
+
 }

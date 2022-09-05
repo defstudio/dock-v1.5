@@ -11,6 +11,7 @@ namespace App\Services;
 use App\Exceptions\RecipeException;
 use App\Recipes\Recipe;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RecipeService
@@ -30,6 +31,10 @@ class RecipeService
     public function recipe(): Recipe
     {
         if (! isset($this->active)) {
+            if(!Storage::disk('cwd')->exists('.env')){
+                throw RecipeException::missingEnvFile();
+            }
+
             if (empty($recipe = env('RECIPE'))) {
                 throw RecipeException::noActiveRecipe();
             }

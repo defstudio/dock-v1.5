@@ -8,6 +8,7 @@ use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
 use App\Recipes\Recipe;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -67,6 +68,25 @@ class Laravel extends Recipe
                     }, true)
                     ->optional(true),
             ]),
+            ConfigurationSection::make('Services', [
+                ConfigurationOption::make('DB_ENGINE')
+                    ->question('Which database engine should be used?')
+                    ->choices(['mysql']),
+                ConfigurationOption::make('PHPMYADMIN_ENABLED')
+                    ->question('Should PHPMyAdmin be enabled?')
+                    ->confirm()
+                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
+                ConfigurationOption::make('MAILHOG_ENABLED')
+                    ->question('Should MailHog be enabled?')
+                    ->confirm()
+                    ->when(fn (Configuration $configuration) => $configuration->get('ENV') !== 'production'),
+                ConfigurationOption::make('WEBSOCKET_ENABLED')
+                    ->question('Should Websocket server be enabled?')
+                    ->confirm(),
+                ConfigurationOption::make('REDIS_ENABLED')
+                    ->question('Should Redis be enabled?')
+                    ->confirm(),
+            ]),
             ConfigurationSection::make('Network Configuration', [
                 ConfigurationOption::make('EXTERNAL_CERTIFICATE')
                     ->question("Do you want to set up a custom ssl certificate?
@@ -93,11 +113,11 @@ class Laravel extends Recipe
 
                         return true;
                     })
-                    ->when(fn (Configuration $configuration) => $configuration->get('EXTERNAL_CERTIFICATE')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('EXTERNAL_CERTIFICATE')),
                 ConfigurationOption::make('NGINX_CUSTOM_CERTIFICATES_HOSTNAME')
                     ->question('Enter the hostname contained in the certificate')
                     ->default(fn (Configuration $configuration) => $configuration->get('HOST'))
-                    ->when(fn (Configuration $configuration) => $configuration->get('EXTERNAL_CERTIFICATE')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('EXTERNAL_CERTIFICATE')),
                 ConfigurationOption::make('NGINX_PORT')
                     ->question('Enter nginx exposed port')
                     ->default(80)
@@ -109,32 +129,36 @@ class Laravel extends Recipe
                     ->question('Enter mysql exposed port')
                     ->default(3306)
                     ->validate(fn ($value) => is_numeric($value))
+                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql')
                     ->optional(),
                 ConfigurationOption::make('PHPMYADMIN_PORT')
                     ->question('Enter PHPMyAdmin exposed port')
                     ->default(8081)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => ! $configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED') && ! $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('PHPMYADMIN_SUBDOMAIN')
                     ->question('Enter PHPMyAdmin exposed subdomain')
                     ->default('db')
-                    ->optional(),
+                    ->optional()
+                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED')),
                 ConfigurationOption::make('MAILHOG_PORT')
                     ->question('Enter MailHog exposed port')
                     ->default(8025)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => ! $configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('MAILHOG_ENABLED') && ! $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('MAILHOG_SUBDOMAIN')
                     ->question('Enter MailHog exposed subdomain')
                     ->default('mail')
-                    ->optional(),
+                    ->optional()
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('MAILHOG_ENABLED')),
                 ConfigurationOption::make('WEBSOCKET_PORT')
                     ->question('Enter Websocket server exposed port')
                     ->default(6001)
                     ->validate(fn ($value) => is_numeric($value))
-                    ->optional(),
+                    ->optional()
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('WEBSOCKET_ENABLED')),
             ]),
             ConfigurationSection::make('Database Configuration', [
                 ConfigurationOption::make('MYSQL_DATABASE')
@@ -155,5 +179,16 @@ class Laravel extends Recipe
                     ),
             ]),
         ];
+    }
+
+
+    protected function buildServices(): void
+    {
+        $php = $this->buildPhp();
+    }
+
+    private function buildPhp()
+    {
+
     }
 }
