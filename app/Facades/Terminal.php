@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Facades;
 
 use App\Testing\FakeTerminal;
@@ -7,10 +9,12 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static mixed ask(string $question, string|bool $default = null, bool $allowEmpty = false)
- * @method static mixed choose(string $question, array $choices, string|bool $default = null, bool $allowEmpty = false)
+ * @method static mixed choose(string $question, array $choices, string|bool $default = null, bool|string $allowEmpty = false)
  * @method static void render(string $html)
  * @method static void assertAllExpectedMessageSent()
  * @method static void assertSent(string $message)
+ * @method static void successBanner(string $message)
+ * @method static void error(string $message)
  */
 class Terminal extends Facade
 {

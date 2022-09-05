@@ -13,11 +13,11 @@ return [
         ],
         'configs' => [
             'driver' => 'local',
-            'root'   => getcwd()."/configs",
+            'root' => getcwd().'/configs',
         ],
         'src' => [
             'driver' => 'local',
-            'root'   => getcwd()."/src",
-        ]
-    ]
+            'root' => getcwd().'/src',
+        ],
+    ],
 ];

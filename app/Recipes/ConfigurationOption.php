@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpDocSignatureIsNotCompleteInspection */
 
 declare(strict_types=1);
@@ -12,26 +13,37 @@ use Illuminate\Support\Str;
 class ConfigurationOption
 {
     protected string $key;
+
     protected string $description;
+
     protected string $question;
+
     protected string|int|bool $value;
-    protected string|int|bool $defaultValue = '';
+
+    /** @var string|int|bool|Closure(Configuration): (string|int|bool) */
+    protected string|int|bool|Closure $defaultValue = '';
+
     protected bool $required = true;
+
+    protected bool $exportIfEmpty = false;
+
     protected bool $confirm = false;
+
     protected bool $hidden = false;
 
-    /** @var Closure(string|int|bool $value, Configuration $configuration): (bool|string) */
+    /** @var bool|Closure(string|int|bool, Configuration): (bool|string) */
     protected bool|Closure $when = true;
 
-    /** @var Closure(string|int|bool $value, Configuration $configuration): (bool|string) */
+    /** @var Closure(string|int|bool, Configuration): (bool|string) */
     protected Closure $validationClosure;
 
-    /** @var Closure(string|int|bool $value, Configuration $configuration): bool */
+    /** @var Closure(string|int|bool, Configuration): void */
     protected Closure $afterSet;
 
+    /** @var (Closure(Configuration): array<array-key, string|int|bool>)|array<array-key, string|int|bool> */
+    protected Closure|array $choices = [];
 
-    /** @var string[] */
-    protected array $choices = [];
+    protected bool $multiple = false;
 
     public static function make(string $key): self
     {
@@ -45,18 +57,21 @@ class ConfigurationOption
     public function when(bool|Closure $condition): self
     {
         $this->when = $condition;
+
         return $this;
     }
 
     public function description(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
     public function question(string $question): self
     {
         $this->question = $question;
+
         return $this;
     }
 
@@ -64,30 +79,40 @@ class ConfigurationOption
     {
         $this->confirm = true;
         $this->choices = [true, false];
+
         return $this;
     }
 
-    public function default(string|int|bool $default): self
+    public function default(string|int|bool|Closure $default): self
     {
         $this->defaultValue = $default;
+
         return $this;
     }
 
-    public function optional(): self
+    public function optional(bool $exportIfEmpty = false): self
     {
         $this->required = false;
+        $this->exportIfEmpty = $exportIfEmpty;
+
         return $this;
     }
 
     public function hidden(): self
     {
         $this->hidden = true;
+
         return $this;
     }
 
-    public function choices(array $choices): self
+    /**
+     * @param (Closure(Configuration $configuration): array<array-key, string|int|bool>)|array<array-key, string|int|bool> $choices
+     */
+    public function choices(array|Closure $choices, bool $multiple = false): self
     {
         $this->choices = $choices;
+        $this->multiple = $multiple;
+
         return $this;
     }
 
@@ -97,27 +122,37 @@ class ConfigurationOption
     public function validate(Closure $closure): self
     {
         $this->validationClosure = $closure;
+
         return $this;
     }
 
     /**
-     * @param Closure(string|int|bool $value, Configuration $configuration): bool $closure
+     * @param Closure(string|int|bool $value, Configuration $configuration): void $closure
      */
     public function afterSet(Closure $closure): self
     {
         $this->afterSet = $closure;
+
         return $this;
     }
 
-    public function setup(Configuration $configuration): void
+    public function configure(Configuration $configuration): void
     {
-        if (!$this->isActive($configuration)) {
+        if (! $this->isActive($configuration)) {
             return;
         }
 
-        while (!isset($this->value) || !$this->valid($configuration)) {
-            $this->ask();
-            $this->normalizeValue();
+        while (! isset($this->value) || ! $this->valid($configuration)) {
+            $this->ask($configuration);
+            $this->normalizeValue($configuration);
+        }
+
+        if ($this->confirm && ! is_bool($this->value)) {
+            $this->value = match (Str::of("$this->value")->lower()->toString()) {
+                'yes' => true,
+                'no' => false,
+                default => $this->value,
+            };
         }
 
         $this->notifyValueSet($configuration);
@@ -130,79 +165,125 @@ class ConfigurationOption
         }
     }
 
-    protected function normalizeValue(): void
+    protected function normalizeValue(Configuration $configuration): void
     {
-        if (!empty($this->defaultValue) && empty($this->value)) {
-            $this->value = $this->computeDefaultValue();
+        $default = $this->computeDefaultValue($configuration);
+
+        if (! empty($default) && empty($this->value)) {
+            $this->value = $default;
         }
 
-        if (!$this->required && !empty($this->defaultValue) && in_array($this->value, ['x', 'X'])) {
+        if (! $this->required && ! empty($default) && in_array($this->value, ['x', 'X'])) {
             $this->value = '';
-        }
-
-        if ($this->confirm) {
-            $this->value = match (Str::of($this->value)->lower()->toString()) {
-                'yes' => true,
-                'no' => false,
-            };
         }
     }
 
-    protected function computeDefaultValue(): string|int
+    protected function computeDefaultValue(Configuration $configuration): string
     {
-        return match ($this->defaultValue) {
+        $default = $this->defaultValue instanceof Closure
+            ? call_user_func($this->defaultValue, $configuration)
+            : $this->defaultValue;
+
+        return match ($default) {
             true => 'yes',
             false => 'no',
-            default => $this->defaultValue,
+            default => "$default",
         };
     }
 
-    protected function computeChoices(): array
+    protected function computeChoices(Configuration $configuration): array
     {
-        return collect($this->choices)
-                ->map(fn (string|int|bool $choice) => match ($choice) {
-                    true => 'yes',
-                    false => 'no',
-                    default => $choice,
-                })->toArray();
+        /** @var array<array-key, string|int|bool> $choices */
+        $choices = is_array($this->choices)
+            ? $this->choices
+            : call_user_func($this->choices, $configuration);
+
+        return collect($choices)
+            ->map(fn (string|int|bool $choice) => match ($choice) {
+                true => 'yes',
+                false => 'no',
+                default => $choice,
+            })->toArray();
     }
 
-    protected function ask(): void
+    protected function ask(Configuration $configuration): void
     {
-        $this->value = empty($this->choices)
-            ? Terminal::ask($this->question ?? $this->description, $this->computeDefaultValue(), !$this->required)
-            : Terminal::choose($this->question ?? $this->description, $this->computeChoices(), $this->computeDefaultValue(), !$this->required);
+        $choices = $this->computeChoices($configuration);
+
+        if (empty($choices)) {
+            $this->value = Terminal::ask(
+                $this->question ?? $this->description,
+                $this->computeDefaultValue($configuration),
+                ! $this->required
+            );
+
+            return;
+        }
+
+        if (! $this->multiple) {
+            $this->value = Terminal::choose($this->question ?? $this->description, $choices, $this->computeDefaultValue($configuration), ! $this->required) ?? '';
+
+            return;
+        }
+
+        $values = [];
+        while (! empty($choices)) {
+            while (! isset($value) || ! $this->valid($configuration, $value, true)) {
+                $value = Terminal::choose($this->question ?? $this->description, $choices, allowEmpty: '') ?? '';
+            }
+
+            if (empty($value)) {
+                break;
+            }
+
+            $values[] = $value;
+
+            unset($choices[array_search($value, $choices)]);
+
+            unset($value);
+        }
+
+        $this->value = collect($values)->join(',');
     }
 
-    protected function valid(Configuration $configuration): bool
+    protected function valid(Configuration $configuration, string|int|bool $value = null, bool $optional = null): bool
     {
-        if (empty($this->value) && !$this->required) {
+        $value ??= $this->value;
+        $optional ??= ! $this->required;
+
+        if (empty($value) && $optional) {
             return true;
         }
 
-        if (blank($this->value)) {
-            Terminal::render('<div class="mx-5 mb-1"><span class="text-red font-bold">Error:</span> A value is required');
+        if (blank($value)) {
+            Terminal::error('A value is required');
+
             return false;
         }
 
-        if (!empty($this->choices) && !in_array($this->value, $this->choices)) {
-            Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
-            return false;
-        }
-
-        if (!empty($this->validationClosure)) {
+        if (! empty($this->validationClosure)) {
             /** @var bool|string $validation */
-            $validation = call_user_func($this->validationClosure, $this->value, $configuration);
+            $validation = call_user_func($this->validationClosure, $value, $configuration);
 
             if (is_string($validation)) {
-                Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $validation");
+                Terminal::error("$validation");
+
                 return false;
             }
 
-            if (!$validation) {
-                Terminal::render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> [$this->value] is not a valid value");
+            if (! $validation) {
+                Terminal::error("[$value] is not a valid value");
+
                 return false;
             }
+
+            return true;
+        }
+
+        if (! empty($this->choices) && ! $this->multiple && ! in_array($value, $this->computeChoices($configuration))) {
+            Terminal::error("[$value] is not a valid value");
+
+            return false;
         }
 
         return true;
@@ -225,5 +306,20 @@ class ConfigurationOption
     public function value(): string|int|bool
     {
         return $this->value ?? '';
+    }
+
+    public function shouldShowInEnv(): bool
+    {
+        return ! $this->hidden;
+    }
+
+    public function shouldExportIfEmpty(): bool
+    {
+        return $this->exportIfEmpty;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description ?? '';
     }
 }

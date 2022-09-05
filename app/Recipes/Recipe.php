@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Recipes;
 
-use Illuminate\Support\Collection;
+use App\Facades\Terminal;
 use Illuminate\Support\Str;
 
 abstract class Recipe
@@ -14,11 +16,15 @@ abstract class Recipe
         return Str::slug($this->name());
     }
 
-    public function setup(): void
+    public function setup(): Configuration
     {
         $configuration = new Configuration(collect($this->options()));
+        $configuration->configure();
+        $configuration->writeEnv($this->slug());
 
-        $configuration->setup();
+        Terminal::successBanner('The configuration has been stored in .env file');
+
+        return $configuration;
     }
 
     /**

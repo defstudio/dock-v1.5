@@ -27,7 +27,6 @@ function withEnv(array $values, bool $overwriteAll = true): void
         }
     }
 
-
     foreach ($values as $key => $value) {
         Env::getRepository()->set($key, $value);
     }

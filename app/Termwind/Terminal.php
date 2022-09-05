@@ -1,5 +1,9 @@
 <?php
 
+/** @noinspection PhpUnused */
+/** @noinspection PhpInternalEntityUsedInspection */
+declare(strict_types=1);
+
 namespace App\Termwind;
 
 use Symfony\Component\Console\Helper\QuestionHelper as SymfonyQuestionHelper;
@@ -52,7 +56,7 @@ class Terminal
             'allowEmpty' => $allowEmpty,
         ]);
 
-        $html = (new HtmlRenderer)->parse($view)->toString();
+        $html = (new HtmlRenderer)->parse((string) $view)->toString();
 
         return $this->helper->ask(
             self::getStreamableInput(),
@@ -64,7 +68,7 @@ class Terminal
     /**
      * Renders a choice to the user.
      */
-    public function choose(string $question, array $choices, string $default = null, bool $allowEmpty = false): mixed
+    public function choose(string $question, array $choices, string $default = null, bool|string $allowEmpty = false): mixed
     {
         $view = view('question')->with([
             'question' => $question,
@@ -73,7 +77,7 @@ class Terminal
             'choices' => $choices,
         ]);
 
-        $html = (new HtmlRenderer)->parse($view)->toString();
+        $html = (new HtmlRenderer)->parse((string) $view)->toString();
 
         $question = new SymfonyQuestion($html, $default);
         $question->setAutocompleterValues($choices);
@@ -83,5 +87,16 @@ class Terminal
             Termwind::getRenderer(),
             $question
         );
+    }
+
+    public function successBanner(string $message): void
+    {
+        $this->render("<div class='mx-1 mt-1 pt-1 px-1 min-w-50 bg-gray bg-green text-black text-center'>SUCCESS!</div>");
+        $this->render("<div class='mx-1 mb-1 p-1 min-w-50 bg-gray bg-green text-black text-center'>$message</div>");
+    }
+
+    public function error(string $message): void
+    {
+        $this->render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $message");
     }
 }

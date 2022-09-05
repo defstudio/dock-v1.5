@@ -6,10 +6,9 @@ use App\Recipes\Recipe;
 
 class ExampleRecipe extends Recipe
 {
-
     public function name(): string
     {
-        return "Example Recipe";
+        return 'Example Recipe';
     }
 
     public function options(): array

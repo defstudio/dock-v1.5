@@ -1,10 +1,13 @@
 <?php
 
+/** @noinspection PhpUnused */
+
+declare(strict_types=1);
+
 namespace App\Testing;
 
 use App\Termwind\Terminal;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Helper\QuestionHelper as SymfonyQuestionHelper;
 use function PHPUnit\Framework\assertContains;
 use function PHPUnit\Framework\assertEmpty;
 use function PHPUnit\Framework\assertEquals;
@@ -13,7 +16,8 @@ use function PHPUnit\Framework\assertNotEmpty;
 class FakeTerminal extends Terminal
 {
     private bool $fakeAll = false;
-    private array $sentMessages =  [];
+
+    private array $sentMessages = [];
 
     public function __construct(private array $messages)
     {
@@ -22,7 +26,7 @@ class FakeTerminal extends Terminal
                 ? [$value => null]
                 : [$key => $value])->toArray();
 
-        if(empty($this->messages)){
+        if (empty($this->messages)) {
             $this->fakeAll = true;
         }
 
@@ -34,7 +38,7 @@ class FakeTerminal extends Terminal
         return $this->handle($question);
     }
 
-    public function choose(string $question, array $choices, bool|string $default = null, bool $allowEmpty = false): mixed
+    public function choose(string $question, array $choices, string $default = null, bool|string $allowEmpty = false): mixed
     {
         return $this->handle($question);
     }
@@ -50,7 +54,7 @@ class FakeTerminal extends Terminal
 
         $this->sentMessages[] = $message;
 
-        if($this->fakeAll){
+        if ($this->fakeAll) {
             return 'foo';
         }
 
@@ -58,13 +62,12 @@ class FakeTerminal extends Terminal
             assertNotEmpty($this->messages, "Unexpected message [$message]");
         }
 
-
         $nextMessageKey = array_key_first($this->messages);
 
+        /** @phpstan-ignore-next-line  */
         $nextMessage = Str::of($nextMessageKey)->stripTags()->squish()->toString();
 
         assertEquals($nextMessage, $message, "Unexpected message [$message]. Next message should be [$nextMessage]");
-
 
         $answer = $this->messages[$nextMessageKey];
         unset($this->messages[$nextMessageKey]);
@@ -74,7 +77,7 @@ class FakeTerminal extends Terminal
 
     public function assertAllExpectedMessageSent(): void
     {
-        assertEmpty($this->messages, "Failed asserting all messages were sent");
+        assertEmpty($this->messages, 'Failed asserting all messages were sent');
     }
 
     public function assertSent(string $message): void

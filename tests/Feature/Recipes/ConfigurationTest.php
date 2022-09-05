@@ -5,10 +5,11 @@ use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
 
 it('can setup its options', function () {
-    $option = new class extends ConfigurationOption {
+    $option = new class extends ConfigurationOption
+    {
         public bool $called = false;
 
-        public function setup(Configuration $configuration): void
+        public function configure(Configuration $configuration): void
         {
             $this->called = true;
         }
@@ -18,7 +19,7 @@ it('can setup its options', function () {
         ConfigurationSection::make('test', [$option]),
     ]));
 
-    $configuration->setup();
+    $configuration->configure();
 
     expect($option->called)->toBeTrue();
 });
@@ -31,7 +32,8 @@ it('can find an option value', function () {
 
     invade($bar)->value = 'quuz';
 
-    expect($configuration->get('BAR'))->toBe('quuz');
+    expect($configuration->get('BAR'))->toBe('quuz')
+        ->and($configuration->get('QUUZ', 'default value'))->toBe('default value');
 });
 
 it('can set an option value', function () {

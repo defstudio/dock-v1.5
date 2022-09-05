@@ -8,7 +8,7 @@ class TestRecipe extends Recipe
 {
     public function name(): string
     {
-        return "Test Recipe";
+        return 'Test Recipe';
     }
 
     public function options(): array

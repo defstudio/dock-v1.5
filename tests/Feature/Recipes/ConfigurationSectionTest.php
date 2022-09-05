@@ -3,7 +3,7 @@
 use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
 
-it('returns its name', function(){
+it('returns its name', function () {
     $section = ConfigurationSection::make('foo', []);
 
     expect($section)->name()->toBe('foo');

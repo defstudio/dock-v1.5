@@ -1,25 +1,34 @@
-<?php /** @noinspection PhpUndefinedFieldInspection */
+<?php
+
+/** @noinspection PhpUndefinedFieldInspection */
+
+declare(strict_types=1);
 
 namespace App\Recipes;
 
 use App\Facades\Terminal;
 use Illuminate\Support\Collection;
-use function Termwind\render;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 
 class Configuration
 {
     /** @var array<string, string|int|bool> */
     private array $extraOptions = [];
 
+    /**
+     * @param  Collection<int, ConfigurationSection>  $sections
+     */
     public function __construct(private readonly Collection $sections)
     {
     }
 
-    public function setup(): void
+    public function configure(): void
     {
         $this->sections->each(function (ConfigurationSection $section) {
-            Terminal::render("<div class='m-1 p-1 min-w-50 bg-green text-black text-center'>{$section->name()}</div>");
-            $section->options()->each(fn (ConfigurationOption $option) => $option->setup($this));
+            Terminal::render("<div class='m-1 p-1 min-w-50 bg-gray text-black text-center'>{$section->name()}</div>");
+            $section->options()->each(fn (ConfigurationOption $option) => $option->configure($this));
         });
     }
 
@@ -31,13 +40,13 @@ class Configuration
     public function dump(): void
     {
         $this->sections->flatMap(fn (ConfigurationSection $section) => $section->options())
-            ->mapWithKeys(fn(ConfigurationOption $option) => [$option->key() => $option->value()])
+            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key() => $option->value()])
             ->dump();
     }
 
-    public function get(string $key): string|int|bool
+    public function get(string $key, string|int|bool $default = ''): string|int|bool
     {
-        return $this->find($key)?->value() ?? '';
+        return $this->find($key)?->value() ?? $this->extraOptions[$key] ?? $default;
     }
 
     public function set(string $key, string|int|bool $value): void
@@ -46,6 +55,7 @@ class Configuration
 
         if ($option) {
             invade($option)->value = $value;
+
             return;
         }
 
@@ -60,4 +70,52 @@ class Configuration
         return $this->extraOptions;
     }
 
+    public function writeEnv(string $recipeName): void
+    {
+        $env = Str::of("RECIPE=$recipeName");
+
+        $maxSectionNameLength = $this->sections->max(fn (ConfigurationSection $section) => strlen($section->name()));
+
+        $this->sections->each(function (ConfigurationSection $section) use ($maxSectionNameLength, &$env) {
+            $sectionNameLength = strlen($section->name());
+            $spaces = $maxSectionNameLength - $sectionNameLength + 2;
+            $spacesBefore = (int) floor($spaces / 2);
+            $spacesAfter = (int) ceil($spaces / 2);
+
+            $options = $section->options()->map(function (ConfigurationOption $option) {
+                if ($option->value() === '' && ! $option->shouldExportIfEmpty()) {
+                    return null;
+                }
+
+                if (! $option->shouldShowInEnv()) {
+                    return null;
+                }
+
+                return Str::of($option->key())
+                    ->append('=')
+                    ->append(match ($option->value()) {
+                        true => 1,
+                        false => 0,
+                        default => $option->value(),
+                    })
+                    ->append("\n")
+                    ->when($option->getDescription(), fn (Stringable $str) => $str->prepend('# ', $option->getDescription(), "\n"))->toString();
+            })->filter();
+
+            if ($options->isEmpty()) {
+                return;
+            }
+
+            $env = $env->append("\n\n")
+                ->append(str_repeat('#', $maxSectionNameLength + 4), "\n")
+                ->append('#', str_repeat(' ', $spacesBefore))
+                ->append($section->name())
+                ->append(str_repeat(' ', $spacesAfter), '#', "\n")
+                ->append(str_repeat('#', $maxSectionNameLength + 4), "\n")
+                ->append("\n")
+                ->append($options->join("\n"));
+        });
+
+        Storage::disk('cwd')->put('.env', $env->toString());
+    }
 }

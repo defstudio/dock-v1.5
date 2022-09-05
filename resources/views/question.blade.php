@@ -18,8 +18,14 @@
             <span class='text-gray'> [{!! $choices !!}]</span>
         @endif
 
-        @if(!empty($default) && $allowEmpty)
-            <span class='text-gray'>(press 'x' to skip)</span>
+        @if(!is_bool($allowEmpty) || !empty($default) && $allowEmpty)
+            @if($allowEmpty === '')
+                <span class='text-gray'>&nbsp;(leave blank to skip)</span>
+            @elseif(!is_bool($allowEmpty))
+                <span class='text-gray'>&nbsp;(press '{{$allowEmpty}}' to skip)</span>
+            @else
+                <span class='text-gray'>&nbsp;(press 'x' to skip)</span>
+            @endif
         @endif
         :
     </li>

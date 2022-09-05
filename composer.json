@@ -26,6 +26,7 @@
     "require-dev": {
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.4.4",
+        "nunomaduro/larastan": "^2.2",
         "pestphp/pest": "^1.21.3",
         "pestphp/pest-plugin-mock": "^1.0"
     },
@@ -51,5 +52,16 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "bin": ["dock"]
+    "bin": ["dock"],
+    "scripts": {
+        "lint": "pint -v",
+        "test:lint": "pint --test -v",
+        "test:types": "phpstan analyse --ansi",
+        "test:unit": "@php dock test --env=testing",
+        "test": [
+            "@test:lint",
+            "@test:types",
+            "@test:unit"
+        ]
+    }
 }
