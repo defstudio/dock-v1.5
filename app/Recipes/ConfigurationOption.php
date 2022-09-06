@@ -289,7 +289,7 @@ class ConfigurationOption
         return true;
     }
 
-    protected function isActive(Configuration $configuration): bool
+    public function isActive(Configuration $configuration): bool
     {
         if (is_bool($this->when)) {
             return $this->when;

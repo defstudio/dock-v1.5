@@ -95,6 +95,7 @@ class Laravel extends Recipe
                     }, true)
                     ->optional(true),
             ]),
+
             ConfigurationSection::make('Services', [
                 ConfigurationOption::make('DB_ENGINE')
                     ->question('Which database engine should be used?')
@@ -120,6 +121,7 @@ class Laravel extends Recipe
                     ->default('7')
                     ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
             ]),
+
             ConfigurationSection::make('Network Configuration', [
                 ConfigurationOption::make('NGINX_PORT')
                     ->question('Enter nginx exposed port')
@@ -139,7 +141,7 @@ class Laravel extends Recipe
                     ->confirm()
                     ->default(false)
                     ->hidden()
-                    ->when(fn (Configuration $configuration) => (!$configuration->get('BEHIND_PROXY') && $configuration->get('NGINX_PORT') === 443) || $configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => (!$configuration->get('BEHIND_PROXY') && $configuration->get('NGINX_PORT') == 443) || $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('NGINX_EXTERNAL_CERTIFICATE_FOLDER')
                     ->question('Enter the path to the ssl certificates folder (absolute or relative to dock folder)')
                     ->validate(function (string|int|bool $path): string|bool {

@@ -27,6 +27,10 @@ class Configuration
     public function configure(): void
     {
         $this->sections->each(function (ConfigurationSection $section) {
+            if (!$section->options()->some(fn (ConfigurationOption $option) => $option->isActive($this))) {
+                return;
+            }
+
             Terminal::render("<div class='m-1 p-1 min-w-50 bg-gray text-black text-center'>{$section->name()}</div>");
             $section->options()->each(fn (ConfigurationOption $option) => $option->configure($this));
         });
@@ -117,5 +121,13 @@ class Configuration
         });
 
         Storage::disk('cwd')->put('.env', $env->toString());
+    }
+
+    public function toArray(): array
+    {
+        return $this->sections
+            ->flatMap(fn (ConfigurationSection $section) => $section->options())
+            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key() => $option->value()])
+            ->toArray();
     }
 }
