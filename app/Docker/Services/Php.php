@@ -52,13 +52,15 @@ class Php extends Service
             $this->dependsOn(app(MySql::class)->serviceName());
         }
 
+        $this->phpVersion(env('PHP_VERSION', 'latest'));
+
         $this->addVolume(self::HOST_SRC_PATH, '/var/www');
     }
 
-    public function target(string $target): self
+    public function target(string $target): static
     {
         if (! in_array($target, $this->allowedTargets)) {
-            throw DockerServiceException::generic("Unallowed PHP target: [$target]");
+            throw DockerServiceException::generic("Unhallowed PHP target: [$target]");
         }
 
         $this->serviceDefinition->set('build.target', $target);
@@ -66,7 +68,7 @@ class Php extends Service
         return $this;
     }
 
-    public function version(string $phpVersion): self
+    public function phpVersion(string $phpVersion): static
     {
         $this->phpVersion = $phpVersion;
         return $this;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Recipes\Laravel;
 
+use App\Docker\Services\Php;
 use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
@@ -181,14 +182,9 @@ class Laravel extends Recipe
         ];
     }
 
-
     protected function buildServices(): void
     {
-        $php = $this->buildPhp();
-    }
-
-    private function buildPhp()
-    {
+        $this->addService(Php::class);
 
     }
 }

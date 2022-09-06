@@ -21,7 +21,7 @@ class ServiceDefinition
         return Arr::get($this->config, $key, $default);
     }
 
-    public function push(string $key, string $value): void
+    public function push(string $key, mixed $value): void
     {
         $value = collect($this->get($key, []))
             ->push($value)
