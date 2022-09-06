@@ -9,6 +9,7 @@ namespace App\Docker;
 use App\Exceptions\DockerServiceException;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 abstract class Service
@@ -24,6 +25,8 @@ abstract class Service
     /** @var Collection<string, Network> */
     private Collection $networks;
 
+    protected string $name;
+
     public function __construct()
     {
         $this->volumes = Collection::empty();
@@ -32,13 +35,22 @@ abstract class Service
         $this->configure();
 
         if (! isset($this->serviceDefinition)) {
-            throw DockerServiceException::serviceNotDefined($this->serviceName());
+            throw DockerServiceException::serviceNotConfigured($this->name);
         }
     }
 
     abstract protected function configure(): void;
 
-    abstract public function serviceName(): string;
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function setServiceName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
+    }
 
     protected function recipe(): Recipe
     {
@@ -57,7 +69,13 @@ abstract class Service
         $containerPort ??= $hostPort;
 
         $this->serviceDefinition->push('ports', "$hostPort:$containerPort");
-        $this->serviceDefinition->push('expose', $containerPort);
+        $this->exposePort($containerPort);
+        return $this;
+    }
+
+    public function exposePort(int $port): static
+    {
+        $this->serviceDefinition->push('expose', $port);
         return $this;
     }
 
@@ -73,6 +91,14 @@ abstract class Service
         return $this;
     }
 
+    /**
+     * @return class-string<Command>[]
+     */
+    public function commands(): array
+    {
+        return [];
+    }
+
     protected function isProductionMode(): bool
     {
         return env('ENV') === 'production';
@@ -83,7 +109,7 @@ abstract class Service
         return ! ! env('EXPOSE_DOCKER_HOST', false);
     }
 
-    public function internalNetwork(): string
+    public function internalNetworkName(): string
     {
         return $this->recipe()->slug()."_internal_network";
     }
@@ -92,7 +118,7 @@ abstract class Service
     {
         $uid = env('USER_ID', getmyuid());
 
-        if($uid === false){
+        if ($uid === false) {
             throw DockerServiceException::unableToDetectCurrentUserId();
         }
 
@@ -103,10 +129,36 @@ abstract class Service
     {
         $uid = env('GROUP_ID', getmyuid());
 
-        if($uid === false){
+        if ($uid === false) {
             throw DockerServiceException::unableToDetectCurrentGroupId();
         }
 
         return $uid;
+    }
+
+    public function host(): string
+    {
+        $host = env('HOST');
+
+        if (empty($host)) {
+            throw DockerServiceException::missingHost();
+        }
+
+        return $host;
+    }
+
+    protected function getWorkingDir(): string
+    {
+        return $this->serviceDefinition->get('working_dir');
+    }
+
+    protected function isBehindReverseProxy(): bool
+    {
+        return ! empty($this->reverseProxyNexwork());
+    }
+
+    protected function reverseProxyNexwork(): string
+    {
+        return (string) env('REVERSE_PROXY_NETWORK', '');
     }
 }

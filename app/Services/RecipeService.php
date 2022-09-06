@@ -102,7 +102,7 @@ class RecipeService
         /** @phpstan-ignore-next-line */
         return collect(scandir($this->path($path)))
             ->reject(fn (string|false $file) => $file === false || $file === '.' || $file === '..')
-            ->filter(fn (string|false $file) => $file !== false && ! is_dir($this->path($file)));
+            ->filter(fn (string|false $file) => $file !== false && ! is_dir($this->path("$path/$file")));
     }
 
     /**

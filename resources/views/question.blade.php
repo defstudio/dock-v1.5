@@ -3,7 +3,7 @@
         <span class="text-green">{!! $question !!}</span>
 
         @if(empty($choices) && !empty($default))
-            &nbsp;<span class='text-gray'> [<span class="text-white">{{$default}}</span>]</span>
+            &nbsp;<span class='text-gray'> ({{$default}})</span>
         @elseif(!empty($choices))
             @php
                 $choices = collect($choices)
@@ -15,7 +15,7 @@
                     ->join(", ")
             @endphp
 
-            <span class='text-gray'> [{!! $choices !!}]</span>
+            <span class='text-gray'>&nbsp;[choose: {!! $choices !!}]</span>
         @endif
 
         @if(!is_bool($allowEmpty) || !empty($default) && $allowEmpty)

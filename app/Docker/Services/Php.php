@@ -15,24 +15,21 @@ use Illuminate\Support\Str;
 
 class Php extends Service
 {
-    protected float|string $phpVersion;
+    protected float|string $version;
 
     protected array $allowedTargets = [
         'fpm', 'composer', 'scheduler', 'websocket', 'worker',
     ];
 
-    public function serviceName(): string
-    {
-        return 'php';
-    }
-
     protected function configure(): void
     {
+        $this->setServiceName('php');
+
         $this->serviceDefinition = new ServiceDefinition([
             'restart' => 'unless-stopped',
             'working_dir' => '/var/www',
             'build' => [
-                'context' => self::HOST_SERVICES_PATH."/{$this->serviceName()}",
+                'context' => self::HOST_SERVICES_PATH."/$this->name",
                 'target' => 'fpm',
             ],
             'expose' => [9000],
@@ -43,18 +40,19 @@ class Php extends Service
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
         }
 
-
         if(env('REDIS_ENABLED')){
-            $this->dependsOn(app(Redis::class)->serviceName());
+            $this->dependsOn(app(Redis::class)->name());
         }
 
         if(env('DB_ENGINE') === 'mysql'){
-            $this->dependsOn(app(MySql::class)->serviceName());
+            $this->dependsOn(app(MySql::class)->name());
         }
 
-        $this->phpVersion(env('PHP_VERSION', 'latest'));
+        $this->version(env('PHP_VERSION', 'latest'));
 
-        $this->addVolume(self::HOST_SRC_PATH, '/var/www');
+        $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
+
+        $this->addNetwork($this->internalNetworkName());
     }
 
     public function target(string $target): static
@@ -68,9 +66,9 @@ class Php extends Service
         return $this;
     }
 
-    public function phpVersion(string $phpVersion): static
+    public function version(string $version): static
     {
-        $this->phpVersion = $phpVersion;
+        $this->version = $version;
         return $this;
     }
 

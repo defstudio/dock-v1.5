@@ -30,4 +30,9 @@ class ServiceDefinition
 
         $this->set($key, $value);
     }
+
+    public function unset(string $key): void
+    {
+        Arr::forget($this->config, $key);
+    }
 }

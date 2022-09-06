@@ -6,10 +6,14 @@ use Exception;
 
 class DockerServiceException extends Exception
 {
-
-    public static function serviceNotDefined(string $service): self
+    public static function serviceNotConfigured(string $service): self
     {
-        return new self("Service $service must be defined in Service::configure() method");
+        return new self("Service $service must be configured in Service::configure() method");
+    }
+
+    public static function serviceNotFound(string $name): self
+    {
+        return new self("Service [$name] not found");
     }
 
     public static function generic(string $string): self
@@ -25,5 +29,15 @@ class DockerServiceException extends Exception
     public static function unableToDetectCurrentGroupId(): self
     {
         return new self('Unable to detect current Group ID (gid). Please add an USER_ID entry to your .env file with the user ID to use in containers');
+    }
+
+    public static function invalidPath(string $path): self
+    {
+        return new self("Path [$path] not found on host system");
+    }
+
+    public static function missingHost(): self
+    {
+        return new self('Missing HOST variable in .env file');
     }
 }
