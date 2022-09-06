@@ -59,14 +59,14 @@ abstract class Recipe
     }
 
     /**
-     * @template CLASS of App\Docker\Service
+     * @template CLASS
      *
      * @param  class-string<CLASS>  $serviceClass
      * @return CLASS
      */
-    public function addService(string $serviceClass): Service
+    public function addService(string $serviceClass)
     {
-        /** @var Service $service */
+        /** @var CLASS $service */
         $service = app($serviceClass);
 
         $this->services->put($service->name(), $service);

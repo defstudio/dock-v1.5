@@ -15,4 +15,13 @@ class ExampleRecipe extends Recipe
     {
         return [];
     }
+
+    public function commands(): array
+    {
+        return [];
+    }
+
+    protected function buildServices(): void
+    {
+    }
 }

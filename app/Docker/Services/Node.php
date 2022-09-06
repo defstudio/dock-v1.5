@@ -11,6 +11,8 @@ use App\Docker\Services\Commands\Npm;
 
 class Node extends Service
 {
+    protected int|string $version = 'lts';
+
     protected function configure(): void
     {
         $this->setServiceName('node');
@@ -24,7 +26,7 @@ class Node extends Service
 
         $this->version(env('NODE_VERSION', 'lts'));
 
-        if (! $this->isProductionMode()) {
+        if (!$this->isProductionMode()) {
             $this->mapPort(5173); //Vite port
         }
 

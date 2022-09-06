@@ -16,13 +16,13 @@ class RecipeServiceProvider extends ServiceProvider
         $this->app->singleton(RecipeService::class, RecipeService::class);
     }
 
-    public function boot()
+    public function boot(): void
     {
         if (($_SERVER['argv'][1] ?? '') === 'init') {
             return;
         }
 
-        if (! Storage::disk('cwd')->exists('.env')) {
+        if (!Storage::disk('cwd')->exists('.env')) {
             return;
         }
 

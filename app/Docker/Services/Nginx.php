@@ -80,7 +80,7 @@ class Nginx extends Service
             ? File::exists($externalCertificatesFolder)
             : Storage::disk('cwd')->exists($externalCertificatesFolder);
 
-        if (! $exists) {
+        if (!$exists) {
             throw DockerServiceException::invalidPath($externalCertificatesFolder);
         }
 

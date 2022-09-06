@@ -8,23 +8,41 @@ use Illuminate\Support\Arr;
 
 class ServiceDefinition
 {
+    /**
+     * @param  array<string, string|int|array<array-key, mixed>>  $config
+     */
     public function __construct(protected array $config)
     {
     }
 
-    public function set(string $key, mixed $value): void
+    /**
+     * @param  string|int|array<string, mixed>  $value
+     */
+    public function set(string $key, string|int|array $value): void
     {
         Arr::set($this->config, $key, $value);
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    /**
+     * @param  array<string, mixed>|null  $default
+     * @return array<string, mixed>
+     */
+    public function getArray(string $key, array|null $default = null): array
     {
         return Arr::get($this->config, $key, $default);
     }
 
-    public function push(string $key, mixed $value): void
+    public function get(string $key, string|int $default = null): string|int
     {
-        $value = collect($this->get($key, []))
+        return Arr::get($this->config, $key, $default);
+    }
+
+    /**
+     * @param  string|int|array<string, mixed>  $value
+     */
+    public function push(string $key, string|int|array $value): void
+    {
+        $value = collect($this->getArray($key, []))
             ->push($value)
             ->unique()
             ->toArray();

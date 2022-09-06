@@ -347,7 +347,7 @@ it('validate answer', function (ConfigurationOption $option, string|int|bool $va
 
     expect(invade($option)->valid(new Configuration(collect())))->toBe($valid);
 
-    if (! empty($message)) {
+    if (!empty($message)) {
         Terminal::assertSent("Error: $message");
     }
 })->with([

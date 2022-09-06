@@ -83,11 +83,11 @@ class Configuration
             $spacesAfter = (int) ceil($spaces / 2);
 
             $options = $section->options()->map(function (ConfigurationOption $option) {
-                if ($option->value() === '' && ! $option->shouldExportIfEmpty()) {
+                if ($option->value() === '' && !$option->shouldExportIfEmpty()) {
                     return null;
                 }
 
-                if (! $option->shouldShowInEnv()) {
+                if (!$option->shouldShowInEnv()) {
                     return null;
                 }
 

@@ -30,8 +30,8 @@ class RecipeService
 
     public function recipe(): Recipe
     {
-        if (! isset($this->active)) {
-            if (! Storage::disk('cwd')->exists('.env')) {
+        if (!isset($this->active)) {
+            if (!Storage::disk('cwd')->exists('.env')) {
                 throw RecipeException::missingEnvFile();
             }
 
@@ -50,7 +50,7 @@ class RecipeService
      */
     public function availableRecipes(): Collection
     {
-        if (! isset($this->recipes)) {
+        if (!isset($this->recipes)) {
             $this->searchRecipes();
         }
 
@@ -83,7 +83,7 @@ class RecipeService
 
                     return Str::of($file)->remove('.php')->prepend($namespace, '\\')->toString();
                 })
-                ->reject(fn (string $class) => ! class_exists($class))
+                ->reject(fn (string $class) => !class_exists($class))
                 ->first(fn (string $class) => is_subclass_of($class, Recipe::class)))
             ->filter()
             ->mapWithKeys(function (string $recipeClass) {
@@ -102,7 +102,7 @@ class RecipeService
         /** @phpstan-ignore-next-line */
         return collect(scandir($this->path($path)))
             ->reject(fn (string|false $file) => $file === false || $file === '.' || $file === '..')
-            ->filter(fn (string|false $file) => $file !== false && ! is_dir($this->path("$path/$file")));
+            ->filter(fn (string|false $file) => $file !== false && !is_dir($this->path("$path/$file")));
     }
 
     /**

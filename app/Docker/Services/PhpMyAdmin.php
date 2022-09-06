@@ -25,7 +25,7 @@ class PhpMyAdmin extends Service
             'expose' => 80,
         ]);
 
-        if (! empty($port = (int) env('PHPMYADMIN_PORT'))) {
+        if (!empty($port = (int) env('PHPMYADMIN_PORT'))) {
             $this->mapPort($port, 80);
         }
 
@@ -43,7 +43,7 @@ class PhpMyAdmin extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (! empty($subdomain = env('PHPMYADMIN_SUBDOMAIN'))) {
+        if (!empty($subdomain = env('PHPMYADMIN_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

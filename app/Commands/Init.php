@@ -35,17 +35,17 @@ class Init extends Command
 
     private function dotEnvExists(): bool
     {
-        if (! Storage::disk('cwd')->exists('.env')) {
+        if (!Storage::disk('cwd')->exists('.env')) {
             return false;
         }
 
-        if (! $this->option('force')) {
+        if (!$this->option('force')) {
             $this->error('A .env configuration file exist for this project. Run <span class="bg-blue-500 text-black px-1">init --force</span> to overwrite it with a new configuration');
 
             return true;
         }
 
-        if (! $this->components->confirm('This command will overwrite your .env file. Continue?')) {
+        if (!$this->components->confirm('This command will overwrite your .env file. Continue?')) {
             return true;
         }
 

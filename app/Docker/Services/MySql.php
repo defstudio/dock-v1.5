@@ -35,7 +35,7 @@ class MySql extends Service
             $this->disableStrictMode();
         }
 
-        if (! empty($port = (int) env('MYSQL_PORT'))) {
+        if (!empty($port = (int) env('MYSQL_PORT'))) {
             $this->mapPort($port, 3306);
         }
 
@@ -53,7 +53,7 @@ class MySql extends Service
 
     public function getDatabaseName(): string
     {
-        return $this->serviceDefinition->get('environment.MYSQL_DATABASE');
+        return (string) $this->serviceDefinition->get('environment.MYSQL_DATABASE');
     }
 
     public function setDatabaseUser(string $name): static
@@ -65,7 +65,7 @@ class MySql extends Service
 
     public function getDatabaseUser(): string
     {
-        return $this->serviceDefinition->get('environment.MYSQL_USER');
+        return (string) $this->serviceDefinition->get('environment.MYSQL_USER');
     }
 
     public function setDatabasePassword(string $value): static
@@ -77,7 +77,7 @@ class MySql extends Service
 
     public function getDatabasePassword(): string
     {
-        return $this->serviceDefinition->get('environment.MYSQL_PASSWORD');
+        return (string) $this->serviceDefinition->get('environment.MYSQL_PASSWORD');
     }
 
     public function setDatabaseRootPassword(string $value): static
@@ -89,7 +89,7 @@ class MySql extends Service
 
     public function getDatabaseRootPassword(): string
     {
-        return $this->serviceDefinition->get('environment.MYSQL_ROOT_PASSWORD');
+        return (string) $this->serviceDefinition->get('environment.MYSQL_ROOT_PASSWORD');
     }
 
     public function disableStrictMode(): static

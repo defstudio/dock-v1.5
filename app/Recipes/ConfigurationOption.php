@@ -138,16 +138,16 @@ class ConfigurationOption
 
     public function configure(Configuration $configuration): void
     {
-        if (! $this->isActive($configuration)) {
+        if (!$this->isActive($configuration)) {
             return;
         }
 
-        while (! isset($this->value) || ! $this->valid($configuration)) {
+        while (!isset($this->value) || !$this->valid($configuration)) {
             $this->ask($configuration);
             $this->normalizeValue($configuration);
         }
 
-        if ($this->confirm && ! is_bool($this->value)) {
+        if ($this->confirm && !is_bool($this->value)) {
             $this->value = match (Str::of("$this->value")->lower()->toString()) {
                 'yes' => true,
                 'no' => false,
@@ -169,11 +169,11 @@ class ConfigurationOption
     {
         $default = $this->computeDefaultValue($configuration);
 
-        if (! empty($default) && empty($this->value)) {
+        if (!empty($default) && empty($this->value)) {
             $this->value = $default;
         }
 
-        if (! $this->required && ! empty($default) && in_array($this->value, ['x', 'X'])) {
+        if (!$this->required && !empty($default) && in_array($this->value, ['x', 'X'])) {
             $this->value = '';
         }
     }
@@ -214,21 +214,21 @@ class ConfigurationOption
             $this->value = Terminal::ask(
                 $this->question ?? $this->description,
                 $this->computeDefaultValue($configuration),
-                ! $this->required
+                !$this->required
             );
 
             return;
         }
 
-        if (! $this->multiple) {
-            $this->value = Terminal::choose($this->question ?? $this->description, $choices, $this->computeDefaultValue($configuration), ! $this->required) ?? '';
+        if (!$this->multiple) {
+            $this->value = Terminal::choose($this->question ?? $this->description, $choices, $this->computeDefaultValue($configuration), !$this->required) ?? '';
 
             return;
         }
 
         $values = [];
-        while (! empty($choices)) {
-            while (! isset($value) || ! $this->valid($configuration, $value, true)) {
+        while (!empty($choices)) {
+            while (!isset($value) || !$this->valid($configuration, $value, true)) {
                 $value = Terminal::choose($this->question ?? $this->description, $choices, allowEmpty: '') ?? '';
             }
 
@@ -249,7 +249,7 @@ class ConfigurationOption
     protected function valid(Configuration $configuration, string|int|bool $value = null, bool $optional = null): bool
     {
         $value ??= $this->value;
-        $optional ??= ! $this->required;
+        $optional ??= !$this->required;
 
         if (empty($value) && $optional) {
             return true;
@@ -261,7 +261,7 @@ class ConfigurationOption
             return false;
         }
 
-        if (! empty($this->validationClosure)) {
+        if (!empty($this->validationClosure)) {
             /** @var bool|string $validation */
             $validation = call_user_func($this->validationClosure, $value, $configuration);
 
@@ -271,7 +271,7 @@ class ConfigurationOption
                 return false;
             }
 
-            if (! $validation) {
+            if (!$validation) {
                 Terminal::error("[$value] is not a valid value");
 
                 return false;
@@ -280,7 +280,7 @@ class ConfigurationOption
             return true;
         }
 
-        if (! empty($this->choices) && ! $this->multiple && ! in_array($value, $this->computeChoices($configuration))) {
+        if (!empty($this->choices) && !$this->multiple && !in_array($value, $this->computeChoices($configuration))) {
             Terminal::error("[$value] is not a valid value");
 
             return false;
@@ -310,7 +310,7 @@ class ConfigurationOption
 
     public function shouldShowInEnv(): bool
     {
-        return ! $this->hidden;
+        return !$this->hidden;
     }
 
     public function shouldExportIfEmpty(): bool

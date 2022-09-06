@@ -59,7 +59,7 @@ class Php extends Service
 
     public function target(string $target): static
     {
-        if (! in_array($target, $this->allowedTargets)) {
+        if (!in_array($target, $this->allowedTargets)) {
             throw DockerServiceException::generic("Unhallowed PHP target: [$target]");
         }
 

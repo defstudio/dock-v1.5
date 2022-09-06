@@ -37,7 +37,7 @@ abstract class Service
 
         $this->configure();
 
-        if (! isset($this->serviceDefinition)) {
+        if (!isset($this->serviceDefinition)) {
             throw DockerServiceException::serviceNotConfigured($this->name);
         }
     }
@@ -159,12 +159,12 @@ abstract class Service
 
     protected function getWorkingDir(): string
     {
-        return $this->serviceDefinition->get('working_dir');
+        return (string) $this->serviceDefinition->get('working_dir');
     }
 
     protected function isBehindReverseProxy(): bool
     {
-        return ! empty($this->reverseProxyNexwork());
+        return !empty($this->reverseProxyNexwork());
     }
 
     protected function reverseProxyNexwork(): string

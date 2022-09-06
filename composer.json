@@ -57,7 +57,7 @@
         "lint": "pint -v",
         "test:lint": "pint --test -v",
         "test:types": "phpstan analyse --ansi",
-        "test:unit": "@php dock test --env=testing",
+        "test:unit": "@php ./vendor/bin/pest --colors=always",
         "test": [
             "@test:lint",
             "@test:types",
