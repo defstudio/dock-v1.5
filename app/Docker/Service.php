@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnused */
+<?php
+
+/** @noinspection PhpUnused */
 /** @noinspection LaravelFunctionsInspection */
 /** @noinspection PhpUnhandledExceptionInspection */
 
@@ -15,6 +17,7 @@ use Illuminate\Support\Collection;
 abstract class Service
 {
     protected const HOST_SRC_PATH = './src';
+
     protected const HOST_SERVICES_PATH = './services';
 
     protected ServiceDefinition $serviceDefinition;
@@ -49,18 +52,21 @@ abstract class Service
     public function setServiceName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
     protected function recipe(): Recipe
     {
         $cookbook = app(RecipeService::class);
+
         return $cookbook->recipe();
     }
 
     public function addVolume(string $hostPath, string $containerPath = null): static
     {
         $this->volumes->push(app(Volume::class, ['hostPath' => $hostPath, 'containerPath' => $containerPath]));
+
         return $this;
     }
 
@@ -70,24 +76,28 @@ abstract class Service
 
         $this->serviceDefinition->push('ports', "$hostPort:$containerPort");
         $this->exposePort($containerPort);
+
         return $this;
     }
 
     public function exposePort(int $port): static
     {
         $this->serviceDefinition->push('expose', $port);
+
         return $this;
     }
 
     public function dependsOn(string $serviceName): static
     {
         $this->serviceDefinition->push('depends_on', $serviceName);
+
         return $this;
     }
 
     public function addNetwork(string $name): static
     {
         $this->networks = $this->networks->put($name, app(Network::class, ['name' => $name]));
+
         return $this;
     }
 
@@ -106,12 +116,12 @@ abstract class Service
 
     protected function isDockerHostExposed(): bool
     {
-        return ! ! env('EXPOSE_DOCKER_HOST', false);
+        return (bool) env('EXPOSE_DOCKER_HOST', false);
     }
 
     public function internalNetworkName(): string
     {
-        return $this->recipe()->slug()."_internal_network";
+        return $this->recipe()->slug().'_internal_network';
     }
 
     public function getUserId(): int

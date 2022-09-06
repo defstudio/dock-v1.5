@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 declare(strict_types=1);
 
@@ -17,11 +18,11 @@ class RecipeServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        if(($_SERVER['argv'][1] ?? '') === 'init'){
+        if (($_SERVER['argv'][1] ?? '') === 'init') {
             return;
         }
 
-        if(!Storage::disk('cwd')->exists('.env')){
+        if (! Storage::disk('cwd')->exists('.env')) {
             return;
         }
 

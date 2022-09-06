@@ -31,7 +31,7 @@ class RecipeService
     public function recipe(): Recipe
     {
         if (! isset($this->active)) {
-            if(!Storage::disk('cwd')->exists('.env')){
+            if (! Storage::disk('cwd')->exists('.env')) {
                 throw RecipeException::missingEnvFile();
             }
 

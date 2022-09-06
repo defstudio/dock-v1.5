@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection LaravelFunctionsInspection */
 declare(strict_types=1);
 
@@ -23,7 +24,7 @@ class Node extends Service
 
         $this->version(env('NODE_VERSION', 'lts'));
 
-        if (!$this->isProductionMode()) {
+        if (! $this->isProductionMode()) {
             $this->mapPort(5173); //Vite port
         }
 
@@ -35,6 +36,7 @@ class Node extends Service
     public function version(string $version): static
     {
         $this->version = $version;
+
         return $this;
     }
 

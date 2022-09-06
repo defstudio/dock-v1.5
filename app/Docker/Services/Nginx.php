@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
@@ -19,6 +21,7 @@ class Nginx extends Service
     protected const LETSENCRYPT_FOLDER = '/etc/letsencrypt';
 
     protected const CONF_PATH = '/nginx.conf';
+
     protected const SITES_PATH = '/sites-available';
 
     protected string $phpService;
@@ -39,7 +42,6 @@ class Nginx extends Service
                 'context' => self::HOST_SERVICES_PATH."/$this->name",
             ],
         ]);
-
 
         if ($this->isDockerHostExposed()) {
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
@@ -62,6 +64,7 @@ class Nginx extends Service
     {
         $this->phpService = $name;
         $this->serviceDefinition->push('depends_on', $name);
+
         return $this;
     }
 
@@ -77,7 +80,7 @@ class Nginx extends Service
             ? File::exists($externalCertificatesFolder)
             : Storage::disk('cwd')->exists($externalCertificatesFolder);
 
-        if (!$exists) {
+        if (! $exists) {
             throw DockerServiceException::invalidPath($externalCertificatesFolder);
         }
 
@@ -90,12 +93,13 @@ class Nginx extends Service
 
         if ($port === 443) {
             $this->setupSslSite();
+
             return;
         }
 
         $this->addSite($this->host(), $port)
             ->root($this->getWorkingDir())
-            ->proxyWebsocket(!!env('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) env('WEBSOCKET_ENABLED'));
     }
 
     protected function setupSslSite(): void
@@ -114,7 +118,7 @@ class Nginx extends Service
             ->certificatePath($sslCertificate ?? null)
             ->certificateKeyPath($sslCertificateKey ?? null)
             ->protocol('https')
-            ->proxyWebsocket(!!env('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) env('WEBSOCKET_ENABLED'));
     }
 
     public function addSite(string $host, int $port): Site
@@ -134,6 +138,7 @@ class Nginx extends Service
     public function enableBackendNotFoundPage(bool $enable = true): static
     {
         $this->enableBackendNotFoundPage = $enable;
+
         return $this;
     }
 

@@ -1,10 +1,8 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 namespace App\Docker\Services;
-
-use App\Docker\Service;
-use App\Docker\ServiceDefinition;
-use App\Docker\Services\Php;
 
 class Composer extends Php
 {
@@ -25,6 +23,4 @@ class Composer extends Php
             Commands\Composer::class,
         ];
     }
-
-
 }

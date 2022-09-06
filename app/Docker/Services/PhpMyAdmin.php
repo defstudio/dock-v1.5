@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
@@ -23,22 +25,25 @@ class PhpMyAdmin extends Service
             'expose' => 80,
         ]);
 
-        if (!empty($port = (int)env("PHPMYADMIN_PORT"))) {
+        if (! empty($port = (int) env('PHPMYADMIN_PORT'))) {
             $this->mapPort($port, 80);
         }
 
         $this->addNetwork($this->internalNetworkName());
     }
 
-    public function mysqlService(MySql $mysql): static{
+    public function mysqlService(MySql $mysql): static
+    {
         $this->serviceDefinition->set('environment.MYSQL_ROOT_PASSWORD', $mysql->getDatabaseRootPassword());
         $this->serviceDefinition->set('environment.PMA_HOST', $mysql->name());
         $this->dependsOn($mysql->name());
+
         return $this;
     }
 
-    public function nginxService(Nginx $nginx): static{
-        if(!empty($subdomain = env('PHPMYADMIN_SUBDOMAIN'))){
+    public function nginxService(Nginx $nginx): static
+    {
+        if (! empty($subdomain = env('PHPMYADMIN_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

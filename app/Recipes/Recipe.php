@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 declare(strict_types=1);
 
@@ -7,26 +9,19 @@ namespace App\Recipes;
 use App\Docker\Service;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Terminal;
-use App\Recipes\Laravel\Commands\Artisan;
-use App\Recipes\Laravel\Commands\Deploy;
-use App\Recipes\Laravel\Commands\Init;
-use App\Recipes\Laravel\Commands\Install;
-use App\Recipes\Laravel\Commands\Migrate;
-use App\Recipes\Laravel\Commands\RestartQueue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 abstract class Recipe
 {
-    /** @var Collection<string, Service> $services */
+    /** @var Collection<string, Service> */
     public Collection $services;
 
     public function __construct()
     {
         $this->services = Collection::empty();
     }
-
 
     abstract public function name(): string;
 
@@ -66,8 +61,7 @@ abstract class Recipe
     /**
      * @template CLASS of App\Docker\Service
      *
-     * @param class-string<CLASS> $serviceClass
-     *
+     * @param  class-string<CLASS>  $serviceClass
      * @return CLASS
      */
     public function addService(string $serviceClass): Service

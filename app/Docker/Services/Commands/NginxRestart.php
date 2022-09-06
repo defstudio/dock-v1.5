@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class NginxRestart extends Command
 {
     protected $signature = 'nginx:restart';
+
     protected $description = 'Restart Nginx';
 
     public function handle(): int

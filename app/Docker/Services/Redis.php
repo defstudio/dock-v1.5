@@ -1,4 +1,6 @@
-<?php /** @noinspection LaravelFunctionsInspection */
+<?php
+
+/** @noinspection LaravelFunctionsInspection */
 
 namespace App\Docker\Services;
 

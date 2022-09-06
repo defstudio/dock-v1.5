@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
@@ -30,7 +32,6 @@ use App\Recipes\Laravel\Services\Scheduler;
 use App\Recipes\Laravel\Services\Websocket;
 use App\Recipes\Laravel\Services\Worker;
 use App\Recipes\Recipe;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -117,7 +118,7 @@ class Laravel extends Recipe
                     ->description('Redis Version')
                     ->choices(['5', '6', '7'])
                     ->default('7')
-                    ->when(fn (Configuration $configuration) => !!$configuration->get('REDIS_ENABLED')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
             ]),
             ConfigurationSection::make('Network Configuration', [
                 ConfigurationOption::make('NGINX_PORT')
@@ -126,7 +127,7 @@ class Laravel extends Recipe
                     ->validate(function ($value) {
                         return is_numeric($value);
                     })
-                    ->when(fn (Configuration $configuration) => !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => ! $configuration->get('BEHIND_PROXY')),
 
                 ConfigurationOption::make('EXTERNAL_CERTIFICATE')
                     ->question("Do you want to set up a custom ssl certificate?
@@ -138,7 +139,7 @@ class Laravel extends Recipe
                     ->confirm()
                     ->default(false)
                     ->hidden()
-                    ->when(fn (Configuration $configuration) => (!$configuration->get('BEHIND_PROXY') && $configuration->get('NGINX_PORT') === 443) || $configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => (! $configuration->get('BEHIND_PROXY') && $configuration->get('NGINX_PORT') === 443) || $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('NGINX_EXTERNAL_CERTIFICATE_FOLDER')
                     ->question('Enter the path to the ssl certificates folder (absolute or relative to dock folder)')
                     ->validate(function (string|int|bool $path): string|bool {
@@ -148,7 +149,7 @@ class Laravel extends Recipe
                             ? File::exists($path)
                             : Storage::disk('cwd')->exists($path);
 
-                        if (!$exists) {
+                        if (! $exists) {
                             return 'Invalid path';
                         }
 
@@ -159,7 +160,6 @@ class Laravel extends Recipe
                     ->question('Enter the hostname contained in the certificate')
                     ->default(fn (Configuration $configuration) => $configuration->get('HOST'))
                     ->when(fn (Configuration $configuration) => (bool) $configuration->get('EXTERNAL_CERTIFICATE')),
-
 
             ]),
 
@@ -207,7 +207,7 @@ class Laravel extends Recipe
                     ->default(8081)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED') && !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED') && ! $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('PHPMYADMIN_SUBDOMAIN')
                     ->question('Enter PHPMyAdmin exposed subdomain')
                     ->default('db')
@@ -221,7 +221,7 @@ class Laravel extends Recipe
                     ->default(8025)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => $configuration->get('MAILHOG_ENABLED') && !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get('MAILHOG_ENABLED') && ! $configuration->get('BEHIND_PROXY')),
                 ConfigurationOption::make('MAILHOG_SUBDOMAIN')
                     ->question('Enter MailHog exposed subdomain')
                     ->default('mail')
@@ -234,7 +234,7 @@ class Laravel extends Recipe
                     ->question('Enter Websocket server exposed port')
                     ->default(6001)
                     ->validate(fn ($value) => is_numeric($value))
-                    ->when(fn (Configuration $configuration) => $configuration->get('WEBSOCKET_ENABLED') && !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get('WEBSOCKET_ENABLED') && ! $configuration->get('BEHIND_PROXY')),
             ]),
         ];
     }
@@ -251,24 +251,23 @@ class Laravel extends Recipe
         $this->addService(Composer::class);
         $this->addService(Node::class);
 
-        if (!!env('REDIS_ENABLED')) {
+        if ((bool) env('REDIS_ENABLED')) {
             $this->addService(Redis::class);
         }
 
-        if (!!env('MAILHOG_ENABLED')) {
+        if ((bool) env('MAILHOG_ENABLED')) {
             $this->addService(MailHog::class)
                 ->nginxService($nginx);
         }
 
-        if (!!env('WEBSOCKET_ENABLED')) {
+        if ((bool) env('WEBSOCKET_ENABLED')) {
             $this->addService(Websocket::class);
         }
-
 
         if (env('DB_ENGINE') === 'mysql') {
             $mysql = $this->addService(MySql::class);
 
-            if (!!env('PHPMYADMIN_ENABLED')) {
+            if ((bool) env('PHPMYADMIN_ENABLED')) {
                 $this->addService(PhpMyAdmin::class)
                     ->mysqlService($mysql)
                     ->nginxService($nginx);

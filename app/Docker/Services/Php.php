@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnused */
+<?php
+
+/** @noinspection PhpUnused */
 
 /** @noinspection LaravelFunctionsInspection */
 
@@ -40,11 +42,11 @@ class Php extends Service
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
         }
 
-        if(env('REDIS_ENABLED')){
+        if (env('REDIS_ENABLED')) {
             $this->dependsOn(app(Redis::class)->name());
         }
 
-        if(env('DB_ENGINE') === 'mysql'){
+        if (env('DB_ENGINE') === 'mysql') {
             $this->dependsOn(app(MySql::class)->name());
         }
 
@@ -69,6 +71,7 @@ class Php extends Service
     public function version(string $version): static
     {
         $this->version = $version;
+
         return $this;
     }
 

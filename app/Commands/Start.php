@@ -6,9 +6,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Recipes\Recipe;
 use App\Services\RecipeService;
-use Illuminate\Support\Facades\Storage;
 
 class Start extends Command
 {
@@ -20,7 +18,7 @@ class Start extends Command
 
     public function handle(RecipeService $cookbook): int
     {
-        $this->components->task('Generating docker-compose file', function() use ($cookbook) {
+        $this->components->task('Generating docker-compose file', function () use ($cookbook) {
             return $cookbook->recipe()->publishDockerCompose();
         });
 

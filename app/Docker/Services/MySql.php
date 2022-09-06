@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
+<?php
+
+/** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
 /** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
@@ -29,11 +31,11 @@ class MySql extends Service
         $this->setDatabasePassword((string) env('MYSQL_PASSWORD', 'dbpassword'));
         $this->setDatabaseRootPassword((string) env('MYSQL_ROOT_PASSWORD', 'root'));
 
-        if (! ! env('MYSQL_DISABLE_STRICT_MODE')) {
+        if ((bool) env('MYSQL_DISABLE_STRICT_MODE')) {
             $this->disableStrictMode();
         }
 
-        if(!empty($port = (int)env('MYSQL_PORT'))){
+        if (! empty($port = (int) env('MYSQL_PORT'))) {
             $this->mapPort($port, 3306);
         }
 
@@ -45,6 +47,7 @@ class MySql extends Service
     public function setDatabaseName(string $name): static
     {
         $this->serviceDefinition->set('environment.MYSQL_DATABASE', $name);
+
         return $this;
     }
 
@@ -56,6 +59,7 @@ class MySql extends Service
     public function setDatabaseUser(string $name): static
     {
         $this->serviceDefinition->set('environment.MYSQL_USER', $name);
+
         return $this;
     }
 
@@ -67,6 +71,7 @@ class MySql extends Service
     public function setDatabasePassword(string $value): static
     {
         $this->serviceDefinition->set('environment.MYSQL_PASSWORD', $value);
+
         return $this;
     }
 
@@ -78,6 +83,7 @@ class MySql extends Service
     public function setDatabaseRootPassword(string $value): static
     {
         $this->serviceDefinition->set('environment.MYSQL_ROOT_PASSWORD', $value);
+
         return $this;
     }
 

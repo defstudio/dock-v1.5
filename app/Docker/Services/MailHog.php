@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection LaravelFunctionsInspection */
 declare(strict_types=1);
 
@@ -14,20 +16,21 @@ class MailHog extends Service
         $this->setServiceName('mailhog');
 
         $this->serviceDefinition = new ServiceDefinition([
-            'restart'     => 'unless-stopped',
-            'expose'      => [8025, 1025],
-            'image'       => 'mailhog/mailhog:latest',
+            'restart' => 'unless-stopped',
+            'expose' => [8025, 1025],
+            'image' => 'mailhog/mailhog:latest',
         ]);
 
-        if (!empty($port = (int)env("MAILHOG_PORT"))) {
+        if (! empty($port = (int) env('MAILHOG_PORT'))) {
             $this->mapPort($port, 8025);
         }
 
         $this->addNetwork($this->internalNetworkName());
     }
 
-    public function nginxService(Nginx $nginx): static{
-        if(!empty($subdomain = env('MAILHOG_SUBDOMAIN'))){
+    public function nginxService(Nginx $nginx): static
+    {
+        if (! empty($subdomain = env('MAILHOG_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

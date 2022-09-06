@@ -1,9 +1,9 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 namespace App\Recipes\Laravel\Services;
 
-use App\Docker\Service;
-use App\Docker\ServiceDefinition;
 use App\Docker\Services\Php;
 
 class Worker extends Php

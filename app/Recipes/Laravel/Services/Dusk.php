@@ -1,10 +1,10 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 
 declare(strict_types=1);
 
 namespace App\Recipes\Laravel\Services;
-
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
@@ -33,6 +33,7 @@ class Dusk extends Service
     public function nginxService(Nginx $nginx): static
     {
         $this->serviceDefinition->push('links', "$nginx->name:{$this->host()}");
+
         return $this;
     }
 }
