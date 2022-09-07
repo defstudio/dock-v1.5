@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Services\Nginx;
 use App\Docker\Services\Php;
 use App\Docker\Site;
-use App\Docker\Volume;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 
@@ -57,7 +57,6 @@ it('can set php service dependency', function () {
 
 it('sets up the site from env', function (array $env) {
     collect($env)->each(fn ($value, $key) => Env::put($key, $value));
-
 
     $nginx = new Nginx();
 

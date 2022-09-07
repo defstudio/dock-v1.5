@@ -1,8 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Docker\Services\Redis;
-use App\Docker\Volume;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -17,10 +17,9 @@ it('sets its yml', function () {
     expect(new Redis())->yml()->toMatchSnapshot();
 });
 
-
 it('can set redis version from env', function () {
     Env::put('REDIS_VERSION', '5.4');
-    expect(new Redis())->yml("image")->toBe('redis:5.4-alpine');
+    expect(new Redis())->yml('image')->toBe('redis:5.4-alpine');
 });
 
 it('adds internal network', function () {

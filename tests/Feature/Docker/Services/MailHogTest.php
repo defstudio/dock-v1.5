@@ -1,10 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
-use App\Docker\Services\Composer;
 use App\Docker\Services\MailHog;
 use App\Docker\Services\Nginx;
-use App\Docker\Site;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -22,7 +21,7 @@ it('sets its yml', function () {
 it('can set its port', function () {
     Env::put('MAILHOG_PORT', 99);
     expect(new MailHog())
-        ->yml('ports')->toBe(["99:8025"])
+        ->yml('ports')->toBe(['99:8025'])
         ->yml('expose')->toBe([8025, 1025]);
 });
 

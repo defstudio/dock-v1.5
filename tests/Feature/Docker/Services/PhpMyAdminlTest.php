@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Docker\Services\MySql;
@@ -18,10 +19,10 @@ it('sets its yml', function () {
     expect(new PhpMyAdmin())->yml()->toMatchSnapshot();
 });
 
-it ('can set a custom port', function () {
+it('can set a custom port', function () {
     Env::put('PHPMYADMIN_PORT', 44);
 
-    expect(new PhpMyAdmin())->yml('ports')->toBe(["44:80"]);
+    expect(new PhpMyAdmin())->yml('ports')->toBe(['44:80']);
 });
 
 it('adds internal network', function () {

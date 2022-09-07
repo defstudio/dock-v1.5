@@ -1,10 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Docker\Services\Commands\Npm;
-use App\Docker\Services\MySql;
 use App\Docker\Services\Node;
-use App\Docker\Volume;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -19,11 +18,11 @@ it('sets its yml', function () {
     expect(new Node())->yml()->toMatchSnapshot();
 });
 
-test('default node version', function (){
-   expect(new Node())->getNodeVersion()->toBe('lts');
+test('default node version', function () {
+    expect(new Node())->getNodeVersion()->toBe('lts');
 });
 
-it('sets its node version from env', function(){
+it('sets its node version from env', function () {
     Env::put('NODE_VERSION', 8);
 
     expect(new Node())->getNodeVersion()->toBe(8);
@@ -33,7 +32,7 @@ it('adds internal network', function () {
     expect(new Node())->toHaveNetwork('test-recipe_internal_network');
 });
 
-it("doesn't map vite port if in production mode", function(){
+it("doesn't map vite port if in production mode", function () {
     Env::put('ENV', 'production');
 
     expect(new Node())->yml('ports')->toBeEmpty();

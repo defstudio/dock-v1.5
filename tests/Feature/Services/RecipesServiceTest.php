@@ -5,7 +5,6 @@
 use App\Exceptions\RecipeException;
 use App\Facades\Env;
 use App\Services\RecipeService;
-use Illuminate\Support\Facades\Storage;
 use Tests\Fixtures\Recipes\TestRecipe\TestRecipe;
 
 beforeEach(fn () => $this->service = new RecipeService(__DIR__.'/../../Fixtures/Recipes'));

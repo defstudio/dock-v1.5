@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection LaravelFunctionsInspection */
 
 namespace App\Repositories;

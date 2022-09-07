@@ -13,25 +13,21 @@
 
 use App\Docker\Volume;
 use App\Services\RecipeService;
-use Dotenv\Dotenv;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Env;
 
 uses(Tests\TestCase::class)
     ->beforeEach(function () {
-        app()->bind(RecipeService::class, fn() => new RecipeService(__DIR__."/Fixtures/Recipes"));
+        app()->bind(RecipeService::class, fn () => new RecipeService(__DIR__.'/Fixtures/Recipes'));
         Storage::fake('cwd');
     })
     ->in('Feature');
 
-
-expect()->extend('toHaveVolume', function(string $hostPath, string $containerPath){
+expect()->extend('toHaveVolume', function (string $hostPath, string $containerPath) {
     expect($this->value->volumes()->filter(fn (Volume $volume) => $volume->hostPath() === $hostPath && $volume->containerPath() === $containerPath))
         ->count()->toBe(1);
 
     return $this;
 });
 
-expect()->extend('toHaveNetwork', function(string $network){
+expect()->extend('toHaveNetwork', function (string $network) {
     expect($this->value)->getNetworks()->toHaveKey($network);
 });

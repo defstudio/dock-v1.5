@@ -33,8 +33,6 @@ class ServiceDefinition implements Arrayable
         return Arr::get($this->config, $key, $default);
     }
 
-
-
     /**
      * @param  string|int|array<string, mixed>  $value
      */

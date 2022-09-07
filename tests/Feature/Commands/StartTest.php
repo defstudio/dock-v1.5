@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Facades\Env;
 use App\Services\RecipeService;
@@ -21,7 +23,7 @@ it('follows the right steps', function () {
         }
     };
 
-    app()->bind(RecipeService::class, fn() => $cookbook);
+    app()->bind(RecipeService::class, fn () => $cookbook);
 
     $this->artisan('start')->assertSuccessful();
 

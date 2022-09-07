@@ -11,7 +11,6 @@ use App\Exceptions\RecipeException;
 use App\Facades\Env;
 use App\Recipes\Recipe;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RecipeService

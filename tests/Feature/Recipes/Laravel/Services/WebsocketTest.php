@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Facades\Env;
@@ -21,7 +22,7 @@ it('sets its target', function () {
 });
 
 it('can add php service dependency', function () {
-       expect(new Websocket())->yml('depends_on')->toBe(['php']);
+    expect(new Websocket())->yml('depends_on')->toBe(['php']);
 });
 
 it('can add reverse proxy network', function () {

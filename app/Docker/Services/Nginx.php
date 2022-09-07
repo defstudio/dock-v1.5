@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnused */
+<?php
+
+/** @noinspection PhpUnused */
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
@@ -37,7 +39,6 @@ class Nginx extends Service
         $this->sites = Collection::make();
         parent::__construct();
     }
-
 
     protected function configure(): void
     {

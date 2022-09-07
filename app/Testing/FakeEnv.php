@@ -7,7 +7,7 @@ use App\Repositories\Env;
 class FakeEnv extends Env
 {
     /**
-     * @param array<string, mixed> $values
+     * @param  array<string, mixed>  $values
      */
     public function __construct(private array $values = [])
     {
@@ -26,7 +26,7 @@ class FakeEnv extends Env
     public function put(string $key, mixed $value): static
     {
         $this->values[$key] = $value;
+
         return $this;
     }
-
 }

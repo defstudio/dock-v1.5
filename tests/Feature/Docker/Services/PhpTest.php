@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 declare(strict_types=1);
 
@@ -37,7 +38,6 @@ it('can set its dependency from mysql', function () {
 
     expect(new Php())->yml('depends_on')->toContain('mysql');
 });
-
 
 it('sets its volumes', function () {
     expect(new Php())->toHaveVolume('./src', '/var/www');

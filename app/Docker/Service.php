@@ -192,7 +192,7 @@ abstract class Service
         if ($key === null) {
             return $this->serviceDefinition->toArray();
         }
+
         return $this->serviceDefinition->get($key, $default);
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Docker\Services\Nginx;
@@ -22,16 +23,15 @@ it('sets its volumes', function () {
         ->toHaveVolume('./src', '/var/www');
 });
 
-
 it('adds internal network', function () {
     expect(new Dusk())->toHaveNetwork('test-recipe_internal_network');
 });
 
-it('add a link to nginx service', function(){
-   $dusk = new Dusk();
-   $dusk->nginxService(new Nginx());
+it('add a link to nginx service', function () {
+    $dusk = new Dusk();
+    $dusk->nginxService(new Nginx());
 
-   expect($dusk)->yml('links')->toContain("nginx:test.ktm");
+    expect($dusk)->yml('links')->toContain('nginx:test.ktm');
 });
 
 test('commands', function () {
