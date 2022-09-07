@@ -11,23 +11,27 @@
 |
 */
 
+use App\Docker\Volume;
+use App\Services\RecipeService;
+use Dotenv\Dotenv;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Env;
 
-uses(Tests\TestCase::class)->in('Feature');
+uses(Tests\TestCase::class)
+    ->beforeEach(function () {
+        app()->bind(RecipeService::class, fn() => new RecipeService(__DIR__."/Fixtures/Recipes"));
+        Storage::fake('cwd');
+    })
+    ->in('Feature');
 
-function withEnv(array $values, bool $overwriteAll = true): void
-{
-    if ($overwriteAll) {
-        foreach (array_keys($_ENV) as $key) {
-            if ($key === 'SHELL_VERBOSITY') {
-                continue;
-            }
 
-            Env::getRepository()->set($key, '');
-        }
-    }
+expect()->extend('toHaveVolume', function(string $hostPath, string $containerPath){
+    expect($this->value->volumes()->filter(fn (Volume $volume) => $volume->hostPath() === $hostPath && $volume->containerPath() === $containerPath))
+        ->count()->toBe(1);
 
-    foreach ($values as $key => $value) {
-        Env::getRepository()->set($key, $value);
-    }
-}
+    return $this;
+});
+
+expect()->extend('toHaveNetwork', function(string $network){
+    expect($this->value)->getNetworks()->toHaveKey($network);
+});

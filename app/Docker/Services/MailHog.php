@@ -1,13 +1,13 @@
 <?php
 
 /** @noinspection PhpUnhandledExceptionInspection */
-/** @noinspection LaravelFunctionsInspection */
 declare(strict_types=1);
 
 namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Facades\Env;
 
 class MailHog extends Service
 {
@@ -21,7 +21,7 @@ class MailHog extends Service
             'image' => 'mailhog/mailhog:latest',
         ]);
 
-        if (!empty($port = (int) env('MAILHOG_PORT'))) {
+        if (!empty($port = (int) Env::get('MAILHOG_PORT'))) {
             $this->mapPort($port, 8025);
         }
 
@@ -30,7 +30,7 @@ class MailHog extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (!empty($subdomain = env('MAILHOG_SUBDOMAIN'))) {
+        if (!empty($subdomain = Env::get('MAILHOG_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

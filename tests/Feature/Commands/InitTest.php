@@ -1,10 +1,11 @@
 <?php
 
+use App\Facades\Env;
 use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
 
 it('prevents running if .env file exists', function () {
-    Storage::fake('cwd')->put('.env', '');
+    Env::fake(['recipe' => 'test-recipe']);
 
     $this->artisan('init')
         ->expectsOutputToContain('A .env configuration file exist for this project. Run  init --force  to overwrite it with a new configuration')

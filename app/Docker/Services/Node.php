@@ -1,6 +1,4 @@
 <?php
-
-/** @noinspection LaravelFunctionsInspection */
 declare(strict_types=1);
 
 namespace App\Docker\Services;
@@ -8,6 +6,7 @@ namespace App\Docker\Services;
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\Npm;
+use App\Facades\Env;
 
 class Node extends Service
 {
@@ -24,7 +23,7 @@ class Node extends Service
             ],
         ]);
 
-        $this->version(env('NODE_VERSION', 'lts'));
+        $this->version(Env::get('NODE_VERSION', 'lts'));
 
         if (!$this->isProductionMode()) {
             $this->mapPort(5173); //Vite port
@@ -35,11 +34,16 @@ class Node extends Service
         $this->addNetwork($this->internalNetworkName());
     }
 
-    public function version(string $version): static
+    public function version(string|int $version): static
     {
         $this->version = $version;
 
         return $this;
+    }
+
+    public function getNodeVersion(): string|int
+    {
+        return $this->version;
     }
 
     public function commands(): array

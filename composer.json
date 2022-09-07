@@ -63,6 +63,7 @@
             "@test:lint",
             "@test:types",
             "@test:unit"
-        ]
+        ],
+        "update:snapshots": "vendor/bin/pest --colors=always -d --update-snapshots"
     }
 }

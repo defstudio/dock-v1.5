@@ -1,9 +1,12 @@
 <?php /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Facades\Env;
 use App\Services\RecipeService;
 use Tests\Fixtures\Recipes\TestRecipe\TestRecipe;
 
 it('follows the right steps', function () {
+    Env::fake(['RECIPE' => 'test-recipe']);
+
     $cookbook = app(RecipeService::class);
 
     invade($cookbook)->active = new class extends TestRecipe
@@ -17,6 +20,8 @@ it('follows the right steps', function () {
             return true;
         }
     };
+
+    app()->bind(RecipeService::class, fn() => $cookbook);
 
     $this->artisan('start')->assertSuccessful();
 

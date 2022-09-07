@@ -2,13 +2,13 @@
 
 /** @noinspection PhpSameParameterValueInspection */
 /** @noinspection PhpUnhandledExceptionInspection */
-/** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Exceptions\RecipeException;
+use App\Facades\Env;
 use App\Recipes\Recipe;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -31,11 +31,11 @@ class RecipeService
     public function recipe(): Recipe
     {
         if (!isset($this->active)) {
-            if (!Storage::disk('cwd')->exists('.env')) {
+            if (!Env::exists()) {
                 throw RecipeException::missingEnvFile();
             }
 
-            if (empty($recipe = env('RECIPE'))) {
+            if (empty($recipe = Env::get('RECIPE'))) {
                 throw RecipeException::noActiveRecipe();
             }
 

@@ -1,0 +1,13 @@
+restart: unless-stopped
+working_dir: /var/www
+build:
+    context: ./services/php
+    target: websocket
+expose:
+    - 9000
+    - 6001
+environment: Dock
+depends_on:
+    - php
+ports:
+    - '6001:6001'

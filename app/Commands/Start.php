@@ -18,6 +18,7 @@ class Start extends Command
 
     public function handle(RecipeService $cookbook): int
     {
+
         $this->components->task('Generating docker-compose file', function () use ($cookbook) {
             return $cookbook->recipe()->publishDockerCompose();
         });

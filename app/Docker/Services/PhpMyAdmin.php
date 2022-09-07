@@ -1,7 +1,6 @@
 <?php
 
 /** @noinspection PhpUnhandledExceptionInspection */
-/** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
 
@@ -9,6 +8,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Facades\Env;
 
 class PhpMyAdmin extends Service
 {
@@ -25,7 +25,7 @@ class PhpMyAdmin extends Service
             'expose' => 80,
         ]);
 
-        if (!empty($port = (int) env('PHPMYADMIN_PORT'))) {
+        if (!empty($port = (int) Env::get('PHPMYADMIN_PORT'))) {
             $this->mapPort($port, 80);
         }
 
@@ -43,7 +43,7 @@ class PhpMyAdmin extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (!empty($subdomain = env('PHPMYADMIN_SUBDOMAIN'))) {
+        if (!empty($subdomain = Env::get('PHPMYADMIN_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

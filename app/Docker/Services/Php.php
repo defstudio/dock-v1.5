@@ -1,9 +1,6 @@
 <?php
 
 /** @noinspection PhpUnused */
-
-/** @noinspection LaravelFunctionsInspection */
-
 /** @noinspection PhpUnhandledExceptionInspection */
 
 declare(strict_types=1);
@@ -13,6 +10,7 @@ namespace App\Docker\Services;
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Exceptions\DockerServiceException;
+use App\Facades\Env;
 use Illuminate\Support\Str;
 
 class Php extends Service
@@ -42,15 +40,15 @@ class Php extends Service
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
         }
 
-        if (env('REDIS_ENABLED')) {
+        if (Env::get('REDIS_ENABLED')) {
             $this->dependsOn(app(Redis::class)->name());
         }
 
-        if (env('DB_ENGINE') === 'mysql') {
+        if (Env::get('DB_ENGINE') === 'mysql') {
             $this->dependsOn(app(MySql::class)->name());
         }
 
-        $this->version(env('PHP_VERSION', 'latest'));
+        $this->version(Env::get('PHP_VERSION', 'latest'));
 
         $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
 
@@ -60,7 +58,7 @@ class Php extends Service
     public function target(string $target): static
     {
         if (!in_array($target, $this->allowedTargets)) {
-            throw DockerServiceException::generic("Unhallowed PHP target: [$target]");
+            throw DockerServiceException::generic("Invalid PHP target: [$target]");
         }
 
         $this->serviceDefinition->set('build.target', $target);
@@ -75,29 +73,34 @@ class Php extends Service
         return $this;
     }
 
-    protected function isXdebugEnabled(): bool
+    public function getPhpVersion(): string
+    {
+        return $this->version;
+    }
+
+    public function isXdebugEnabled(): bool
     {
         if ($this->isProductionMode()) {
             return false;
         }
 
-        return Str::of(env('EXTRA_TOOLS'))
+        return Str::of(Env::get('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('xdebug');
     }
 
-    protected function isLibreOfficeWriterEnabled(): bool
+    public function isLibreOfficeWriterEnabled(): bool
     {
-        return Str::of(env('EXTRA_TOOLS'))
+        return Str::of(Env::get('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('libreoffice_writer');
     }
 
-    protected function isMySqlClientEnabled(): bool
+    public function isMySqlClientEnabled(): bool
     {
-        return Str::of(env('EXTRA_TOOLS'))
+        return Str::of(Env::get('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('mysql_client');

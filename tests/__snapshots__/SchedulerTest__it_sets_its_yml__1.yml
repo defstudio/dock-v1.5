@@ -1,0 +1,8 @@
+restart: unless-stopped
+working_dir: /var/www
+build:
+    context: ./services/php
+    target: scheduler
+expose:
+    - 9000
+environment: Dock

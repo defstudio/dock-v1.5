@@ -1,0 +1,5 @@
+restart: unless-stopped
+expose:
+    - 8025
+    - 1025
+image: 'mailhog/mailhog:latest'

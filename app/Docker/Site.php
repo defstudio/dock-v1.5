@@ -1,11 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 namespace App\Docker;
 
 class Site
 {
-    protected string $protocol = 'http';
-
     protected string $root = '/var/www';
 
     protected string|null $certificatePath = null;
@@ -52,18 +50,61 @@ class Site
         return $this;
     }
 
-    public function protocol(string $protocol): static
-    {
-        $this->protocol = $protocol;
-
-        return $this;
-    }
-
     public function proxy(string $target, int $port): static
     {
         $this->proxyTarget = $target;
         $this->proxyPort = $port;
 
         return $this;
+    }
+
+    public function configuration(): string
+    {
+        return view('services.nginx.site')->with('site', $this)->render();
+    }
+
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    public function getRoot(): string
+    {
+        return $this->root;
+    }
+
+    public function shouldProxyWebsocket(): bool
+    {
+        return $this->proxyWebsocket;
+    }
+
+    public function getCertificatePath(): string
+    {
+        return $this->certificatePath;
+    }
+
+    public function getCertificateKeyPath(): string
+    {
+        return $this->certificateKeyPath;
+    }
+
+    public function isProxy(): bool
+    {
+        return isset($this->proxyTarget);
+    }
+
+    public function getProxyTarget(): string
+    {
+        return $this->proxyTarget;
+    }
+
+    public function getProxyPort(): int
+    {
+        return $this->proxyPort;
     }
 }

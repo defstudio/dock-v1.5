@@ -1,7 +1,6 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
-/** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
 
@@ -9,6 +8,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Facades\Env;
 
 class MySql extends Service
 {
@@ -26,16 +26,16 @@ class MySql extends Service
             'expose' => [3306],
         ]);
 
-        $this->setDatabaseName((string) env('MYSQL_DATABASE', 'database'));
-        $this->setDatabaseUser((string) env('MYSQL_USER', 'dbuser'));
-        $this->setDatabasePassword((string) env('MYSQL_PASSWORD', 'dbpassword'));
-        $this->setDatabaseRootPassword((string) env('MYSQL_ROOT_PASSWORD', 'root'));
+        $this->setDatabaseName((string) Env::get('MYSQL_DATABASE', 'database'));
+        $this->setDatabaseUser((string) Env::get('MYSQL_USER', 'dbuser'));
+        $this->setDatabasePassword((string) Env::get('MYSQL_PASSWORD', 'dbpassword'));
+        $this->setDatabaseRootPassword((string) Env::get('MYSQL_ROOT_PASSWORD', 'root'));
 
-        if ((bool) env('MYSQL_DISABLE_STRICT_MODE')) {
+        if (Env::get('MYSQL_DISABLE_STRICT_MODE')) {
             $this->disableStrictMode();
         }
 
-        if (!empty($port = (int) env('MYSQL_PORT'))) {
+        if (!empty($port = (int) Env::get('MYSQL_PORT'))) {
             $this->mapPort($port, 3306);
         }
 

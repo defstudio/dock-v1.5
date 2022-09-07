@@ -1,7 +1,5 @@
 <?php
-
 /** @noinspection PhpUnhandledExceptionInspection */
-/** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
 
@@ -16,6 +14,7 @@ use App\Docker\Services\Node;
 use App\Docker\Services\Php;
 use App\Docker\Services\PhpMyAdmin;
 use App\Docker\Services\Redis;
+use App\Facades\Env;
 use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
@@ -243,40 +242,40 @@ class Laravel extends Recipe
 
     protected function buildServices(): void
     {
-        $this->addService(Php::class);
+        $php = $this->addService(Php::class);
 
         $nginx = $this->addService(Nginx::class)
-            ->phpService('php');
+            ->phpService($php);
 
         $this->addService(Scheduler::class);
         $this->addService(Worker::class);
         $this->addService(Composer::class);
         $this->addService(Node::class);
 
-        if ((bool) env('REDIS_ENABLED')) {
+        if (Env::get('REDIS_ENABLED')) {
             $this->addService(Redis::class);
         }
 
-        if ((bool) env('MAILHOG_ENABLED')) {
+        if (Env::get('MAILHOG_ENABLED')) {
             $this->addService(MailHog::class)
                 ->nginxService($nginx);
         }
 
-        if ((bool) env('WEBSOCKET_ENABLED')) {
+        if (Env::get('WEBSOCKET_ENABLED')) {
             $this->addService(Websocket::class);
         }
 
-        if (env('DB_ENGINE') === 'mysql') {
+        if (Env::get('DB_ENGINE') === 'mysql') {
             $mysql = $this->addService(MySql::class);
 
-            if ((bool) env('PHPMYADMIN_ENABLED')) {
+            if (Env::get('PHPMYADMIN_ENABLED')) {
                 $this->addService(PhpMyAdmin::class)
                     ->mysqlService($mysql)
                     ->nginxService($nginx);
             }
         }
 
-        $browserTests = Str::of(env('EXTRA_TOOLS'))
+        $browserTests = Str::of(Env::get('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('browser_tests');
@@ -298,7 +297,7 @@ class Laravel extends Recipe
             RestartQueue::class,
             Tinker::class,
             Vite::class,
-        ])->when(env('ENV') !== 'production', fn (Collection $c) => $c->push(Vite::class))
+        ])->when(Env::get('ENV') !== 'production', fn (Collection $c) => $c->push(Vite::class))
             ->push(...$this->services->flatMap(fn (Service $service) => $service->commands()))
             ->toArray();
     }

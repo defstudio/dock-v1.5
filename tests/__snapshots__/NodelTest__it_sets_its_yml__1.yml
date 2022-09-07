@@ -1,0 +1,7 @@
+working_dir: /var/www
+build:
+    context: ./services/node
+ports:
+    - '5173:5173'
+expose:
+    - 5173

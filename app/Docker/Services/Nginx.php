@@ -1,7 +1,6 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 /** @noinspection PhpUnhandledExceptionInspection */
-/** @noinspection LaravelFunctionsInspection */
 
 declare(strict_types=1);
 
@@ -12,6 +11,8 @@ use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Site;
 use App\Exceptions\DockerServiceException;
+use App\Facades\Env;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -26,10 +27,17 @@ class Nginx extends Service
 
     protected string $phpService;
 
-    /** @var Site[] */
-    protected array $sites;
+    /** @var Collection<string, Site> */
+    protected Collection $sites;
 
-    protected bool $enableBackendNotFoundPage = false;
+    protected bool $enableProxyTargetNotFoundPage = false;
+
+    public function __construct()
+    {
+        $this->sites = Collection::make();
+        parent::__construct();
+    }
+
 
     protected function configure(): void
     {
@@ -60,17 +68,17 @@ class Nginx extends Service
         }
     }
 
-    public function phpService(string $name): static
+    public function phpService(Php $php): static
     {
-        $this->phpService = $name;
-        $this->serviceDefinition->push('depends_on', $name);
+        $this->phpService = $php->name();
+        $this->serviceDefinition->push('depends_on', $php->name());
 
         return $this;
     }
 
     protected function setExternalCertificate(): void
     {
-        $externalCertificatesFolder = env('NGINX_EXTERNAL_CERTIFICATE_FOLDER');
+        $externalCertificatesFolder = Env::get('NGINX_EXTERNAL_CERTIFICATE_FOLDER');
 
         if (empty($externalCertificatesFolder)) {
             return;
@@ -89,7 +97,7 @@ class Nginx extends Service
 
     protected function setupSite(): void
     {
-        $port = (int) env('NGINX_PORT', 80);
+        $port = (int) Env::get('NGINX_PORT', 80);
 
         if ($port === 443) {
             $this->setupSslSite();
@@ -99,15 +107,15 @@ class Nginx extends Service
 
         $this->addSite($this->host(), $port)
             ->root($this->getWorkingDir())
-            ->proxyWebsocket((bool) env('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) Env::get('WEBSOCKET_ENABLED'));
     }
 
     protected function setupSslSite(): void
     {
         $this->setExternalCertificate();
 
-        if (env('NGINX_EXTERNAL_CERTIFICATE_FOLDER')) {
-            $certificateHostname = (string) env('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME', $this->host());
+        if (Env::get('NGINX_EXTERNAL_CERTIFICATE_FOLDER')) {
+            $certificateHostname = (string) Env::get('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME', $this->host());
 
             $sslCertificate = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/fullchain.pem";
             $sslCertificateKey = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/privkey.pem";
@@ -115,16 +123,15 @@ class Nginx extends Service
 
         $this->addSite($this->host(), 443)
             ->root($this->getWorkingDir())
-            ->certificatePath($sslCertificate ?? null)
-            ->certificateKeyPath($sslCertificateKey ?? null)
-            ->protocol('https')
-            ->proxyWebsocket((bool) env('WEBSOCKET_ENABLED'));
+            ->certificatePath($sslCertificate ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/fullchain.pem")
+            ->certificateKeyPath($sslCertificateKey ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/privkey.pem")
+            ->proxyWebsocket((bool) Env::get('WEBSOCKET_ENABLED'));
     }
 
     public function addSite(string $host, int $port): Site
     {
         $site = new Site($host, $port);
-        $this->sites[] = $site;
+        $this->sites->put($site->getHost(), $site);
 
         if ($this->isBehindReverseProxy()) {
             $this->exposePort($port);
@@ -135,9 +142,9 @@ class Nginx extends Service
         return $site;
     }
 
-    public function enableBackendNotFoundPage(bool $enable = true): static
+    public function enableProxyTargetNotFoundPage(bool $enable = true): static
     {
-        $this->enableBackendNotFoundPage = $enable;
+        $this->enableProxyTargetNotFoundPage = $enable;
 
         return $this;
     }
@@ -147,5 +154,23 @@ class Nginx extends Service
         return [
             NginxRestart::class,
         ];
+    }
+
+    /**
+     * @return Collection<string, Site>
+     */
+    public function sites(): Collection
+    {
+        return $this->sites;
+    }
+
+    public function getSite(string $host): Site|null
+    {
+        return $this->sites->get($host);
+    }
+
+    public function isProxyTargetNotFoundPageEnabled(): bool
+    {
+        return $this->enableProxyTargetNotFoundPage;
     }
 }

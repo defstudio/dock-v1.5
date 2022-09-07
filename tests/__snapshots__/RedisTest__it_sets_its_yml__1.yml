@@ -1,0 +1,4 @@
+restart: unless-stopped
+image: 'redis:7-alpine'
+expose:
+    - 6379

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Docker;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 
-class ServiceDefinition
+class ServiceDefinition implements Arrayable
 {
     /**
      * @param  array<string, string|int|array<array-key, mixed>>  $config
@@ -24,25 +25,22 @@ class ServiceDefinition
     }
 
     /**
-     * @param  array<string, mixed>|null  $default
-     * @return array<string, mixed>
+     * @param  array<string, mixed>|string|int|null  $default
+     * @return array<string, mixed>|string|int|null
      */
-    public function getArray(string $key, array|null $default = null): array
+    public function get(string $key, array|string|int $default = null): array|string|int|null
     {
         return Arr::get($this->config, $key, $default);
     }
 
-    public function get(string $key, string|int $default = null): string|int
-    {
-        return Arr::get($this->config, $key, $default);
-    }
+
 
     /**
      * @param  string|int|array<string, mixed>  $value
      */
     public function push(string $key, string|int|array $value): void
     {
-        $value = collect($this->getArray($key, []))
+        $value = collect($this->get($key, []))
             ->push($value)
             ->unique()
             ->toArray();
@@ -53,5 +51,13 @@ class ServiceDefinition
     public function unset(string $key): void
     {
         Arr::forget($this->config, $key);
+    }
+
+    /**
+     * @return array<string, string|int|array<array-key, mixed>>
+     */
+    public function toArray(): array
+    {
+        return $this->config;
     }
 }

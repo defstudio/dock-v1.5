@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
+use App\Facades\Env;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +36,7 @@ class Init extends Command
 
     private function dotEnvExists(): bool
     {
-        if (!Storage::disk('cwd')->exists('.env')) {
+        if (!Env::exists()) {
             return false;
         }
 

@@ -1,6 +1,4 @@
 <?php
-
-/** @noinspection LaravelFunctionsInspection */
 /** @noinspection PhpUnhandledExceptionInspection */
 
 declare(strict_types=1);
@@ -8,6 +6,7 @@ declare(strict_types=1);
 namespace App\Recipes\Laravel\Services;
 
 use App\Docker\Services\Php;
+use App\Facades\Env;
 
 class Websocket extends Php
 {
@@ -24,7 +23,7 @@ class Websocket extends Php
         if ($this->isBehindReverseProxy()) {
             $this->addNetwork($this->reverseProxyNexwork());
         } else {
-            $port = (int) env('WEBSOCKET_PORT');
+            $port = (int) Env::get('WEBSOCKET_PORT', 6001);
             $this->mapPort($port, 6001);
         }
     }

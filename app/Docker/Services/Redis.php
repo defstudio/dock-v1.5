@@ -1,18 +1,19 @@
 <?php
-
-/** @noinspection LaravelFunctionsInspection */
+declare(strict_types=1);
 
 namespace App\Docker\Services;
 
+use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Facades\Env;
 
-class Redis extends \App\Docker\Service
+class Redis extends Service
 {
     protected function configure(): void
     {
         $this->setServiceName('redis');
 
-        $version = env('REDIS_VERSION', 7);
+        $version = Env::get('REDIS_VERSION', 7);
 
         $this->serviceDefinition = new ServiceDefinition([
             'restart' => 'unless-stopped',
