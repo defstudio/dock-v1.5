@@ -32,9 +32,6 @@ test('docker test build', function (string $targetClass, string $phpversion) {
 
     $output = "";
     $exitCode = $process->run(function ($type, $buffer) use (&$output) {
-        if(\Illuminate\Support\Str::of($buffer)->test("/^#[\d]* \[/m") && !\Illuminate\Support\Str::of($buffer)->contains("[internal]")){
-            dump($buffer);
-        }
         $output .= "$buffer\n";
     });
 
