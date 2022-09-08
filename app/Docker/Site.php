@@ -8,9 +8,9 @@ class Site
 {
     protected string $root = '/var/www';
 
-    protected string|null $certificatePath = null;
+    protected string $certificatePath = '';
 
-    protected string|null $certificateKeyPath = null;
+    protected string $certificateKeyPath = '';
 
     protected bool $proxyWebsocket = false;
 
@@ -33,19 +33,19 @@ class Site
 
     public function certificatePath(string $path = null): static
     {
-        $this->certificatePath = $path;
+        $this->certificatePath = $path ?? '';
 
         return $this;
     }
 
     public function certificateKeyPath(string $path = null): static
     {
-        $this->certificateKeyPath = $path;
+        $this->certificateKeyPath = $path ?? '';
 
         return $this;
     }
 
-    public function proxyWebsocket(bool $enabled): static
+    public function proxyWebsocket(bool $enabled = true): static
     {
         $this->proxyWebsocket = $enabled;
 

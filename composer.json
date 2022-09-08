@@ -29,6 +29,7 @@
         "nunomaduro/larastan": "^2.2",
         "pestphp/pest": "^1.21.3",
         "pestphp/pest-plugin-mock": "^1.0",
+        "pestphp/pest-plugin-parallel": "^1.2",
         "spatie/pest-plugin-snapshots": "^1.1"
     },
     "autoload": {
@@ -58,7 +59,8 @@
         "lint": "pint -v",
         "test:lint": "pint --test -v",
         "test:types": "phpstan analyse --ansi",
-        "test:unit": "@php ./vendor/bin/pest -v --colors=always",
+        "test:verbose": "@php ./vendor/bin/pest -v --colors=always --parallel",
+        "test:unit": "@php ./vendor/bin/pest --colors=always --parallel",
         "test": [
             "@test:lint",
             "@test:types",

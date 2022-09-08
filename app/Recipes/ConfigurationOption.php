@@ -45,11 +45,15 @@ class ConfigurationOption
 
     protected bool $multiple = false;
 
-    public static function make(string $key): self
+    public static function make(string $key, string|int|bool $value = null): self
     {
         $option = app(self::class);
 
         $option->key = $key;
+
+        if ($value !== null) {
+            $option->value = $value;
+        }
 
         return $option;
     }

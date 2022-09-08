@@ -1,0 +1,8 @@
+php: App\Docker\Services\Php
+nginx: App\Docker\Services\Nginx
+scheduler: App\Recipes\Laravel\Services\Scheduler
+worker: App\Recipes\Laravel\Services\Worker
+composer: App\Docker\Services\Composer
+node: App\Docker\Services\Node
+websocket: App\Recipes\Laravel\Services\Websocket
+mysql: App\Docker\Services\MySql

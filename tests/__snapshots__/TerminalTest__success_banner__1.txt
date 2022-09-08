@@ -1,0 +1,6 @@
+
+ <bg=green;fg=black>                                                  </> 
+ <bg=green;fg=black>                     SUCCESS!                     </> 
+ <bg=green;fg=black>                                                  </> 
+ <bg=green;fg=black>                      yahoo!                      </> 
+ <bg=green;fg=black>                                                  </> 

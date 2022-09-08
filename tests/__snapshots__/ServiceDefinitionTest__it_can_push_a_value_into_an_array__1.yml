@@ -1,0 +1,5 @@
+foo: bar
+baz:
+    quuz: [quz, xyzzy]
+thud:
+    waldo: [corge]

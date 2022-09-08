@@ -266,7 +266,7 @@ class Laravel extends Recipe
             $this->addService(Websocket::class);
         }
 
-        if (Env::get('DB_ENGINE') === 'mysql') {
+        if (Env::get('DB_ENGINE', 'mysql') === 'mysql') {
             $mysql = $this->addService(MySql::class);
 
             if (Env::get('PHPMYADMIN_ENABLED')) {
@@ -297,7 +297,6 @@ class Laravel extends Recipe
             Migrate::class,
             RestartQueue::class,
             Tinker::class,
-            Vite::class,
         ])->when(Env::get('ENV') !== 'production', fn (Collection $c) => $c->push(Vite::class))
             ->push(...$this->services->flatMap(fn (Service $service) => $service->commands()))
             ->toArray();

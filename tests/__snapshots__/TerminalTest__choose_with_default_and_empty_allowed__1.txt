@@ -1,0 +1,1 @@
+  • <fg=green>foo bar</><fg=gray> [choose: baz, <fg=white>qux</>]</><fg=gray> (press 'x' to skip)</> :  

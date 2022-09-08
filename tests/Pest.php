@@ -13,6 +13,8 @@
 
 use App\Docker\Volume;
 use App\Services\RecipeService;
+use Symfony\Component\Console\Output\NullOutput;
+use function Termwind\renderUsing;
 
 uses(Tests\TestCase::class)
     ->beforeEach(function () {
@@ -31,3 +33,24 @@ expect()->extend('toHaveVolume', function (string $hostPath, string $containerPa
 expect()->extend('toHaveNetwork', function (string $network) {
     expect($this->value)->getNetworks()->toHaveKey($network);
 });
+
+function fakeConsoleRenderer(): NullOutput
+{
+    $output = new class extends NullOutput
+    {
+        public array $output = [];
+
+        public function writeln(iterable|string $messages, int $options = self::OUTPUT_NORMAL)
+        {
+            $messages = \Illuminate\Support\Arr::wrap($messages);
+
+            foreach ($messages as $message) {
+                $this->output[] = $message;
+            }
+        }
+    };
+
+    renderUsing($output);
+
+    return $output;
+}

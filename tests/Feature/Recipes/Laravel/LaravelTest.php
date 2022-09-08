@@ -2,8 +2,23 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
+use App\Docker\Services\Commands\Composer as ComposerCommand;
+use App\Docker\Services\Commands\NginxRestart as NginxRestartCommand;
+use App\Docker\Services\Commands\Node as NodeCommand;
+use App\Docker\Services\Commands\Npm as NpmCommand;
+use App\Facades\Env;
 use App\Facades\Terminal;
+use App\Recipes\Laravel\Commands\Artisan as ArtisanCommand;
+use App\Recipes\Laravel\Commands\Deploy as DeployCommand;
+use App\Recipes\Laravel\Commands\Init as InitCommand;
+use App\Recipes\Laravel\Commands\Install as InstallCommand;
+use App\Recipes\Laravel\Commands\Migrate as MigrateCommand;
+use App\Recipes\Laravel\Commands\RestartQueue as RestartQueueCommand;
+use App\Recipes\Laravel\Commands\Tinker as TinkerCommand;
+use App\Recipes\Laravel\Commands\Vite as ViteCommand;
 use App\Recipes\Laravel\Laravel;
+use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
 
 test('user can set the configuration', function (array $steps) {
@@ -167,6 +182,116 @@ test('user can set the configuration', function (array $steps) {
             'Enter Websocket server exposed port' => '',
             'SUCCESS!',
             'The configuration has been stored in .env file',
+        ],
+    ],
+]);
+
+test('commands', function () {
+    Env::fake([
+        'RECIPE' => 'laravel',
+        'HOST' => 'foo.com',
+    ]);
+
+    app()->bind(RecipeService::class, fn () => new RecipeService());
+
+    $laravel = new App\Recipes\Laravel\Laravel();
+    $laravel->build();
+
+    expect($laravel)
+        ->commands()
+        ->toBe([
+            ArtisanCommand::class,
+            DeployCommand::class,
+            InitCommand::class,
+            InstallCommand::class,
+            MigrateCommand::class,
+            RestartQueueCommand::class,
+            TinkerCommand::class,
+            ViteCommand::class,
+            NginxRestartCommand::class,
+            ComposerCommand::class,
+            NodeCommand::class,
+            NpmCommand::class,
+        ]);
+});
+
+test('commands in production', function () {
+    Env::fake([
+        'RECIPE' => 'laravel',
+        'ENV' => 'production',
+        'HOST' => 'foo.com',
+    ]);
+
+    app()->bind(RecipeService::class, fn () => new RecipeService());
+
+    $laravel = new App\Recipes\Laravel\Laravel();
+    $laravel->build();
+
+    expect($laravel)
+        ->commands()
+        ->toBe([
+            ArtisanCommand::class,
+            DeployCommand::class,
+            InitCommand::class,
+            InstallCommand::class,
+            MigrateCommand::class,
+            RestartQueueCommand::class,
+            TinkerCommand::class,
+            NginxRestartCommand::class,
+            ComposerCommand::class,
+            NodeCommand::class,
+            NpmCommand::class,
+        ]);
+});
+
+it('builds the right services', function (array $env) {
+    Env::fake($env);
+    app()->bind(RecipeService::class, fn () => new RecipeService());
+
+    $laravel = new App\Recipes\Laravel\Laravel();
+    $laravel->build();
+
+    expect($laravel)->services()->map(fn (Service $service) => $service::class)->toMatchSnapshot();
+})->with([
+    'default' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+        ],
+    ],
+    'redis enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'REDIS_ENABLED' => 1,
+        ],
+    ],
+    'mailhog enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'MAILHOG_ENABLED' => 1,
+        ],
+    ],
+    'websocket enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'WEBSOCKET_ENABLED' => 1,
+        ],
+    ],
+    'phpmyadmin enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'PHPMYADMIN_ENABLED' => 1,
+        ],
+    ],
+    'dusk enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'EXTRA_TOOLS' => 'browser_tests',
         ],
     ],
 ]);

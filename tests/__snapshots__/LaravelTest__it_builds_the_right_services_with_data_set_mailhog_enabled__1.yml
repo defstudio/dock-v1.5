@@ -1,0 +1,8 @@
+php: App\Docker\Services\Php
+nginx: App\Docker\Services\Nginx
+scheduler: App\Recipes\Laravel\Services\Scheduler
+worker: App\Recipes\Laravel\Services\Worker
+composer: App\Docker\Services\Composer
+node: App\Docker\Services\Node
+mailhog: App\Docker\Services\MailHog
+mysql: App\Docker\Services\MySql

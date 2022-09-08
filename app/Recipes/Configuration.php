@@ -80,6 +80,12 @@ class Configuration
 
         $maxSectionNameLength = $this->sections->max(fn (ConfigurationSection $section) => strlen($section->name()));
 
+        if (!empty($this->extraOptions)) {
+            $this->sections->push(ConfigurationSection::make('Extra', [
+                ...collect($this->extraOptions)->map(fn (string|int|bool $value, string $key) => ConfigurationOption::make($key, $value)),
+            ]));
+        }
+
         $this->sections->each(function (ConfigurationSection $section) use ($maxSectionNameLength, &$env) {
             $sectionNameLength = strlen($section->name());
             $spaces = $maxSectionNameLength - $sectionNameLength + 2;

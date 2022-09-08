@@ -7,37 +7,28 @@ namespace App\Docker;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 
+/**
+ * @implements Arrayable<string, mixed>
+ */
 class ServiceDefinition implements Arrayable
 {
-    /**
-     * @param  array<string, string|int|array<array-key, mixed>>  $config
-     */
     public function __construct(protected array $config)
     {
     }
 
-    /**
-     * @param  string|int|array<string, mixed>  $value
-     */
-    public function set(string $key, string|int|array $value): void
+    public function set(string $key, mixed $value): void
     {
         Arr::set($this->config, $key, $value);
     }
 
-    /**
-     * @param  array<string, mixed>|string|int|null  $default
-     * @return array<string, mixed>|string|int|null
-     */
-    public function get(string $key, array|string|int $default = null): array|string|int|null
+    public function get(string $key, mixed $default = null): mixed
     {
         return Arr::get($this->config, $key, $default);
     }
 
-    /**
-     * @param  string|int|array<string, mixed>  $value
-     */
-    public function push(string $key, string|int|array $value): void
+    public function push(string $key, mixed $value): void
     {
+        /* @phpstan-ignore-next-line  */
         $value = collect($this->get($key, []))
             ->push($value)
             ->unique()
@@ -52,7 +43,7 @@ class ServiceDefinition implements Arrayable
     }
 
     /**
-     * @return array<string, string|int|array<array-key, mixed>>
+     * @return array<string, mixed>>
      */
     public function toArray(): array
     {

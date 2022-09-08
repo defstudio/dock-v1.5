@@ -73,7 +73,7 @@ class Php extends Service
         return $this;
     }
 
-    public function getPhpVersion(): string
+    public function getPhpVersion(): float|string
     {
         return $this->version;
     }

@@ -184,10 +184,7 @@ abstract class Service
         return (string) Env::get('REVERSE_PROXY_NETWORK', '');
     }
 
-    /**
-     * @return array<string, string|int|array<array-key, mixed>>|int|string|null
-     */
-    public function yml(string $key = null, string|int|null $default = null): array|int|string|null
+    public function yml(string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return $this->serviceDefinition->toArray();

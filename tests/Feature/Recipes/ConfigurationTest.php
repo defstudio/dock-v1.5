@@ -57,3 +57,27 @@ it('can set an extra option value', function () {
 
     expect($configuration->extraOptions()['QUUZ'])->toBe(42);
 });
+
+it('can write .env file', function () {
+    $configuration = new Configuration(collect([
+        ConfigurationSection::make('first', [ConfigurationOption::make('FOO', 'quz')]),
+        ConfigurationSection::make('second', [$bar = ConfigurationOption::make('BAR', true), ConfigurationOption::make('BAZ', 999)]),
+    ]));
+
+    $configuration->set('QUUZ', 42);
+
+    $configuration->writeEnv('Test');
+
+    expect(Storage::disk('cwd')->get('.env'))->toMatchSnapshot();
+});
+
+it('can export to array', function () {
+    $configuration = new Configuration(collect([
+        ConfigurationSection::make('first', [ConfigurationOption::make('FOO', 'quz')]),
+        ConfigurationSection::make('second', [$bar = ConfigurationOption::make('BAR', true), ConfigurationOption::make('BAZ', 999)]),
+    ]));
+
+    $configuration->set('QUUZ', 42);
+
+    expect($configuration)->toArray()->toMatchSnapshot();
+});

@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 abstract class Recipe
 {
     /** @var Collection<string, Service> */
-    public Collection $services;
+    protected Collection $services;
 
     public function __construct()
     {
@@ -83,6 +83,14 @@ abstract class Recipe
         }
 
         return $service;
+    }
+
+    /**
+     * @return Collection<string, Service>
+     */
+    public function services(): Collection
+    {
+        return $this->services;
     }
 
     public function publishDockerCompose(): bool

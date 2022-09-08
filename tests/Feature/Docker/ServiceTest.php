@@ -6,7 +6,8 @@ use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 
 beforeEach(function () {
-    $this->service = new class extends Service {
+    $this->service = new class extends Service
+    {
         protected function configure(): void
         {
             $this->setServiceName('bar');
@@ -18,7 +19,8 @@ beforeEach(function () {
 });
 
 it('requires to be defined', function () {
-    new class extends Service {
+    new class extends Service
+    {
         protected function configure(): void
         {
             $this->setServiceName('foo');
@@ -46,7 +48,7 @@ it('can map a port', function () {
     $this->service->mapPort(42, 99);
 
     expect($this->service)
-        ->yml('ports')->toBe(["42:99"])
+        ->yml('ports')->toBe(['42:99'])
         ->yml('expose')->toBe([99]);
 });
 
@@ -93,23 +95,4 @@ it('can return current HOST', function () {
 
     expect($this->service)
         ->host()->toBe('foo.com');
-});
-
-it('can return working dir', function () {
-    expect($this->service)->getWorkingDir()
-        ->toBe('working_dir');
-});
-
-it('can detect if is behind reverse proxy', function(){
-    expect($this->service)->isBehindReverseProxy()->toBeFalse();
-
-    Env::fake(['REVERSE_PROXY_NETWORK', 'foo_network']);
-
-   expect($this->service)->isBehindReverseProxy()->toBeTrue();
-});
-
-it('can return reverse proxy network name', function(){
-    Env::fake(['REVERSE_PROXY_NETWORK', 'foo_network']);
-
-    expect($this->service)->reverseProxyNexwork()->toBe('foo_network');
 });
