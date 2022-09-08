@@ -11,10 +11,6 @@ return [
             'driver' => 'local',
             'root' => getcwd(),
         ],
-        'configs' => [
-            'driver' => 'local',
-            'root' => getcwd().'/configs',
-        ],
         'src' => [
             'driver' => 'local',
             'root' => getcwd().'/src',

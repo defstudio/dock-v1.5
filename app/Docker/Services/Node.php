@@ -20,7 +20,7 @@ class Node extends Service
         $this->serviceDefinition = new ServiceDefinition([
             'working_dir' => '/var/www',
             'build' => [
-                'context' => self::HOST_SERVICES_PATH."/$this->name",
+                'context' => $this->assetsFolder(),
             ],
         ]);
 

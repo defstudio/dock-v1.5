@@ -115,6 +115,8 @@ it('can set its choices with multiple selection', function () {
 });
 
 it('can handle a custom validation', function () {
+    Terminal::fake();
+
     $option = ConfigurationOption::make('foo')->optional();
     invade($option)->value = 1;
 
@@ -162,6 +164,7 @@ it("doesn't set up if is not active", function () {
 });
 
 it('keeps asking a value until valid', function () {
+    Terminal::fake();
     $option = new class extends ConfigurationOption
     {
         protected string $key = 'foo';

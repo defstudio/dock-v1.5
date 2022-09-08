@@ -1,0 +1,9 @@
+- pdo_mysql
+- mysqli
+- pcntl
+- zip
+- soap
+- intl
+- gettext
+- exif
+- gd

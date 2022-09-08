@@ -22,7 +22,7 @@ class PhpMyAdmin extends Service
             'environment' => [
                 'UPLOAD_LIMIT' => 3000000000,
             ],
-            'expose' => 80,
+            'expose' => [80],
         ]);
 
         if (!empty($port = (int) Env::get('PHPMYADMIN_PORT'))) {

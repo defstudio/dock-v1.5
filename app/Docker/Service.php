@@ -12,10 +12,18 @@ use App\Facades\Env;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 
 abstract class Service
 {
+    protected static bool $fake = false;
+    protected bool $faked = false;
+
     protected const HOST_SRC_PATH = './src';
 
     protected const HOST_SERVICES_PATH = './services';
@@ -106,11 +114,13 @@ abstract class Service
         return $this->networks;
     }
 
-    public function addNetwork(string $name): static
+    public function addNetwork(string $name): Network
     {
-        $this->networks = $this->networks->put($name, app(Network::class, ['name' => $name]));
+        $network = app(Network::class, ['name' => $name]);
 
-        return $this;
+        $this->networks = $this->networks->put($name, $network);
+
+        return $network;
     }
 
     /**
@@ -119,6 +129,44 @@ abstract class Service
     public function commands(): array
     {
         return [];
+    }
+
+    protected function assetsFolder(): string
+    {
+        return self::HOST_SERVICES_PATH."/$this->name";
+    }
+
+    public function publishAssets(): void
+    {
+        // No asset by default
+    }
+
+    public function assets(): Filesystem
+    {
+        if (self::$fake) {
+            $fakeDiskName = Str::of($this->assetsFolder())
+                ->slug()
+                ->when(ParallelTesting::token(), fn(Stringable $str, string $token) => $str->append("_test_$token"))
+                ->toString();
+
+            if (!$this->faked) {
+                $this->faked = true;
+                Storage::persistentFake($fakeDiskName)->deleteDirectory('.');
+            }
+
+            return Storage::persistentFake($fakeDiskName);
+        }
+
+
+        return Storage::build([
+            'driver' => 'local',
+            'root' => getcwd()."/{$this->assetsFolder()}",
+        ]);
+    }
+
+    public static function fake(): void
+    {
+        self::$fake = true;
     }
 
     protected function isProductionMode(): bool

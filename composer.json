@@ -59,13 +59,14 @@
         "lint": "pint -v",
         "test:lint": "pint --test -v",
         "test:types": "phpstan analyse --ansi",
-        "test:verbose": "@php ./vendor/bin/pest -v --colors=always --parallel",
-        "test:unit": "@php ./vendor/bin/pest --colors=always --parallel",
+        "test:verbose": "@php ./vendor/bin/pest -v --colors=always --parallel --exclude-group=builds",
+        "test:unit": "@php ./vendor/bin/pest --colors=always --parallel --exclude-group=builds",
+        "test:builds": "@php ./vendor/bin/pest --colors=always --group=builds",
         "test": [
             "@test:lint",
             "@test:types",
             "@test:unit"
         ],
-        "update:snapshots": "vendor/bin/pest --colors=always -d --update-snapshots"
+        "update:snapshots": "vendor/bin/pest --colors=always -d --update-snapshots --exclude-group=builds"
     }
 }

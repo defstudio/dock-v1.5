@@ -83,13 +83,15 @@ class Laravel extends Recipe
                     ->description('Extra tools to be installed')
                     ->question('Install any extra tools?')
                     ->choices(function (Configuration $configuration) {
-                        $tools = ['mysql_client', 'libreoffice_writer', 'browser_tests'];
+                        $tools = ['mysql_client', 'libreoffice_writer'];
 
                         if ($configuration->get('ENV') === 'production') {
                             return $tools;
                         }
 
                         $tools[] = 'xdebug';
+                        $tools[] = 'pcov';
+                        $tools[] = 'browser_tests';
 
                         return $tools;
                     }, true)
@@ -114,7 +116,8 @@ class Laravel extends Recipe
                 ConfigurationOption::make('REDIS_ENABLED')
                     ->question('Should Redis be enabled?')
                     ->confirm()
-                    ->default('no'),
+                    ->default('no')
+                    ->when(fn (Configuration $configuration) => !Str::of((string) $configuration->get('PHP_VERSION'))->startsWith('5.')),
                 ConfigurationOption::make('REDIS_VERSION')
                     ->description('Redis Version')
                     ->choices(['5', '6', '7'])

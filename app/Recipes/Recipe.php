@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpCastIsUnnecessaryInspection */
+
 /** @noinspection PhpUnhandledExceptionInspection */
 
 declare(strict_types=1);
@@ -11,7 +13,9 @@ use App\Exceptions\DockerServiceException;
 use App\Facades\Terminal;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\Yaml\Yaml;
 
 abstract class Recipe
 {
@@ -95,6 +99,26 @@ abstract class Recipe
 
     public function publishDockerCompose(): bool
     {
-        return true;
+        $yml = Yaml::dump([
+            'version' => '3.8',
+            'services' => $this->publishServices(),
+            'networks' => $this->publishNetworks(),
+        ], 4);
+
+        return (bool) Storage::disk('cwd')->put('docker-compose.yml', $yml);
+    }
+
+    private function publishServices(): array
+    {
+        return $this->services->map(function (Service $service) {
+            $service->publishAssets();
+
+            return $service->yml();
+        })->toArray();
+    }
+
+    private function publishNetworks(): array
+    {
+        return $this->services->flatMap(fn (Service $service) => $service->getNetworks())->toArray();
     }
 }

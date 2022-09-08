@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Facades\Env;
 use App\Recipes\Laravel\Services\Websocket;
 
@@ -28,9 +29,35 @@ it('can add php service dependency', function () {
 it('can add reverse proxy network', function () {
     Env::put('REVERSE_PROXY_NETWORK', 'foo-network');
 
-    expect(new Websocket())->toHaveNetwork('foo-network');
+    expect(new Websocket())
+        ->toHaveNetwork('foo-network')
+        ->getNetworks()->get('foo-network')->toArray()->toBe(['external' => true]);
 });
 
 test('commands', function () {
     expect(new Websocket())->commands()->toBe([]);
 });
+
+it('publishes Dockerfile', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $websocket = new Websocket();
+    $websocket->publishAssets();
+
+    expect($websocket->assets()->get('Dockerfile'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+]);
+
+it('publishes start script', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $websocket = new Websocket();
+    $websocket->publishAssets();
+
+    expect($websocket->assets()->get('websocket/start_script.sh'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+]);

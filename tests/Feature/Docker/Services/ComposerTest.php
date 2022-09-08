@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Docker\Services\Composer;
 use App\Facades\Env;
 
@@ -24,6 +25,19 @@ it('sets its target', function () {
 it('clears its dependencies', function () {
     expect(new Composer())->yml('depends_on')->toBe(null);
 });
+
+it('publish assets', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $composer = new Composer();
+    $composer->publishAssets();
+
+    expect($composer->assets()->get('Dockerfile'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+    'pcov' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],
+]);
 
 test('commands', function () {
     expect(new Composer())->commands()->toBe([

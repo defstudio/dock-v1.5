@@ -21,6 +21,14 @@ uses(Tests\TestCase::class)
         app()->bind(RecipeService::class, fn () => new RecipeService(__DIR__.'/Fixtures/Recipes'));
         Storage::fake('cwd');
     })
+    ->group('builds')
+    ->in('Builds');
+
+uses(Tests\TestCase::class)
+    ->beforeEach(function () {
+        app()->bind(RecipeService::class, fn () => new RecipeService(__DIR__.'/Fixtures/Recipes'));
+        Storage::fake('cwd');
+    })
     ->in('Feature');
 
 expect()->extend('toHaveVolume', function (string $hostPath, string $containerPath) {
@@ -32,6 +40,8 @@ expect()->extend('toHaveVolume', function (string $hostPath, string $containerPa
 
 expect()->extend('toHaveNetwork', function (string $network) {
     expect($this->value)->getNetworks()->toHaveKey($network);
+
+    return $this;
 });
 
 function fakeConsoleRenderer(): NullOutput

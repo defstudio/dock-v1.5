@@ -43,7 +43,9 @@ it('adds internal network', function () {
 it('can add reverse proxy network', function () {
     Env::put('REVERSE_PROXY_NETWORK', 'foo-network');
 
-    expect(new Nginx())->toHaveNetwork('foo-network');
+    expect(new Nginx())
+        ->toHaveNetwork('foo-network')
+        ->getNetworks()->get('foo-network')->toArray()->toBe(['external' => true]);
 });
 
 it('can set php service dependency', function () {

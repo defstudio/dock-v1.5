@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Facades\Env;
 use App\Recipes\Laravel\Services\Worker;
 
@@ -24,3 +25,27 @@ it('sets its target', function () {
 test('commands', function () {
     expect(new Worker())->commands()->toBe([]);
 });
+
+it('publishes Dockerfile', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $worker = new Worker();
+    $worker->publishAssets();
+
+    expect($worker->assets()->get('Dockerfile'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+]);
+
+it('publishes start script', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $worker = new Worker();
+    $worker->publishAssets();
+
+    expect($worker->assets()->get('worker/start_script.sh'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+]);

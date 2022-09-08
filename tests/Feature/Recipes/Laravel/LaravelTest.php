@@ -295,3 +295,60 @@ it('builds the right services', function (array $env) {
         ],
     ],
 ]);
+
+it('publishes docker-compose file', function (array $env) {
+    Service::fake();
+    Env::fake($env);
+    Storage::fake('cwd');
+
+    app()->bind(RecipeService::class, fn () => new RecipeService());
+
+    $laravel = new App\Recipes\Laravel\Laravel();
+    $laravel->build();
+    $laravel->publishDockerCompose();
+
+
+    expect(Storage::disk('cwd'))->get('docker-compose.yml')->toMatchSnapshot();
+})->with([
+    'default' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+        ],
+    ],
+    'redis enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'REDIS_ENABLED' => 1,
+        ],
+    ],
+    'mailhog enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'MAILHOG_ENABLED' => 1,
+        ],
+    ],
+    'websocket enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'WEBSOCKET_ENABLED' => 1,
+        ],
+    ],
+    'phpmyadmin enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'PHPMYADMIN_ENABLED' => 1,
+        ],
+    ],
+    'dusk enabled' => [
+        [
+            'RECIPE' => 'laravel',
+            'HOST' => 'foo.com',
+            'EXTRA_TOOLS' => 'browser_tests',
+        ],
+    ],
+]);

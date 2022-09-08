@@ -5,4 +5,5 @@ build:
     target: composer
 expose:
     - 9000
-environment: Dock
+environment:
+    DOCK: 1

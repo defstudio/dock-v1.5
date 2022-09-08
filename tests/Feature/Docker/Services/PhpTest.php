@@ -3,6 +3,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Docker\Services\Php;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
@@ -69,12 +70,13 @@ it('prevents to set up an invalid target', function () {
 })->throws(DockerServiceException::class, 'Invalid PHP target: [foo]');
 
 it('enables tools from env', function () {
-    Env::put('EXTRA_TOOLS', 'xdebug,libreoffice_writer,mysql_client');
+    Env::put('EXTRA_TOOLS', 'xdebug,libreoffice_writer,mysql_client,pcov');
 
     expect(new Php())
         ->isXdebugEnabled()->toBeTrue()
         ->isLibreOfficeWriterEnabled()->toBeTrue()
-        ->isMySqlClientEnabled()->toBeTrue();
+        ->isMySqlClientEnabled()->toBeTrue()
+        ->isPcovEnabled()->toBeTrue();
 });
 
 it('force xdebug to be disabled in production', function () {
@@ -82,10 +84,78 @@ it('force xdebug to be disabled in production', function () {
 
     expect(new Php())
         ->isXdebugEnabled()->toBeFalse()
+        ->isPcovEnabled()->toBeFalse()
         ->isLibreOfficeWriterEnabled()->toBeTrue()
         ->isMySqlClientEnabled()->toBeTrue();
+});
+
+it('returns system packages to be installed', function (array $env) {
+    Env::fake($env);
+    expect(new Php())->systemPackages()->toMatchSnapshot();
+})->with([
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'with mysql client' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client'],
+]);
+
+it('returns php extensions to be installed', function () {
+    expect(new Php())->phpExtensions()->toMatchSnapshot();
+});
+
+it('checks if redis is enabled', function () {
+    expect(new Php())->isRedisEnabled()->toBeFalse();
+    Env::put('REDIS_ENABLED', 1);
+    expect(new Php())->isRedisEnabled()->toBeTrue();
+});
+
+it('computes PHP major version', function (string|float $version, int $expected) {
+    Env::put('PHP_VERSION', $version);
+
+    expect(new Php())->phpMajorVersion()->toBe($expected);
+})->with([
+    ['version' => 'latest', 'major' => 8],
+    ['version' => 7, 'major' => 7],
+    ['version' => '5', 'major' => 5],
+    ['version' => 7.4, 'major' => 7],
+    ['version' => '8.2', 'major' => 8],
+    ['version' => '8.1.10', 'major' => 8],
+]);
+
+it('foces asset folder to services/php', function () {
+    $php = new Php();
+    $php->setServiceName('foo');
+
+    expect(invade($php)->assetsFolder())->toBe('./services/php');
 });
 
 test('commands', function () {
     expect(new Php())->commands()->toBe([]);
 });
+
+it('publishes Dockerfile', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $php = new Php();
+    $php->publishAssets();
+
+    expect($php->assets()->get('Dockerfile'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+    'custom php version' => fn() => ['RECIPE' => 'test-recipe', 'PHP_VERSION' => "8.1.5"],
+    'with mysql client' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "mysql_client"],
+    'with libreoffice writer' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "libreoffice_writer"],
+    'with redis' => fn() => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
+]);
+
+it('publishes php.ini', function ($env) {
+    Env::fake($env);
+    Service::fake();
+
+    $php = new Php();
+    $php->publishAssets();
+
+    expect($php->assets()->get('php.ini'))->toMatchSnapshot();
+})->with([
+    'default' => fn() => ['RECIPE' => 'test-recipe'],
+    'production' => fn() => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
+]);

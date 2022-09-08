@@ -48,7 +48,7 @@ class Nginx extends Service
             'restart' => 'unless-stopped',
             'working_dir' => '/var/www',
             'build' => [
-                'context' => self::HOST_SERVICES_PATH."/$this->name",
+                'context' => $this->assetsFolder(),
             ],
         ]);
 
@@ -65,7 +65,7 @@ class Nginx extends Service
         $this->addNetwork($this->internalNetworkName());
 
         if ($this->isBehindReverseProxy()) {
-            $this->addNetwork($this->reverseProxyNexwork());
+            $this->addNetwork($this->reverseProxyNexwork())->external();
         }
     }
 

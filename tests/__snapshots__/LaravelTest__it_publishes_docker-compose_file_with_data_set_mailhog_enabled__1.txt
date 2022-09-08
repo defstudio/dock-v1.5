@@ -1,0 +1,84 @@
+version: '3.8'
+services:
+    php:
+        restart: unless-stopped
+        working_dir: /var/www
+        build:
+            context: ./services/php
+            target: fpm
+        expose:
+            - 9000
+        environment:
+            DOCK: 1
+    nginx:
+        restart: unless-stopped
+        working_dir: /var/www
+        build:
+            context: ./services/nginx
+        ports:
+            - '80:80'
+        expose:
+            - 80
+        depends_on:
+            - php
+    scheduler:
+        restart: unless-stopped
+        working_dir: /var/www
+        build:
+            context: ./services/php
+            target: scheduler
+        expose:
+            - 9000
+        environment:
+            DOCK: 1
+    worker:
+        restart: unless-stopped
+        working_dir: /var/www
+        build:
+            context: ./services/php
+            target: worker
+        expose:
+            - 9000
+        environment:
+            DOCK: 1
+    composer:
+        restart: unless-stopped
+        working_dir: /var/www
+        build:
+            context: ./services/php
+            target: composer
+        expose:
+            - 9000
+        environment:
+            DOCK: 1
+    node:
+        working_dir: /var/www
+        build:
+            context: ./services/node
+        ports:
+            - '5173:5173'
+        expose:
+            - 5173
+    mailhog:
+        restart: unless-stopped
+        expose:
+            - 8025
+            - 1025
+        image: 'mailhog/mailhog:latest'
+    mysql:
+        restart: unless-stopped
+        command: '--character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=mysql_native_password'
+        image: 'mysql:8'
+        cap_add:
+            - SYS_NICE
+        expose:
+            - 3306
+        environment:
+            MYSQL_DATABASE: database
+            MYSQL_USER: dbuser
+            MYSQL_PASSWORD: dbpassword
+            MYSQL_ROOT_PASSWORD: root
+networks:
+    laravel_internal_network:
+        name: laravel_internal_network
+        driver: bridge

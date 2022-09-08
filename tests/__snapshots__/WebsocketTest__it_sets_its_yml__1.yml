@@ -6,7 +6,8 @@ build:
 expose:
     - 9000
     - 6001
-environment: Dock
+environment:
+    DOCK: 1
 depends_on:
     - php
 ports:
