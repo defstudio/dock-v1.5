@@ -58,7 +58,7 @@
         "lint": "pint -v",
         "test:lint": "pint --test -v",
         "test:types": "phpstan analyse --ansi",
-        "test:unit": "@php ./vendor/bin/pest --colors=always",
+        "test:unit": "@php ./vendor/bin/pest -v --colors=always",
         "test": [
             "@test:lint",
             "@test:types",

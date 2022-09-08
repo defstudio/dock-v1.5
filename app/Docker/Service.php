@@ -149,7 +149,7 @@ abstract class Service
 
     public function getGroupId(): int
     {
-        $uid = Env::get('GROUP_ID', getmyuid());
+        $uid = Env::get('GROUP_ID', Env::get('USER_ID', getmyuid()));
 
         if ($uid === false) {
             throw DockerServiceException::unableToDetectCurrentGroupId();
