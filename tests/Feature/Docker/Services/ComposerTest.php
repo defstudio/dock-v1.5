@@ -26,9 +26,8 @@ it('clears its dependencies', function () {
     expect(new Composer())->yml('depends_on')->toBe(null);
 });
 
-it('publish assets', function ($env) {
-    Env::fake($env);
-    Service::fake();
+it('publish assets', function (array $env, string $phpVersion) {
+    Env::fake($env)->put('PHP_VERSION', $phpVersion);
 
     $composer = new Composer();
     $composer->publishAssets();
@@ -37,7 +36,7 @@ it('publish assets', function ($env) {
 })->with([
     'default' => fn() => ['RECIPE' => 'test-recipe'],
     'pcov' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],
-]);
+])->with('php versions');
 
 test('commands', function () {
     expect(new Composer())->commands()->toBe([

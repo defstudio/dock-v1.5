@@ -38,8 +38,8 @@ test('commands', function () {
     expect(new Websocket())->commands()->toBe([]);
 });
 
-it('publishes Dockerfile', function ($env) {
-    Env::fake($env);
+it('publishes Dockerfile', function (array $env, string $phpVersion) {
+    Env::fake($env)->put('PHP_VERSION', $phpVersion);
     Service::fake();
 
     $websocket = new Websocket();
@@ -48,7 +48,7 @@ it('publishes Dockerfile', function ($env) {
     expect($websocket->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn() => ['RECIPE' => 'test-recipe'],
-]);
+])->with('php versions');
 
 it('publishes start script', function ($env) {
     Env::fake($env);
