@@ -7,7 +7,6 @@ namespace App\Docker\Services;
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\Npm;
-use App\Facades\Env;
 
 class Node extends Service
 {

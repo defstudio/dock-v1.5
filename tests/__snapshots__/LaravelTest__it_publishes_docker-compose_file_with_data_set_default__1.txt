@@ -6,6 +6,7 @@ services:
         build:
             context: ./services/php
             target: fpm
+        user: '1000:1000'
         expose:
             - 9000
         environment:
@@ -27,6 +28,7 @@ services:
         build:
             context: ./services/php
             target: scheduler
+        user: '1000:1000'
         expose:
             - 9000
         environment:
@@ -37,6 +39,7 @@ services:
         build:
             context: ./services/php
             target: worker
+        user: '1000:1000'
         expose:
             - 9000
         environment:
@@ -47,6 +50,7 @@ services:
         build:
             context: ./services/php
             target: composer
+        user: '1000:1000'
         expose:
             - 9000
         environment:

@@ -13,7 +13,6 @@ use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Site;
 use App\Exceptions\DockerServiceException;
-use App\Facades\Env;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;

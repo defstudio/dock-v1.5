@@ -7,7 +7,6 @@ declare(strict_types=1);
 namespace App\Recipes\Laravel\Services;
 
 use App\Docker\Services\Php;
-use App\Facades\Env;
 use Illuminate\Support\Str;
 
 class Websocket extends Php

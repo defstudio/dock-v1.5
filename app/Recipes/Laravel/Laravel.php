@@ -92,6 +92,9 @@ class Laravel extends Recipe
 
                         if (app(Php::class, ['customEnv' => $configuration->toArray()])->isXdebugAvailable()) {
                             $tools[] = 'xdebug';
+                        }
+
+                        if (app(Php::class, ['customEnv' => $configuration->toArray()])->isPcovAvailable()) {
                             $tools[] = 'pcov';
                         }
 

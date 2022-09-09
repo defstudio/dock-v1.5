@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMatchExpressionWithOnlyDefaultArmInspection */
 
 /** @noinspection PhpUnused */
 /** @noinspection PhpUnhandledExceptionInspection */
@@ -10,7 +10,6 @@ namespace App\Docker\Services;
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Exceptions\DockerServiceException;
-use App\Facades\Env;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -34,6 +33,7 @@ class Php extends Service
                 'context' => $this->assetsFolder(),
                 'target' => 'fpm',
             ],
+            'user' => "{$this->getUserId()}:{$this->getGroupId()}",
             'expose' => [9000],
             'environment' => ['DOCK' => 1],
         ]);
@@ -103,12 +103,25 @@ class Php extends Service
         return round(floatval($this->version), 1, PHP_ROUND_HALF_DOWN);
     }
 
+    public function getXdebugVersion(): string
+    {
+        return match ($this->getPhpMinorVersion()) {
+            8.2 => '3.2.0alpha3',
+            8.1, 8.0, 7.4, 7.3, 7.2 => '3.1.5',
+            7.1 => '2.9.8',
+            7.0 => '2.7.2',
+            default => '2.5.5',
+        };
+    }
+
     public function isXdebugAvailable(): bool
     {
-        return match ($this->getPhpMinorVersion()){
-            8.2 => false,
-            default => true,
-        };
+       return true;
+    }
+
+    public function isPcovAvailable(): bool
+    {
+        return $this->getPhpMinorVersion() >= 7.1;
     }
 
     public function isXdebugEnabled(): bool
@@ -117,7 +130,7 @@ class Php extends Service
             return false;
         }
 
-        if(!$this->isXdebugAvailable()){
+        if (!$this->isXdebugAvailable()) {
             return false;
         }
 
@@ -133,6 +146,10 @@ class Php extends Service
             return false;
         }
 
+        if (!$this->isPcovAvailable()) {
+            return false;
+        }
+
         return Str::of($this->env('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
@@ -141,7 +158,7 @@ class Php extends Service
 
     public function isLibreOfficeWriterEnabled(): bool
     {
-        if($this->phpMajorVersion() < 7.0){
+        if ($this->getPhpMinorVersion() < 7.0) {
             return false;
         }
 
@@ -217,11 +234,11 @@ class Php extends Service
 
     public function isRedisEnabled(): bool
     {
-        if($this->phpMajorVersion() < 7){
+        if ($this->phpMajorVersion() < 7) {
             return false;
         }
 
-        return !!$this->env('REDIS_ENABLED');
+        return (bool) $this->env('REDIS_ENABLED');
     }
 
     protected function assetsFolder(): string

@@ -309,7 +309,6 @@ it('publishes docker-compose file', function (array $env) {
     $laravel->build();
     $laravel->publishDockerCompose();
 
-
     expect(Storage::disk('cwd'))->get('docker-compose.yml')->toMatchSnapshot();
 })->with([
     'default' => [

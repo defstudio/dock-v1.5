@@ -142,7 +142,7 @@ class ConfigurationOption
 
     public function configure(Configuration $configuration): void
     {
-        if($this->hasASettedValue()){
+        if ($this->hasASettedValue()) {
             return;
         }
 

@@ -35,7 +35,7 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
 
     expect($worker->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
-    'default' => fn() => ['RECIPE' => 'test-recipe'],
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
 ])->with('php versions');
 
 it('publishes start script', function ($env) {
@@ -47,5 +47,5 @@ it('publishes start script', function ($env) {
 
     expect($worker->assets()->get('worker/start_script.sh'))->toMatchSnapshot();
 })->with([
-    'default' => fn() => ['RECIPE' => 'test-recipe'],
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
 ]);

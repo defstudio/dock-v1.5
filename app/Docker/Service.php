@@ -22,6 +22,7 @@ use Illuminate\Support\Stringable;
 abstract class Service
 {
     protected static bool $fake = false;
+
     protected bool $faked = false;
 
     protected const HOST_SRC_PATH = './src';
@@ -146,7 +147,7 @@ abstract class Service
         if (self::$fake) {
             $fakeDiskName = Str::of($this->assetsFolder())
                 ->slug()
-                ->when(ParallelTesting::token(), fn(Stringable $str, string $token) => $str->append("_test_$token"))
+                ->when(ParallelTesting::token(), fn (Stringable $str, string $token) => $str->append("_test_$token"))
                 ->toString();
 
             if (!$this->faked) {
@@ -156,7 +157,6 @@ abstract class Service
 
             return Storage::persistentFake($fakeDiskName);
         }
-
 
         return Storage::build([
             'driver' => 'local',
@@ -171,7 +171,7 @@ abstract class Service
 
     public function env(string $key, mixed $default = null): mixed
     {
-        if(!empty($this->customEnv)){
+        if (!empty($this->customEnv)) {
             return $this->customEnv[$key] ?? $default;
         }
 

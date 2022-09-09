@@ -1,16 +1,23 @@
 <?php
+/** @noinspection PhpUndefinedFieldInspection */
+
+declare(strict_types=1);
 
 use App\Docker\Service;
+use App\Docker\Services\Composer;
 use App\Docker\Services\Php;
 use App\Facades\Env;
+use App\Recipes\Laravel\Services\Scheduler;
+use App\Recipes\Laravel\Services\Websocket;
+use App\Recipes\Laravel\Services\Worker;
 use Symfony\Component\Process\Process;
 use function Termwind\render;
 
-test('docker test build', function (string $targetClass, string $phpversion) {
-    render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST target = $targetClass & php version = $phpversion</div>");
+test('docker test build', function (string $targetClass, string $phpVersion) {
+    render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST target = $targetClass & php version = $phpVersion</div>");
 
-    Env::fake(['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true, 'EXTRA_TOOLS' => "mysql_client,libreoffice_writer,pcov,xdebug"]);
-    Env::put('PHP_VERSION', $phpversion);
+    Env::fake(['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true, 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,pcov,xdebug']);
+    Env::put('PHP_VERSION', $phpVersion);
     Service::fake();
 
     /** @var Php $target */
@@ -43,5 +50,6 @@ test('docker test build', function (string $targetClass, string $phpversion) {
 
     $process = new Process(['docker', 'rmi', 'dock-test-php']);
     $process->run();
-})->with([Php::class/*, Composer::class, Scheduler::class, Worker::class, Websocket::class*/])
+})
+    ->with([Php::class, Composer::class, Scheduler::class, Worker::class, Websocket::class])
     ->with('php versions');

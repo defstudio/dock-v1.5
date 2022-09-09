@@ -46,8 +46,7 @@ expect()->extend('toHaveNetwork', function (string $network) {
 
 function fakeConsoleRenderer(): NullOutput
 {
-    $output = new class extends NullOutput
-    {
+    $output = new class extends NullOutput {
         public array $output = [];
 
         public function writeln(iterable|string $messages, int $options = self::OUTPUT_NORMAL)

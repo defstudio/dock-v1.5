@@ -3,6 +3,7 @@ working_dir: /var/www
 build:
     context: ./services/php
     target: scheduler
+user: '1000:1000'
 expose:
     - 9000
 environment:

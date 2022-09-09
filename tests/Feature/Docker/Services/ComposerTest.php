@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Docker\Service;
 use App\Docker\Services\Composer;
 use App\Facades\Env;
 
@@ -34,8 +33,8 @@ it('publish assets', function (array $env, string $phpVersion) {
 
     expect($composer->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
-    'default' => fn() => ['RECIPE' => 'test-recipe'],
-    'pcov' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'pcov' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],
 ])->with('php versions');
 
 test('commands', function () {

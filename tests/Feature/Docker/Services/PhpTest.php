@@ -156,10 +156,10 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
 
     expect($php->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
-    'default' => fn() => ['RECIPE' => 'test-recipe'],
-    'with extra tools' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "mysql_client,libreoffice_writer,xdebug,pcov"],
-    'with libreoffice writer' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "xdebug"],
-    'with redis' => fn() => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
+    'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'xdebug'],
+    'with redis' => fn () => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
 ])->with('php versions');
 
 it('publishes php.ini', function ($env) {
@@ -171,6 +171,6 @@ it('publishes php.ini', function ($env) {
 
     expect($php->assets()->get('php.ini'))->toMatchSnapshot();
 })->with([
-    'default' => fn() => ['RECIPE' => 'test-recipe'],
-    'production' => fn() => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'production' => fn () => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
 ]);

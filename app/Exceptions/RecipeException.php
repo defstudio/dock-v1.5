@@ -18,8 +18,8 @@ class RecipeException extends \Exception
     {
         $message = Str::of("Recipe [$recipe] not found in $path.")
             ->when(Str::of($path)->contains('Fixtures/Recipes'), fn (Stringable $str) => $str
-                ->append(" ")
-                ->append("You are using test Recipes path, you can restore the default one adding [restoreDefaultRecipes()] to your test code."))
+                ->append(' ')
+                ->append('You are using test Recipes path, you can restore the default one adding [restoreDefaultRecipes()] to your test code.'))
             ->toString();
 
         return new self($message);

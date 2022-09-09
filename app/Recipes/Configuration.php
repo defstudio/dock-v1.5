@@ -76,7 +76,7 @@ class Configuration
 
     public function writeEnv(): void
     {
-        $env = Str::of("");
+        $env = Str::of('');
 
         $maxSectionNameLength = $this->sections->max(fn (ConfigurationSection $section) => strlen($section->name()));
 
