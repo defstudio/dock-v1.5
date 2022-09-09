@@ -25,14 +25,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
     apt-get install -y --no-install-recommends libnss3
 
-# LibreOffice Writer installation
-RUN mkdir -p /usr/share/man/man1 \
-    && mkdir -p /.cache/dconf && chmod -R 777 /.cache/dconf \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-11-jre-headless \
-    && apt-get install -y --no-install-recommends libreoffice-writer \
-    && apt-get install -y --no-install-recommends libreoffice-java-common \
-    && apt-get install -y --no-install-recommends pandoc
 
 # PHP Extensions installation
 RUN \
@@ -59,6 +51,17 @@ COPY php.ini "$PHP_INI_DIR/php.ini"
 
 FROM base_php as fpm
 
+# Enable Xdebug (https://xdebug.org/)
+RUN pecl install xdebug && \
+    echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.client_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.idekey='PHPSTORM'" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "xdebug.log_level=0" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    docker-php-ext-enable xdebug
 
 
 

@@ -42,15 +42,15 @@ class Php extends Service
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
         }
 
-        if (Env::get('REDIS_ENABLED')) {
+        if ($this->env('REDIS_ENABLED')) {
             $this->dependsOn(app(Redis::class)->name());
         }
 
-        if (Env::get('DB_ENGINE') === 'mysql') {
+        if ($this->env('DB_ENGINE') === 'mysql') {
             $this->dependsOn(app(MySql::class)->name());
         }
 
-        $this->version(Env::get('PHP_VERSION', 'latest'));
+        $this->version($this->env('PHP_VERSION', 'latest'));
 
         $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
 
@@ -85,13 +85,43 @@ class Php extends Service
         return "$this->version";
     }
 
+    public function phpMajorVersion(): int
+    {
+        if ($this->version === 'latest') {
+            return 8;
+        }
+
+        return (int) $this->version;
+    }
+
+    public function getPhpMinorVersion(): float
+    {
+        if ($this->version === 'latest') {
+            return 8.1;
+        }
+
+        return round(floatval($this->version), 1, PHP_ROUND_HALF_DOWN);
+    }
+
+    public function isXdebugAvailable(): bool
+    {
+        return match ($this->getPhpMinorVersion()){
+            8.2 => false,
+            default => true,
+        };
+    }
+
     public function isXdebugEnabled(): bool
     {
         if ($this->isProductionMode()) {
             return false;
         }
 
-        return Str::of(Env::get('EXTRA_TOOLS'))
+        if(!$this->isXdebugAvailable()){
+            return false;
+        }
+
+        return Str::of($this->env('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('xdebug');
@@ -103,7 +133,7 @@ class Php extends Service
             return false;
         }
 
-        return Str::of(Env::get('EXTRA_TOOLS'))
+        return Str::of($this->env('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('pcov');
@@ -115,7 +145,7 @@ class Php extends Service
             return false;
         }
 
-        return Str::of(Env::get('EXTRA_TOOLS'))
+        return Str::of($this->env('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('libreoffice_writer');
@@ -123,7 +153,7 @@ class Php extends Service
 
     public function isMySqlClientEnabled(): bool
     {
-        return Str::of(Env::get('EXTRA_TOOLS'))
+        return Str::of($this->env('EXTRA_TOOLS'))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('mysql_client');
@@ -171,8 +201,8 @@ class Php extends Service
     {
         //TODO Check required and optional extensions
         $installs = [
-            'pdo_mysql' => Env::get('DB_ENGINE', 'mysql') === 'mysql',
-            'mysqli' => Env::get('DB_ENGINE', 'mysql') === 'mysql',
+            'pdo_mysql' => $this->env('DB_ENGINE', 'mysql') === 'mysql',
+            'mysqli' => $this->env('DB_ENGINE', 'mysql') === 'mysql',
             'pcntl' => true,
             'zip' => true,
             'soap' => true,
@@ -191,25 +221,7 @@ class Php extends Service
             return false;
         }
 
-        return !!Env::get('REDIS_ENABLED');
-    }
-
-    public function phpMajorVersion(): int
-    {
-        if ($this->version === 'latest') {
-            return 8;
-        }
-
-        return (int) $this->version;
-    }
-
-    public function getPhpMinorVersion(): float
-    {
-        if ($this->version === 'latest') {
-            return 8.1;
-        }
-
-        return round(floatval($this->version), 1, PHP_ROUND_HALF_DOWN);
+        return !!$this->env('REDIS_ENABLED');
     }
 
     protected function assetsFolder(): string

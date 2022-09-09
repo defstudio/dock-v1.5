@@ -64,3 +64,8 @@ function fakeConsoleRenderer(): NullOutput
 
     return $output;
 }
+
+function restoreDefaultRecipes(): void
+{
+    app()->bind(RecipeService::class, fn () => new RecipeService());
+}

@@ -27,8 +27,12 @@ class RecipeService
         $this->recipesPath ??= __DIR__.'/../Recipes';
     }
 
-    public function recipe(): Recipe
+    public function recipe(string $name = null): Recipe
     {
+        if (!empty($name)) {
+            return $this->findRecipe($name);
+        }
+
         if (!isset($this->active)) {
             if (!Env::exists()) {
                 throw RecipeException::missingEnvFile();
@@ -58,13 +62,18 @@ class RecipeService
 
     public function activate(string $recipe): void
     {
-        $found = $this->availableRecipes()->get($recipe);
+        $this->active = $this->findRecipe($recipe);
+    }
 
-        if ($found === null) {
-            throw RecipeException::notFound($recipe);
+    private function findRecipe(string $name): Recipe
+    {
+        $recipe = $this->availableRecipes()->get($name);
+
+        if ($recipe === null) {
+            throw RecipeException::notFound($name, $this->recipesPath);
         }
 
-        $this->active = $found;
+        return $recipe;
     }
 
     private function searchRecipes(): void

@@ -25,6 +25,8 @@ test('user can set the configuration', function (array $steps) {
     Terminal::fake($steps);
     Storage::fake('cwd');
 
+    restoreDefaultRecipes();
+
     $recipe = new Laravel();
     $configuration = $recipe->setup();
 
@@ -301,7 +303,7 @@ it('publishes docker-compose file', function (array $env) {
     Env::fake($env);
     Storage::fake('cwd');
 
-    app()->bind(RecipeService::class, fn () => new RecipeService());
+    restoreDefaultRecipes();
 
     $laravel = new App\Recipes\Laravel\Laravel();
     $laravel->build();

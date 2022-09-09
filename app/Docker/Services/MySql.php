@@ -28,16 +28,16 @@ class MySql extends Service
             'expose' => [3306],
         ]);
 
-        $this->setDatabaseName((string) Env::get('MYSQL_DATABASE', 'database'));
-        $this->setDatabaseUser((string) Env::get('MYSQL_USER', 'dbuser'));
-        $this->setDatabasePassword((string) Env::get('MYSQL_PASSWORD', 'dbpassword'));
-        $this->setDatabaseRootPassword((string) Env::get('MYSQL_ROOT_PASSWORD', 'root'));
+        $this->setDatabaseName((string) $this->env('MYSQL_DATABASE', 'database'));
+        $this->setDatabaseUser((string) $this->env('MYSQL_USER', 'dbuser'));
+        $this->setDatabasePassword((string) $this->env('MYSQL_PASSWORD', 'dbpassword'));
+        $this->setDatabaseRootPassword((string) $this->env('MYSQL_ROOT_PASSWORD', 'root'));
 
-        if (Env::get('MYSQL_DISABLE_STRICT_MODE')) {
+        if ($this->env('MYSQL_DISABLE_STRICT_MODE')) {
             $this->disableStrictMode();
         }
 
-        if (!empty($port = (int) Env::get('MYSQL_PORT'))) {
+        if (!empty($port = (int) $this->env('MYSQL_PORT'))) {
             $this->mapPort($port, 3306);
         }
 

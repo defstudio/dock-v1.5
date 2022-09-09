@@ -66,7 +66,7 @@ it('can write .env file', function () {
 
     $configuration->set('QUUZ', 42);
 
-    $configuration->writeEnv('Test');
+    $configuration->writeEnv();
 
     expect(Storage::disk('cwd')->get('.env'))->toMatchSnapshot();
 });

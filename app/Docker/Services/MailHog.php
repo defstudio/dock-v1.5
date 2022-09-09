@@ -21,7 +21,7 @@ class MailHog extends Service
             'image' => 'mailhog/mailhog:latest',
         ]);
 
-        if (!empty($port = (int) Env::get('MAILHOG_PORT'))) {
+        if (!empty($port = (int) $this->env('MAILHOG_PORT'))) {
             $this->mapPort($port, 8025);
         }
 
@@ -30,7 +30,7 @@ class MailHog extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (!empty($subdomain = Env::get('MAILHOG_SUBDOMAIN'))) {
+        if (!empty($subdomain = $this->env('MAILHOG_SUBDOMAIN'))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

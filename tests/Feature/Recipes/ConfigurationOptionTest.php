@@ -169,10 +169,11 @@ it('keeps asking a value until valid', function () {
     {
         protected string $key = 'foo';
 
-        protected string|int|bool $value = 0;
+        protected string|int|bool $value;
 
         public function ask(Configuration $configuration): void
         {
+            $this->value ??= 0;
             $this->value++;
         }
     };

@@ -51,6 +51,7 @@ class Laravel extends Recipe
     {
         return [
             ConfigurationSection::make('General', [
+                ConfigurationOption::make('RECIPE', $this->slug()),
                 ConfigurationOption::make('HOST')
                     ->description('Host exposed to external environments')
                     ->question('Application hostname')
@@ -89,15 +90,17 @@ class Laravel extends Recipe
                             return $tools;
                         }
 
-                        $tools[] = 'xdebug';
-                        $tools[] = 'pcov';
+                        if (app(Php::class, ['customEnv' => $configuration->toArray()])->isXdebugAvailable()) {
+                            $tools[] = 'xdebug';
+                            $tools[] = 'pcov';
+                        }
+
                         $tools[] = 'browser_tests';
 
                         return $tools;
                     }, true)
                     ->optional(true),
             ]),
-
             ConfigurationSection::make('Services', [
                 ConfigurationOption::make('DB_ENGINE')
                     ->question('Which database engine should be used?')

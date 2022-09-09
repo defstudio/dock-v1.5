@@ -38,7 +38,7 @@ abstract class Recipe
     {
         $configuration = new Configuration(collect($this->options()));
         $configuration->configure();
-        $configuration->writeEnv($this->slug());
+        $configuration->writeEnv();
 
         Terminal::successBanner('The configuration has been stored in .env file');
 

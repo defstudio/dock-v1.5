@@ -1,3 +1,4 @@
+RECIPE: laravel
 HOST: test.ktm
 ENV: local
 PHP_VERSION: '8.1'

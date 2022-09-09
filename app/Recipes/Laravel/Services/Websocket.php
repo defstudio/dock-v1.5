@@ -25,7 +25,7 @@ class Websocket extends Php
         if ($this->isBehindReverseProxy()) {
             $this->addNetwork($this->reverseProxyNexwork())->external();
         } else {
-            $port = (int) Env::get('WEBSOCKET_PORT', 6001);
+            $port = (int) $this->env('WEBSOCKET_PORT', 6001);
             $this->mapPort($port, 6001);
         }
     }

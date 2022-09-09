@@ -14,7 +14,7 @@ class Redis extends Service
     {
         $this->setServiceName('redis');
 
-        $version = Env::get('REDIS_VERSION', 7);
+        $version = $this->env('REDIS_VERSION', 7);
 
         $this->serviceDefinition = new ServiceDefinition([
             'restart' => 'unless-stopped',

@@ -38,7 +38,7 @@ abstract class Service
 
     protected string $name;
 
-    public function __construct()
+    public function __construct(private readonly array $customEnv = [])
     {
         $this->volumes = Collection::empty();
         $this->networks = Collection::empty();
@@ -68,7 +68,7 @@ abstract class Service
     {
         $cookbook = app(RecipeService::class);
 
-        return $cookbook->recipe();
+        return $cookbook->recipe($this->env('RECIPE'));
     }
 
     public function addVolume(string $hostPath, string $containerPath = null): static
@@ -167,6 +167,15 @@ abstract class Service
     public static function fake(): void
     {
         self::$fake = true;
+    }
+
+    public function env(string $key, mixed $default = null): mixed
+    {
+        if(!empty($this->customEnv)){
+            return $this->customEnv[$key] ?? $default;
+        }
+
+        return Env::get($key, $default);
     }
 
     protected function isProductionMode(): bool

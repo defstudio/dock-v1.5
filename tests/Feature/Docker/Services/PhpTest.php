@@ -157,9 +157,8 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
     expect($php->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn() => ['RECIPE' => 'test-recipe'],
-    'custom php version' => fn() => ['RECIPE' => 'test-recipe'],
-    'with mysql client' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "mysql_client"],
-    'with libreoffice writer' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "libreoffice_writer"],
+    'with extra tools' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "mysql_client,libreoffice_writer,xdebug,pcov"],
+    'with libreoffice writer' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "xdebug"],
     'with redis' => fn() => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
 ])->with('php versions');
 

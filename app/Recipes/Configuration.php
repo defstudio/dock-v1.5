@@ -27,7 +27,7 @@ class Configuration
     public function configure(): void
     {
         $this->sections->each(function (ConfigurationSection $section) {
-            if (!$section->options()->some(fn (ConfigurationOption $option) => $option->isActive($this))) {
+            if (!$section->options()->some(fn (ConfigurationOption $option) => $option->isActive($this) && !$option->hasASettedValue())) {
                 return;
             }
 
@@ -74,9 +74,9 @@ class Configuration
         return $this->extraOptions;
     }
 
-    public function writeEnv(string $recipeName): void
+    public function writeEnv(): void
     {
-        $env = Str::of("RECIPE=$recipeName");
+        $env = Str::of("");
 
         $maxSectionNameLength = $this->sections->max(fn (ConfigurationSection $section) => strlen($section->name()));
 
@@ -126,7 +126,7 @@ class Configuration
                 ->append($options->join("\n"));
         });
 
-        Storage::disk('cwd')->put('.env', $env->toString());
+        Storage::disk('cwd')->put('.env', $env->trim()->append("\n")->toString());
     }
 
     public function toArray(): array

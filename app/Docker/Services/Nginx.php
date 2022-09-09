@@ -79,7 +79,7 @@ class Nginx extends Service
 
     protected function setExternalCertificate(): void
     {
-        $externalCertificatesFolder = Env::get('NGINX_EXTERNAL_CERTIFICATE_FOLDER');
+        $externalCertificatesFolder = $this->env('NGINX_EXTERNAL_CERTIFICATE_FOLDER');
 
         if (empty($externalCertificatesFolder)) {
             return;
@@ -98,7 +98,7 @@ class Nginx extends Service
 
     protected function setupSite(): void
     {
-        $port = (int) Env::get('NGINX_PORT', 80);
+        $port = (int) $this->env('NGINX_PORT', 80);
 
         if ($port === 443) {
             $this->setupSslSite();
@@ -108,15 +108,15 @@ class Nginx extends Service
 
         $this->addSite($this->host(), $port)
             ->root($this->getWorkingDir())
-            ->proxyWebsocket((bool) Env::get('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) $this->env('WEBSOCKET_ENABLED'));
     }
 
     protected function setupSslSite(): void
     {
         $this->setExternalCertificate();
 
-        if (Env::get('NGINX_EXTERNAL_CERTIFICATE_FOLDER')) {
-            $certificateHostname = (string) Env::get('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME', $this->host());
+        if ($this->env('NGINX_EXTERNAL_CERTIFICATE_FOLDER')) {
+            $certificateHostname = (string) $this->env('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME', $this->host());
 
             $sslCertificate = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/fullchain.pem";
             $sslCertificateKey = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/privkey.pem";
@@ -126,7 +126,7 @@ class Nginx extends Service
             ->root($this->getWorkingDir())
             ->certificatePath($sslCertificate ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/fullchain.pem")
             ->certificateKeyPath($sslCertificateKey ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/privkey.pem")
-            ->proxyWebsocket((bool) Env::get('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) $this->env('WEBSOCKET_ENABLED'));
     }
 
     public function addSite(string $host, int $port): Site

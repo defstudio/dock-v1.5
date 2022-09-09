@@ -24,7 +24,7 @@ class Node extends Service
             ],
         ]);
 
-        $this->version(Env::get('NODE_VERSION', 'lts'));
+        $this->version($this->env('NODE_VERSION', 'lts'));
 
         if (!$this->isProductionMode()) {
             $this->mapPort(5173); //Vite port

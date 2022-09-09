@@ -142,6 +142,10 @@ class ConfigurationOption
 
     public function configure(Configuration $configuration): void
     {
+        if($this->hasASettedValue()){
+            return;
+        }
+
         if (!$this->isActive($configuration)) {
             return;
         }
@@ -291,6 +295,11 @@ class ConfigurationOption
         }
 
         return true;
+    }
+
+    public function hasASettedValue(): bool
+    {
+        return isset($this->value);
     }
 
     public function isActive(Configuration $configuration): bool
