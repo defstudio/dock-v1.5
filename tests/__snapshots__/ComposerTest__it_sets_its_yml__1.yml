@@ -1,7 +1,7 @@
 restart: unless-stopped
 working_dir: /var/www
 build:
-    context: ./services/php
+    context: ./services/php/build
     target: composer
 user: '1000:1000'
 expose:

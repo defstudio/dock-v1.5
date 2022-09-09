@@ -4,7 +4,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/php
+            context: ./services/php/build
             target: fpm
         user: '1000:1000'
         expose:
@@ -15,7 +15,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/nginx
+            context: ./services/nginx/build
         ports:
             - '80:80'
         expose:
@@ -26,7 +26,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/php
+            context: ./services/php/build
             target: scheduler
         user: '1000:1000'
         expose:
@@ -37,7 +37,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/php
+            context: ./services/php/build
             target: worker
         user: '1000:1000'
         expose:
@@ -48,7 +48,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/php
+            context: ./services/php/build
             target: composer
         user: '1000:1000'
         expose:
@@ -58,7 +58,7 @@ services:
     node:
         working_dir: /var/www
         build:
-            context: ./services/node
+            context: ./services/node/build
         ports:
             - '5173:5173'
         expose:
@@ -67,7 +67,7 @@ services:
         restart: unless-stopped
         working_dir: /var/www
         build:
-            context: ./services/php
+            context: ./services/php/build
             target: websocket
         user: '1000:1000'
         expose:

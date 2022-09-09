@@ -28,7 +28,7 @@ test('docker test build', function (string $targetClass, string $phpVersion) {
     $root = invade($target->assets())->config['root'];
 
     $command = [
-        'docker', 'build', '--target', $target->getTarget(), '--tag', 'dock-test-php', $root,
+        'docker', 'build', '--target', $target->getTarget(), '--tag', 'dock-test-php', "$root/build",
     ];
 
     $process = new Process(command: $command, env: [

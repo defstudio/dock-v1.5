@@ -45,7 +45,7 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
     $websocket = new Websocket();
     $websocket->publishAssets();
 
-    expect($websocket->assets()->get('Dockerfile'))->toMatchSnapshot();
+    expect($websocket->assets()->get('build/Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ])->with('php versions');
@@ -57,7 +57,7 @@ it('publishes start script', function ($env) {
     $websocket = new Websocket();
     $websocket->publishAssets();
 
-    expect($websocket->assets()->get('websocket/start_script.sh'))->toMatchSnapshot();
+    expect($websocket->assets()->get('build/websocket/start_script.sh'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ]);

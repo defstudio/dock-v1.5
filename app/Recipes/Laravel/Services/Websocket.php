@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class Websocket extends Php
 {
+    public const ASSET_START_SCRIPT_PATH = 'build/websocket/start_script.sh';
+
     protected function configure(): void
     {
         parent::configure();
@@ -31,7 +33,7 @@ class Websocket extends Php
 
     public function publishAssets(): void
     {
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('WEBSOCKET')) {
+        if (!$this->assets()->exists(self::ASSET_DOCKERFILE_PATH) || Str::of($this->assets()->get(self::ASSET_DOCKERFILE_PATH) ?? '')->contains('WEBSOCKET')) {
             parent::publishAssets();
         }
 
@@ -42,12 +44,12 @@ class Websocket extends Php
     private function publishStartScript(): void
     {
         $script = view('services.php.websocket.start_script')->with('service', $this)->render();
-        $this->assets()->put('websocket/start_script.sh', $script);
+        $this->assets()->put(self::ASSET_START_SCRIPT_PATH, $script);
     }
 
     private function appendDockerfile(): void
     {
         $dockerfile = view('services.php.dockerfile.websocket')->with('service', $this)->render();
-        $this->assets()->append('Dockerfile', $dockerfile);
+        $this->assets()->append(self::ASSET_DOCKERFILE_PATH, $dockerfile);
     }
 }

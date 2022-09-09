@@ -41,7 +41,9 @@ it('can set its dependency from mysql', function () {
 });
 
 it('sets its volumes', function () {
-    expect(new Php())->toHaveVolume('./src', '/var/www');
+    expect(new Php())
+        ->toHaveVolume('./src', '/var/www')
+        ->toHaveVolume('./services/php/php.ini', '/usr/local/etc/php/php.ini');
 });
 
 it('adds internal network', function () {
@@ -154,7 +156,7 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
     $php = new Php();
     $php->publishAssets();
 
-    expect($php->assets()->get('Dockerfile'))->toMatchSnapshot();
+    expect($php->assets()->get('build/Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
     'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
@@ -169,7 +171,7 @@ it('publishes php.ini', function ($env) {
     $php = new Php();
     $php->publishAssets();
 
-    expect($php->assets()->get('php.ini'))->toMatchSnapshot();
+    expect($php->assets()->get('build/php.ini'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
     'production' => fn () => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],

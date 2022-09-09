@@ -33,7 +33,7 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
     $scheduler = new Scheduler();
     $scheduler->publishAssets();
 
-    expect($scheduler->assets()->get('Dockerfile'))->toMatchSnapshot();
+    expect($scheduler->assets()->get('build/Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ])->with('php versions');
@@ -45,7 +45,7 @@ it('publishes start script', function ($env) {
     $scheduler = new Scheduler();
     $scheduler->publishAssets();
 
-    expect($scheduler->assets()->get('scheduler/start_script.sh'))->toMatchSnapshot();
+    expect($scheduler->assets()->get('build/scheduler/start_script.sh'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ]);

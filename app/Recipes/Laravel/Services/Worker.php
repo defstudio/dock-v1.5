@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 
 class Worker extends Php
 {
+    public const ASSET_START_SCRIPT_PATH = 'build/worker/start_script.sh';
+
     protected function configure(): void
     {
         parent::configure();
@@ -20,7 +22,7 @@ class Worker extends Php
 
     public function publishAssets(): void
     {
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('WORKER')) {
+        if (!$this->assets()->exists(self::ASSET_DOCKERFILE_PATH) || Str::of($this->assets()->get(self::ASSET_DOCKERFILE_PATH) ?? '')->contains('WORKER')) {
             parent::publishAssets();
         }
 
@@ -31,12 +33,12 @@ class Worker extends Php
     private function publishStartScript(): void
     {
         $script = view('services.php.worker.start_script')->with('service', $this);
-        $this->assets()->put('worker/start_script.sh', $script);
+        $this->assets()->put(self::ASSET_START_SCRIPT_PATH, $script);
     }
 
     private function appendDockerfile(): void
     {
         $dockerfile = view('services.php.dockerfile.worker')->with('service', $this)->render();
-        $this->assets()->append('Dockerfile', $dockerfile);
+        $this->assets()->append(self::ASSET_DOCKERFILE_PATH, $dockerfile);
     }
 }

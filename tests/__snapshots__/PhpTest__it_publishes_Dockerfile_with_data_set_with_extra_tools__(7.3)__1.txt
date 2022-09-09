@@ -52,8 +52,6 @@ docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/u
 # Ensure psysh file is writable
 RUN mkdir -p /.config/psysh && chmod -R 777 /.config/psysh
 
-COPY php.ini "$PHP_INI_DIR/php.ini"
-
 #######
 # FPM #
 #######

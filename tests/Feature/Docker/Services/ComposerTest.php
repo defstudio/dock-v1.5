@@ -31,7 +31,7 @@ it('publish assets', function (array $env, string $phpVersion) {
     $composer = new Composer();
     $composer->publishAssets();
 
-    expect($composer->assets()->get('Dockerfile'))->toMatchSnapshot();
+    expect($composer->assets()->get('build/Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
     'pcov' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],

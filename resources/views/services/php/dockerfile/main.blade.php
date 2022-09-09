@@ -14,8 +14,6 @@ LABEL org.opencontainers.image.authors="def:studio (https://github.com/def-studi
 
 @include('services.php.dockerfile.ensure_psysh_is_writable', ['service' => $service])
 
-COPY php.ini "$PHP_INI_DIR/php.ini"
-
 @include('services.php.dockerfile.fpm', ['service' => $service])
 
 

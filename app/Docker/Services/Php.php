@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
 
 class Php extends Service
 {
+    protected const ASSET_PHP_INI_PATH = 'php.ini';
+
     protected float|string $version;
 
     protected array $allowedTargets = [
@@ -32,7 +34,7 @@ class Php extends Service
             'restart' => 'unless-stopped',
             'working_dir' => '/var/www',
             'build' => [
-                'context' => $this->assetsFolder(),
+                'context' => "{$this->assetsFolder()}/build",
                 'target' => 'fpm',
             ],
             'user' => "{$this->getUserId()}:{$this->getGroupId()}",
@@ -55,6 +57,7 @@ class Php extends Service
         $this->version($this->env('PHP_VERSION', 'latest'));
 
         $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
+        $this->addVolume("{$this->assetsFolder()}/".self::ASSET_PHP_INI_PATH, '/usr/local/etc/php/php.ini');
 
         $this->addNetwork($this->internalNetworkName());
     }
@@ -256,8 +259,10 @@ class Php extends Service
 
     private function publishDockerfile(): void
     {
-        $dockerfile = view('services.php.dockerfile.main')->with('service', $this)->render();
-        $this->assets()->put('Dockerfile', $dockerfile);
+        $this->assets()->put(
+            self::ASSET_DOCKERFILE_PATH,
+            view('services.php.dockerfile.main')->with('service', $this)->render()
+        );
     }
 
     private function publishPhpIni(): void
@@ -278,6 +283,6 @@ class Php extends Service
             ->with('log_errors', true)
             ->render();
 
-        $this->assets()->put('php.ini', $phpini);
+        $this->assets()->put(self::ASSET_PHP_INI_PATH, $phpini);
     }
 }

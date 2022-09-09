@@ -22,11 +22,13 @@ class Nginx extends Service
 {
     protected const LETSENCRYPT_FOLDER = '/etc/letsencrypt';
 
-    protected const CONF_PATH = '/nginx.conf';
+    protected const ASSET_NGINX_CONF_PATH = 'nginx.conf';
 
-    protected const SITES_PATH = '/sites-available';
+    protected const ASSET_UPSTREAM_CONF_PATH = 'conf.d/upstream.conf';
 
-    protected string $phpService;
+    protected const ASSET_SITES_AVAILABLE_DIRECTORY = 'sites-available';
+
+    protected Php $phpService;
 
     /** @var Collection<string, Site> */
     protected Collection $sites;
@@ -47,7 +49,7 @@ class Nginx extends Service
             'restart' => 'unless-stopped',
             'working_dir' => '/var/www',
             'build' => [
-                'context' => $this->assetsFolder(),
+                'context' => "{$this->assetsFolder()}/build",
             ],
         ]);
 
@@ -56,8 +58,8 @@ class Nginx extends Service
         }
 
         $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
-        $this->addVolume(self::HOST_SERVICES_PATH."/$this->name".self::CONF_PATH, '/etc/nginx/'.self::CONF_PATH);
-        $this->addVolume(self::HOST_SERVICES_PATH."/$this->name".self::SITES_PATH, '/etc/nginx/'.self::SITES_PATH);
+        $this->addVolume(self::HOST_SERVICES_PATH."/$this->name/".self::ASSET_NGINX_CONF_PATH, '/etc/nginx/nginx.conf');
+        $this->addVolume(self::HOST_SERVICES_PATH."/$this->name/".self::ASSET_SITES_AVAILABLE_DIRECTORY, '/etc/nginx/sites-available');
 
         $this->setupSite();
 
@@ -70,8 +72,10 @@ class Nginx extends Service
 
     public function phpService(Php $php): static
     {
-        $this->phpService = $php->name();
+        $this->phpService = $php;
         $this->serviceDefinition->push('depends_on', $php->name());
+
+        $this->addVolume(self::HOST_SERVICES_PATH."/$this->name/".self::ASSET_UPSTREAM_CONF_PATH, '/etc/nginx/conf.d/upstream.conf');
 
         return $this;
     }
@@ -172,5 +176,87 @@ class Nginx extends Service
     public function isProxyTargetNotFoundPageEnabled(): bool
     {
         return $this->enableProxyTargetNotFoundPage;
+    }
+
+    public function getPhpService(): Php
+    {
+        return $this->phpService;
+    }
+
+    public function publishAssets(): void
+    {
+        $this->publishDockerfile();
+        $this->publishProxyTargetNotFoundPage();
+        $this->publishNginxConfigFile();
+        $this->publishUpstreamConfig();
+        $this->publishSitesAvailableDirectory();
+        $this->publishSites();
+    }
+
+    private function publishDockerfile(): void
+    {
+        $this->assets()->put(
+            self::ASSET_DOCKERFILE_PATH,
+            view('services.nginx.dockerfile.main')->with('service', $this)->render()
+        );
+    }
+
+    private function publishProxyTargetNotFoundPage(): void
+    {
+        if(!$this->isProxyTargetNotFoundPageEnabled()){
+            return;
+        }
+
+        $this->assets()->put(
+            'build/backend_not_found.html',
+            view('services.nginx.misc.backend_not_found_page')->with('service', $this)->render()
+        );
+
+        $this->assets()->put(
+            self::ASSET_SITES_AVAILABLE_DIRECTORY.'/backend_not_found.conf',
+            view('services.nginx.misc.backend_not_found_conf')->with('service', $this)->render()
+        );
+
+    }
+
+    private function publishNginxConfigFile(): void
+    {
+        $this->assets()->put(
+            self::ASSET_NGINX_CONF_PATH,
+            view('services.nginx.nginx_conf')->with('service', $this)->render()
+        );
+    }
+
+    private function publishUpstreamConfig(): void
+    {
+        if (empty($this->phpService)) {
+            return;
+        }
+
+        $this->assets()->put(
+            self::ASSET_UPSTREAM_CONF_PATH,
+            view('services.nginx.upstream_conf')->with('service', $this)->render()
+        );
+    }
+
+    private function publishSitesAvailableDirectory(): void
+    {
+        if ($this->assets()->exists(self::ASSET_SITES_AVAILABLE_DIRECTORY)) {
+            $this->assets()->deleteDirectory(self::ASSET_SITES_AVAILABLE_DIRECTORY);
+        }
+
+        $this->assets()->makeDirectory(self::ASSET_SITES_AVAILABLE_DIRECTORY);
+    }
+
+    private function publishSites(): void
+    {
+        $this->sites->each(fn (Site $site) => $this->assets()->put(
+            Str::of(self::ASSET_SITES_AVAILABLE_DIRECTORY)
+                ->append(DIRECTORY_SEPARATOR)
+                ->append($site->getHost(), '_', $site->getPort())
+                ->append('.conf')
+                ->toString(),
+            $site->configuration()
+        ));
     }
 }

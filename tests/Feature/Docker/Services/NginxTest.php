@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Services\Nginx;
 use App\Docker\Services\Php;
@@ -32,8 +33,8 @@ it('can expose docker host', function () {
 it('sets its volumes', function () {
     expect(new Nginx())
         ->toHaveVolume('./src', '/var/www')
-        ->toHaveVolume('./services/nginx/nginx.conf', '/etc/nginx//nginx.conf')
-        ->toHaveVolume('./services/nginx/sites-available', '/etc/nginx//sites-available');
+        ->toHaveVolume('./services/nginx/nginx.conf', '/etc/nginx/nginx.conf')
+        ->toHaveVolume('./services/nginx/sites-available', '/etc/nginx/sites-available');
 });
 
 it('adds internal network', function () {
@@ -55,6 +56,15 @@ it('can set php service dependency', function () {
     $nginx->phpService($php);
 
     expect($nginx)->yml('depends_on')->toBe(['php']);
+});
+
+it('adds upstream.conf volume when php service is set', function () {
+    $php = new Php();
+    $nginx = new Nginx();
+
+    $nginx->phpService($php);
+
+    expect($nginx)->toHaveVolume('./services/nginx/conf.d/upstream.conf', '/etc/nginx/conf.d/upstream.conf');
 });
 
 it('sets up the site from env', function (array $env) {
@@ -112,3 +122,16 @@ it('can return its sites', function () {
 test('commands', function () {
     expect(new Nginx())->commands()->toBe([NginxRestart::class]);
 });
+
+it('publishes Dockerfile', function (array $env) {
+    Env::fake($env);
+
+    Service::fake();
+
+    $nginx = new Nginx();
+    $nginx->publishAssets();
+
+    expect($nginx->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+})->with([
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
+]);

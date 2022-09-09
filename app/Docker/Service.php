@@ -29,6 +29,8 @@ abstract class Service
 
     protected const HOST_SERVICES_PATH = './services';
 
+    protected const ASSET_DOCKERFILE_PATH = 'build/Dockerfile';
+
     protected ServiceDefinition $serviceDefinition;
 
     /** @var Collection<int, Volume> */
