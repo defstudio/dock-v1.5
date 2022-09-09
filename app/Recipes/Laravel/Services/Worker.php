@@ -20,7 +20,7 @@ class Worker extends Php
 
     public function publishAssets(): void
     {
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile'))->contains('WORKER')) {
+        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('WORKER')) {
             parent::publishAssets();
         }
 

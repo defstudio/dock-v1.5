@@ -20,7 +20,7 @@ class Scheduler extends Php
 
     public function publishAssets(): void
     {
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile'))->contains('SCHEDULER')) {
+        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('SCHEDULER')) {
             parent::publishAssets();
         }
 

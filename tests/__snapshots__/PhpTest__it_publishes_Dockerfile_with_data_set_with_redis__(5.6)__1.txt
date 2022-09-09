@@ -1,4 +1,4 @@
-FROM php:8.1-fpm as base_php
+FROM php:5.6-fpm as base_php
 
 LABEL org.opencontainers.image.authors="def:studio (https://github.com/def-studio)"
 
@@ -9,7 +9,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     apt-get install -y --no-install-recommends unzip && \
     apt-get install -y --no-install-recommends sqlite3 && \
-    apt-get install -y --no-install-recommends default-mysql-client && \
     apt-get install -y --no-install-recommends libmemcached-dev && \
     apt-get install -y --no-install-recommends libz-dev && \
     apt-get install -y --no-install-recommends libjpeg-dev && \
@@ -26,18 +25,10 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
     apt-get install -y --no-install-recommends libnss3
 
-# LibreOffice Writer installation
-RUN mkdir -p /usr/share/man/man1 \
-    && mkdir -p /.cache/dconf && chmod -R 777 /.cache/dconf \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-11-jre-headless \
-    && apt-get install -y --no-install-recommends libreoffice-writer \
-    && apt-get install -y --no-install-recommends libreoffice-java-common \
-    && apt-get install -y --no-install-recommends pandoc
 
 # PHP Extensions installation
 RUN \
-docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
     docker-php-ext-install pdo_mysql && \
     docker-php-ext-install mysqli && \
     docker-php-ext-install pcntl && \
@@ -60,20 +51,6 @@ COPY php.ini "$PHP_INI_DIR/php.ini"
 
 FROM base_php as fpm
 
-# Enable Xdebug (https://xdebug.org/)
-RUN pecl install xdebug-3.1.5 && \
-    echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.client_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.idekey='PHPSTORM'" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.log_level=0" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    docker-php-ext-enable xdebug
 
-# Enable PCov (https://github.com/krakjoe/pcov)
-RUN pecl install pcov && \
-    docker-php-ext-enable pcov
 
 

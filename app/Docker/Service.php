@@ -147,7 +147,7 @@ abstract class Service
         if (self::$fake) {
             $fakeDiskName = Str::of($this->assetsFolder())
                 ->slug()
-                ->when(ParallelTesting::token(), fn (Stringable $str, string $token) => $str->append("_test_$token"))
+                ->when(ParallelTesting::token(), fn (Stringable $str, $token) => $str->append("_test_$token"))
                 ->toString();
 
             if (!$this->faked) {

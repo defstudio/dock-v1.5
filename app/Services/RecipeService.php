@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 
 class RecipeService
 {
+    private string $recipesPath;
+
     /**
      * @var Collection<string, Recipe>
      */
@@ -22,9 +24,9 @@ class RecipeService
 
     private Recipe $active;
 
-    public function __construct(private string|null $recipesPath = null)
+    public function __construct(string|null $recipesPath = null)
     {
-        $this->recipesPath ??= __DIR__.'/../Recipes';
+        $this->recipesPath = $recipesPath ?? __DIR__.'/../Recipes';
     }
 
     public function recipe(string $name = null): Recipe

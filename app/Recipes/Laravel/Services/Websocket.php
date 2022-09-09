@@ -31,7 +31,7 @@ class Websocket extends Php
 
     public function publishAssets(): void
     {
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile'))->contains('WEBSOCKET')) {
+        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('WEBSOCKET')) {
             parent::publishAssets();
         }
 

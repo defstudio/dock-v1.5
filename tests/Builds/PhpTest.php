@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUndefinedFieldInspection */
 
 declare(strict_types=1);
@@ -37,12 +38,12 @@ test('docker test build', function (string $targetClass, string $phpVersion) {
     $process->setTimeout(null);
     $process->setIdleTimeout(null);
 
-    $output = "";
+    $output = '';
     $exitCode = $process->run(function ($type, $buffer) use (&$output) {
         $output .= "$buffer\n";
     });
 
-    if($exitCode>0){
+    if ($exitCode > 0) {
         echo $output;
     }
 

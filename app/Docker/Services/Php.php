@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpMatchExpressionWithOnlyDefaultArmInspection */
+<?php
+
+/** @noinspection PhpMatchExpressionWithOnlyDefaultArmInspection */
 
 /** @noinspection PhpUnused */
 /** @noinspection PhpUnhandledExceptionInspection */
@@ -116,7 +118,7 @@ class Php extends Service
 
     public function isXdebugAvailable(): bool
     {
-       return true;
+        return true;
     }
 
     public function isPcovAvailable(): bool

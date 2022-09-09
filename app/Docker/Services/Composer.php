@@ -35,7 +35,7 @@ class Composer extends Php
     {
         $dockerfile = view('services.php.dockerfile.composer')->with('service', $this)->render();
 
-        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile'))->contains('COMPOSER')) {
+        if (!$this->assets()->exists('Dockerfile') || Str::of($this->assets()->get('Dockerfile') ?? '')->contains('COMPOSER')) {
             parent::publishAssets();
         }
 
