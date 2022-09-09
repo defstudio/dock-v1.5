@@ -15,7 +15,7 @@ RUN pecl install xdebug-2.5.0 && \
     echo "xdebug.profiler_enable_trigger=1" >> /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "xdebug.profiler_output_dir='/opt/profile'" >> /usr/local/etc/php/conf.d/xdebug.ini && \
     docker-php-ext-enable xdebug
-@elseif($service->phpMajorVersion() > 8)
+@elseif($service->phpMajorVersion() < 8)
 RUN pecl install xdebug-2.6.0 && \
     echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "xdebug.default_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini && \

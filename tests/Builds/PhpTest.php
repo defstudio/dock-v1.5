@@ -44,4 +44,4 @@ test('docker test build', function (string $targetClass, string $phpversion) {
     $process = new Process(['docker', 'rmi', 'dock-test-php']);
     $process->run();
 })->with([Php::class/*, Composer::class, Scheduler::class, Worker::class, Websocket::class*/])
-    ->with([/*'5.6', '7.3', */'7.4', '8.0', '8.1']);
+    ->with('php versions');

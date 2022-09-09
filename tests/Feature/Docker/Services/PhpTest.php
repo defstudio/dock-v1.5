@@ -112,12 +112,27 @@ it('computes PHP major version', function (string|float $version, int $expected)
 
     expect(new Php())->phpMajorVersion()->toBe($expected);
 })->with([
-    ['version' => 'latest', 'major' => 8],
-    ['version' => 7, 'major' => 7],
-    ['version' => '5', 'major' => 5],
-    ['version' => 7.4, 'major' => 7],
-    ['version' => '8.2', 'major' => 8],
-    ['version' => '8.1.10', 'major' => 8],
+    ['version' => 'latest', 'expected' => 8],
+    ['version' => 7, 'expected' => 7],
+    ['version' => '5', 'expected' => 5],
+    ['version' => 7.4, 'expected' => 7],
+    ['version' => '8.2', 'expected' => 8],
+    ['version' => '8.1.10', 'expected' => 8],
+]);
+
+it('computes PHP minor version', function (string|float $version, float $expected) {
+    Env::put('PHP_VERSION', $version);
+
+    expect(new Php())->getPhpMinorVersion()->toBe($expected);
+})->with([
+    ['version' => 'latest', 'expected' => 8.1],
+    ['version' => 7, 'expected' => 7.0],
+    ['version' => 7.4, 'expected' => 7.4],
+    ['version' => '5', 'expected' => 5.0],
+    ['version' => '7.2', 'expected' => 7.2],
+    ['version' => '8.1.10', 'expected' => 8.1],
+    ['version' => '8.1.10', 'expected' => 8.1],
+    ['version' => '8.2.0RC1', 'expected' => 8.2],
 ]);
 
 it('foces asset folder to services/php', function () {
@@ -131,8 +146,9 @@ test('commands', function () {
     expect(new Php())->commands()->toBe([]);
 });
 
-it('publishes Dockerfile', function ($env) {
-    Env::fake($env);
+it('publishes Dockerfile', function (array $env, string $phpVersion) {
+    Env::fake($env)->put('PHP_VERSION', $phpVersion);
+
     Service::fake();
 
     $php = new Php();
@@ -141,11 +157,11 @@ it('publishes Dockerfile', function ($env) {
     expect($php->assets()->get('Dockerfile'))->toMatchSnapshot();
 })->with([
     'default' => fn() => ['RECIPE' => 'test-recipe'],
-    'custom php version' => fn() => ['RECIPE' => 'test-recipe', 'PHP_VERSION' => "8.1.5"],
+    'custom php version' => fn() => ['RECIPE' => 'test-recipe'],
     'with mysql client' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "mysql_client"],
     'with libreoffice writer' => fn() => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => "libreoffice_writer"],
     'with redis' => fn() => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
-]);
+])->with('php versions');
 
 it('publishes php.ini', function ($env) {
     Env::fake($env);

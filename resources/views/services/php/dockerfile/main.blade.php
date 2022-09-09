@@ -2,7 +2,6 @@
 <?php /** @var \App\Docker\Services\Php $service */ ?>
 FROM php:{{$service->getPhpVersion()==='latest' ? 'fpm' : "{$service->getPhpVersion()}-fpm"}} as base_php
 
-LABEL org.opencontainers.image.created="{{today()}}"
 LABEL org.opencontainers.image.authors="def:studio (https://github.com/def-studio)"
 
 @include('services.php.dockerfile.system_packages', ['service' => $service])

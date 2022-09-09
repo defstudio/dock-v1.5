@@ -80,9 +80,9 @@ class Php extends Service
         return $this;
     }
 
-    public function getPhpVersion(): float|string
+    public function getPhpVersion(): string
     {
-        return $this->version;
+        return "$this->version";
     }
 
     public function isXdebugEnabled(): bool
@@ -111,7 +111,7 @@ class Php extends Service
 
     public function isLibreOfficeWriterEnabled(): bool
     {
-        if($this->phpMajorVersion() < 7){
+        if($this->phpMajorVersion() < 7.0){
             return false;
         }
 
@@ -191,7 +191,7 @@ class Php extends Service
             return false;
         }
 
-        return Env::get('REDIS_ENABLED');
+        return !!Env::get('REDIS_ENABLED');
     }
 
     public function phpMajorVersion(): int
@@ -201,6 +201,15 @@ class Php extends Service
         }
 
         return (int) $this->version;
+    }
+
+    public function getPhpMinorVersion(): float
+    {
+        if ($this->version === 'latest') {
+            return 8.1;
+        }
+
+        return round(floatval($this->version), 1, PHP_ROUND_HALF_DOWN);
     }
 
     protected function assetsFolder(): string
