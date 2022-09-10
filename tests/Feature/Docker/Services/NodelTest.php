@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Docker\Services\Commands\Npm;
+use App\Docker\Services\Nginx;
 use App\Docker\Services\Node;
+use App\Docker\Services\Php;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -49,3 +52,23 @@ test('commands', function () {
         Npm::class,
     ]);
 });
+
+it('publishes assets', function (string $asset, array $env, Closure $setup = null) {
+    Env::fake($env);
+    Service::fake();
+
+    $node = new Node();
+
+    if ($setup !== null) {
+        call_user_func($setup, $node);
+    }
+
+    $node->publishAssets();
+
+    expect($node->assets()->get($asset) ?? '')->toMatchTextSnapshot();
+})->with([
+    'build/Dockerfile',
+])->with([
+    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'custom version' => fn () => ['RECIPE' => 'test-recipe', 'NODE_VERSION' => '18'],
+]);

@@ -12,6 +12,7 @@
 */
 
 use App\Docker\Volume;
+use App\Facades\Terminal;
 use App\Services\RecipeService;
 use Symfony\Component\Console\Output\NullOutput;
 use function Termwind\renderUsing;
@@ -20,6 +21,7 @@ uses(Tests\TestCase::class)
     ->beforeEach(function () {
         app()->bind(RecipeService::class, fn () => new RecipeService(__DIR__.'/Fixtures/Recipes'));
         Storage::fake('cwd');
+        Terminal::fake();
     })
     ->group('builds')
     ->in('Builds');
@@ -28,6 +30,7 @@ uses(Tests\TestCase::class)
     ->beforeEach(function () {
         app()->bind(RecipeService::class, fn () => new RecipeService(__DIR__.'/Fixtures/Recipes'));
         Storage::fake('cwd');
+        Terminal::fake();
     })
     ->in('Feature');
 

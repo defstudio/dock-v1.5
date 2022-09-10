@@ -1,0 +1,4 @@
+upstream php-upstream {
+    server nginx:9000;
+}
+

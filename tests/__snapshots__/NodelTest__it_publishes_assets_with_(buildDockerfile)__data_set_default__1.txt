@@ -1,0 +1,5 @@
+FROM node:lts-alpine
+
+# Makes .npm folder writable
+RUN mkdir /.npm && \
+    chmod -R 777 /.npm

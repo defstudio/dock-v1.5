@@ -2,8 +2,10 @@
 <?php /** @var \App\Docker\Services\Nginx $service */ ?>
 FROM nginx:stable
 
-RUN mkdir /var/backend_not_found
-COPY ./backend_not_found.html /var/backend_not_found/index.html
+@if($service->hostNotFoundPageEnabled())
+RUN mkdir /var/host_not_found
+COPY ./host_not_found.html /var/host_not_found/index.html
+@endif
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends openssl

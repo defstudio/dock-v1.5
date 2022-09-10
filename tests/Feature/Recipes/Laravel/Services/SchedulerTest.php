@@ -26,26 +26,17 @@ test('commands', function () {
     expect(new Scheduler())->commands()->toBe([]);
 });
 
-it('publishes Dockerfile', function (array $env, string $phpVersion) {
+it('publishes assets', function (string $asset, array $env, string $phpVersion) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
     Service::fake();
 
     $scheduler = new Scheduler();
     $scheduler->publishAssets();
 
-    expect($scheduler->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+    expect($scheduler->assets()->get($asset))->toMatchSnapshot();
 })->with([
+    'build/Dockerfile',
+    'build/scheduler/start_script.sh',
+])->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ])->with('php versions');
-
-it('publishes start script', function ($env) {
-    Env::fake($env);
-    Service::fake();
-
-    $scheduler = new Scheduler();
-    $scheduler->publishAssets();
-
-    expect($scheduler->assets()->get('build/scheduler/start_script.sh'))->toMatchSnapshot();
-})->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-]);

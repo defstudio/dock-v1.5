@@ -53,4 +53,17 @@ class Node extends Service
             Npm::class,
         ];
     }
+
+    public function publishAssets(): void
+    {
+        $this->publishDockerfile();
+    }
+
+    private function publishDockerfile()
+    {
+        $this->assets()->put(
+            self::ASSET_DOCKERFILE_PATH,
+            view('services.node.dockerfile.main')->with('service', $this)->render()
+        );
+    }
 }

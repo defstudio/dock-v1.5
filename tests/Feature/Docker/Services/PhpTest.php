@@ -148,7 +148,7 @@ test('commands', function () {
     expect(new Php())->commands()->toBe([]);
 });
 
-it('publishes Dockerfile', function (array $env, string $phpVersion) {
+it('publishes assets', function (string $asset, string $phpVersion, array $env) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
 
     Service::fake();
@@ -156,23 +156,16 @@ it('publishes Dockerfile', function (array $env, string $phpVersion) {
     $php = new Php();
     $php->publishAssets();
 
-    expect($php->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+    expect($php->assets()->get($asset) ?? '')->toMatchTextSnapshot();
 })->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-    'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
-    'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'xdebug'],
-    'with redis' => fn () => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
-])->with('php versions');
-
-it('publishes php.ini', function ($env) {
-    Env::fake($env);
-    Service::fake();
-
-    $php = new Php();
-    $php->publishAssets();
-
-    expect($php->assets()->get('build/php.ini'))->toMatchSnapshot();
-})->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-    'production' => fn () => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
-]);
+    'build/Dockerfile',
+    'php.ini',
+])
+    ->with('php versions')
+    ->with([
+        'default' => fn () => ['RECIPE' => 'test-recipe'],
+        'production' => fn () => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
+        'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
+        'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'xdebug'],
+        'with redis' => fn () => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
+    ]);

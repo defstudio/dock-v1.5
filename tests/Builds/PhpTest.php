@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
 use function Termwind\render;
 
 test('docker test build', function (string $targetClass, string $phpVersion) {
-    render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST target = $targetClass & php version = $phpVersion</div>");
+    render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST PHP-$phpVersion target = $targetClass</div>");
 
     Env::fake(['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true, 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,pcov,xdebug']);
     Env::put('PHP_VERSION', $phpVersion);
@@ -28,7 +28,7 @@ test('docker test build', function (string $targetClass, string $phpVersion) {
     $root = invade($target->assets())->config['root'];
 
     $command = [
-        'docker', 'build', '--target', $target->getTarget(), '--tag', 'dock-test-php', "$root/build",
+        'docker', 'build', '--target', $target->getTarget(), '--tag', 'dock-test-image', "$root/build",
     ];
 
     $process = new Process(command: $command, env: [
@@ -49,7 +49,7 @@ test('docker test build', function (string $targetClass, string $phpVersion) {
 
     expect($exitCode)->toBe(0);
 
-    $process = new Process(['docker', 'rmi', 'dock-test-php']);
+    $process = new Process(['docker', 'rmi', 'dock-test-image']);
     $process->run();
 })
     ->with([Php::class, Composer::class, Scheduler::class, Worker::class, Websocket::class])

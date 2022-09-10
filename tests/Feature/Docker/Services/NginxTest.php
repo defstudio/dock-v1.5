@@ -106,9 +106,9 @@ it('map added site port', function () {
 
 it('can enable proxy target not found page', function () {
     $nginx = new Nginx();
-    $nginx->enableProxyTargetNotFoundPage();
+    $nginx->enableHostNotFoundPage();
 
-    expect($nginx)->isProxyTargetNotFoundPageEnabled()->toBeTrue();
+    expect($nginx)->hostNotFoundPageEnabled()->toBeTrue();
 });
 
 it('can return its sites', function () {
@@ -123,15 +123,34 @@ test('commands', function () {
     expect(new Nginx())->commands()->toBe([NginxRestart::class]);
 });
 
-it('publishes Dockerfile', function (array $env) {
+it('publishes assets', function (string $asset, array $env, Closure $setup = null) {
     Env::fake($env);
-
     Service::fake();
 
     $nginx = new Nginx();
+
+    if ($setup !== null) {
+        call_user_func($setup, $nginx);
+    }
+
     $nginx->publishAssets();
 
-    expect($nginx->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+    expect($nginx->assets()->get($asset) ?? '')->toMatchTextSnapshot();
 })->with([
+    'build/Dockerfile',
+    'build/host_not_found.html',
+    'sites-available/host_not_found.conf',
+    'nginx.conf',
+    'conf.d/upstream.conf',
+    'sites-available/foo.com_80.conf',
+])->with([
     'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
+    'host not found enabled' => [
+        'env' => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
+        'setup' => fn() => fn (Nginx $nginx) => $nginx->enableHostNotFoundPage(),
+    ],
+    'with php service' => [
+        'env' => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
+        'setup' => fn() => fn (Nginx $nginx) => $nginx->phpService(new Php()),
+    ],
 ]);

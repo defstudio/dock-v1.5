@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Docker\Service;
 use App\Facades\Env;
+use App\Recipes\Laravel\Services\Scheduler;
 use App\Recipes\Laravel\Services\Worker;
 
 beforeEach(function () {
@@ -26,26 +27,17 @@ test('commands', function () {
     expect(new Worker())->commands()->toBe([]);
 });
 
-it('publishes Dockerfile', function (array $env, string $phpVersion) {
+it('publishes assets', function (string $asset, array $env, string $phpVersion) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
     Service::fake();
 
-    $worker = new Worker();
-    $worker->publishAssets();
+    $scheduler = new Scheduler();
+    $scheduler->publishAssets();
 
-    expect($worker->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+    expect($scheduler->assets()->get($asset))->toMatchSnapshot();
 })->with([
+    'build/Dockerfile',
+    'build/worker/start_script.sh',
+])->with([
     'default' => fn () => ['RECIPE' => 'test-recipe'],
 ])->with('php versions');
-
-it('publishes start script', function ($env) {
-    Env::fake($env);
-    Service::fake();
-
-    $worker = new Worker();
-    $worker->publishAssets();
-
-    expect($worker->assets()->get('build/worker/start_script.sh'))->toMatchSnapshot();
-})->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-]);

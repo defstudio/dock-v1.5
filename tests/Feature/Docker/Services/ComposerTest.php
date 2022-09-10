@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Docker\Service;
 use App\Docker\Services\Composer;
 use App\Facades\Env;
 
@@ -27,6 +28,7 @@ it('clears its dependencies', function () {
 
 it('publish assets', function (array $env, string $phpVersion) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
+    Service::fake();
 
     $composer = new Composer();
     $composer->publishAssets();

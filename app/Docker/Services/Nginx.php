@@ -33,7 +33,7 @@ class Nginx extends Service
     /** @var Collection<string, Site> */
     protected Collection $sites;
 
-    protected bool $enableProxyTargetNotFoundPage = false;
+    protected bool $hostNotFoundPage = false;
 
     public function __construct()
     {
@@ -146,9 +146,9 @@ class Nginx extends Service
         return $site;
     }
 
-    public function enableProxyTargetNotFoundPage(bool $enable = true): static
+    public function enableHostNotFoundPage(bool $enable = true): static
     {
-        $this->enableProxyTargetNotFoundPage = $enable;
+        $this->hostNotFoundPage = $enable;
 
         return $this;
     }
@@ -173,9 +173,9 @@ class Nginx extends Service
         return $this->sites->get($host);
     }
 
-    public function isProxyTargetNotFoundPageEnabled(): bool
+    public function hostNotFoundPageEnabled(): bool
     {
-        return $this->enableProxyTargetNotFoundPage;
+        return $this->hostNotFoundPage;
     }
 
     public function getPhpService(): Php
@@ -186,11 +186,11 @@ class Nginx extends Service
     public function publishAssets(): void
     {
         $this->publishDockerfile();
-        $this->publishProxyTargetNotFoundPage();
         $this->publishNginxConfigFile();
         $this->publishUpstreamConfig();
         $this->publishSitesAvailableDirectory();
         $this->publishSites();
+        $this->publishHostNotFoundSite();
     }
 
     private function publishDockerfile(): void
@@ -199,24 +199,6 @@ class Nginx extends Service
             self::ASSET_DOCKERFILE_PATH,
             view('services.nginx.dockerfile.main')->with('service', $this)->render()
         );
-    }
-
-    private function publishProxyTargetNotFoundPage(): void
-    {
-        if(!$this->isProxyTargetNotFoundPageEnabled()){
-            return;
-        }
-
-        $this->assets()->put(
-            'build/backend_not_found.html',
-            view('services.nginx.misc.backend_not_found_page')->with('service', $this)->render()
-        );
-
-        $this->assets()->put(
-            self::ASSET_SITES_AVAILABLE_DIRECTORY.'/backend_not_found.conf',
-            view('services.nginx.misc.backend_not_found_conf')->with('service', $this)->render()
-        );
-
     }
 
     private function publishNginxConfigFile(): void
@@ -258,5 +240,23 @@ class Nginx extends Service
                 ->toString(),
             $site->configuration()
         ));
+    }
+
+    private function publishHostNotFoundSite(): void
+    {
+        if(!$this->hostNotFoundPageEnabled()){
+            return;
+        }
+
+        $this->assets()->put(
+            'build/host_not_found.html',
+            view('services.nginx.misc.host_not_found_page')->with('service', $this)->render()
+        );
+
+        $this->assets()->put(
+            self::ASSET_SITES_AVAILABLE_DIRECTORY.'/host_not_found.conf',
+            view('services.nginx.misc.host_not_found_conf')->with('service', $this)->render()
+        );
+
     }
 }
