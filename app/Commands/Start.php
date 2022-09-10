@@ -22,6 +22,36 @@ class Start extends Command
             return $cookbook->recipe()->publishDockerCompose();
         });
 
+        $this->components->task('Publishing assets', function () use ($cookbook) {
+            return $cookbook->recipe()->publishAssets();
+        });
+
+        $this->components->task('Starting containers', function () use ($cookbook) {
+            $command = ['docker-compose', 'up', '-d'];
+
+            if($this->option('build')){
+                $command[] = '--build';
+            }
+
+            if ($this->option('remove-orphans')) {
+                $command[] = '--remove-orphans';
+            }
+
+            $exit_code = $this->runInTerminal(
+                $command,
+                environment_variables: [
+                    'COMPOSE_DOCKER_CLI_BUILD' => 1,
+                    'DOCKER_BUILDKIT' => 1,
+                ]
+            );
+
+            if ($exit_code > 0) {
+                return false;
+            }
+
+            return true;
+        });
+
         return self::SUCCESS;
     }
 }

@@ -122,6 +122,7 @@ abstract class Service
         $network = app(Network::class, ['name' => $name]);
 
         $this->networks = $this->networks->put($name, $network);
+        $this->serviceDefinition->push('networks', $name);
 
         return $network;
     }

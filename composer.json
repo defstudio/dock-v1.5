@@ -61,7 +61,10 @@
         "test:types": "phpstan analyse --ansi",
         "test:verbose": "@php ./vendor/bin/pest -v --colors=always --parallel --exclude-group=builds",
         "test:unit": "@php ./vendor/bin/pest --colors=always --parallel --exclude-group=builds",
-        "test:builds": "@php ./vendor/bin/pest --colors=always --group=builds",
+        "test:builds": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php ./vendor/bin/pest --colors=always --group=builds"
+        ],
         "test": [
             "@test:lint",
             "@test:types",

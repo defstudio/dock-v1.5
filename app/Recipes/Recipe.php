@@ -100,24 +100,26 @@ abstract class Recipe
     public function publishDockerCompose(): bool
     {
         $yml = Yaml::dump([
-            'version' => '3.8',
-            'services' => $this->publishServices(),
-            'networks' => $this->publishNetworks(),
+            'version' => '3.5',
+            'services' => $this->servicesYml(),
+            'networks' => $this->networksYml(),
         ], 4);
 
         return (bool) Storage::disk('cwd')->put('docker-compose.yml', $yml);
     }
 
-    private function publishServices(): array
+    private function servicesYml(): array
     {
-        return $this->services->map(function (Service $service) {
-            $service->publishAssets();
-
-            return $service->yml();
-        })->toArray();
+        return $this->services->map(fn (Service $service) => $service->yml())->toArray();
     }
 
-    private function publishNetworks(): array
+    public function publishAssets(): bool
+    {
+        $this->services->each(fn (Service $service) => $service->publishAssets());
+        return true;
+    }
+
+    private function networksYml(): array
     {
         return $this->services->flatMap(fn (Service $service) => $service->getNetworks())->toArray();
     }
