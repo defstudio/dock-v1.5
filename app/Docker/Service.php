@@ -9,6 +9,7 @@ namespace App\Docker;
 
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
+use App\Facades\Terminal;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Console\Command;
@@ -18,7 +19,6 @@ use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use Symfony\Component\Process\Process;
 
 abstract class Service
 {
@@ -75,9 +75,8 @@ abstract class Service
 
     public function isRunning(): bool
     {
-        $process = new Process(['docker-compose', 'ps', $this->name]);
-        $process->run();
-        $output = Str::of($process->getOutput());
+        $output = Terminal::runAndReturnOutput(['docker-compose', 'ps', $this->name]);
+        $output = Str::of($output);
 
         return $output->contains('Up') && !$output->contains('Exit') && !$output->contains('Restarting');
     }

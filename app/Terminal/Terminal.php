@@ -4,13 +4,14 @@
 /** @noinspection PhpInternalEntityUsedInspection */
 declare(strict_types=1);
 
-namespace App\Termwind;
+namespace App\Terminal;
 
 use Symfony\Component\Console\Helper\QuestionHelper as SymfonyQuestionHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question as SymfonyQuestion;
+use Symfony\Component\Process\Process;
 use Termwind\Helpers\QuestionHelper;
 use Termwind\HtmlRenderer;
 use Termwind\Termwind;
@@ -98,5 +99,28 @@ class Terminal
     public function error(string $message): void
     {
         $this->render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $message");
+    }
+
+    private function makeProcess(array $command, array $env): Process
+    {
+        $process = new Process(command: $command, env: $env);
+        $process->setInput(self::getStreamableInput());
+        $process->setTty(Process::isTtySupported());
+        $process->setTimeout(null);
+        $process->setIdleTimeout(null);
+        return $process;
+    }
+
+    public function run(array $command, array $env = []): int
+    {
+        return $this->makeProcess($command, $env)->run();
+    }
+
+    public function runAndReturnOutput(array $command, array $env = []): string
+    {
+        $process = $this->makeProcess($command, $env);
+        $process->run();
+
+        return $process->getOutput();
     }
 }

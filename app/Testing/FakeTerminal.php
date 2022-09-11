@@ -6,20 +6,23 @@ declare(strict_types=1);
 
 namespace App\Testing;
 
-use App\Termwind\Terminal;
+use App\Terminal\Terminal;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use function PHPUnit\Framework\assertContains;
 use function PHPUnit\Framework\assertEmpty;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertNotEmpty;
+use function PHPUnit\Framework\assertTrue;
 
 class FakeTerminal extends Terminal
 {
     private bool $fakeAll = false;
-
     private array $sentMessages = [];
+    private array $ranCommands = [];
 
-    public function __construct(private array $messages)
+    public function __construct(private array $messages, private array $commands)
     {
         $this->messages = collect($this->messages)
             ->mapWithKeys(fn ($value, $key) => is_int($key)
@@ -31,6 +34,25 @@ class FakeTerminal extends Terminal
         }
 
         parent::__construct();
+    }
+
+    public function run(array $command, array $env = []): int
+    {
+        $this->ranCommands[] = [
+            'command' => $command,
+            'env' => $env,
+        ];
+        return $this->commands[implode(" ", $command)] ?? 0;
+    }
+
+    public function runAndReturnOutput(array $command, array $env = []): string
+    {
+        $this->ranCommands[] = [
+            'command' => $command,
+            'env' => $env,
+        ];
+
+        return $this->commands[implode(" ", $command)] ?? '';
     }
 
     public function ask(string $question, bool|string $default = null, bool $allowEmpty = false): mixed
@@ -64,7 +86,7 @@ class FakeTerminal extends Terminal
 
         $nextMessageKey = array_key_first($this->messages);
 
-        /** @phpstan-ignore-next-line  */
+        /** @phpstan-ignore-next-line */
         $nextMessage = Str::of($nextMessageKey)->stripTags()->squish()->toString();
 
         assertEquals($nextMessage, $message, "Unexpected message [$message]. Next message should be [$nextMessage]");
@@ -86,5 +108,23 @@ class FakeTerminal extends Terminal
 
         $count = count($this->sentMessages);
         assertContains($message, $this->sentMessages, "Failed to assert [$message] was sent. (sent $count messages so far).");
+    }
+
+    public function assertRan(array $command, array $env = null)
+    {
+        $sent = collect($this->ranCommands)
+            ->filter(fn (array $ranCommand) => $ranCommand['command'] === $command)
+            ->when($env !== null, fn (Collection $ranCommands) => $ranCommands->filter(fn (array $ranCommand) => $ranCommand['env'] === $env))
+            ->isNotEmpty();
+
+        $command = implode(" ", $command);
+        $count = count($this->ranCommands);
+
+        if ($env === null) {
+            assertTrue($sent, "Failed to assert [$command] command was run. (ran $count commands so far).");
+        } else {
+            $env = collect($env)->map(fn ($value, $key) => "$key=$value")->join(', ');
+            assertTrue($sent, "Failed to assert [$command] command was run with env [$env]. (ran $count commands so far).");
+        }
     }
 }

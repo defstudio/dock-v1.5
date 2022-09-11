@@ -1,6 +1,6 @@
 <?php
 
-use App\Termwind\Terminal;
+use App\Terminal\Terminal;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

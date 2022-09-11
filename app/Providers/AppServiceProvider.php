@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Repositories\Env;
-use App\Termwind\Terminal;
+use App\Terminal\Terminal;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

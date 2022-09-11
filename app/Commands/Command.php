@@ -7,9 +7,8 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
+use App\Facades\Terminal;
 use App\Services\RecipeService;
-use Symfony\Component\Console\Input\StreamableInputInterface;
-use Symfony\Component\Process\Process;
 use function Termwind\render;
 use function Termwind\terminal;
 
@@ -19,17 +18,7 @@ abstract class Command extends \Illuminate\Console\Command
 
     public function runInTerminal(array $command, array $env = null): int
     {
-        $process = app(Process::class, ['command' => $command, 'env' => $env]);
-
-        if ($this->input instanceof StreamableInputInterface && $stream = $this->input->getStream()) {
-            $process->setInput($stream);
-        }
-
-        $process->setTty(Process::isTtySupported());
-        $process->setTimeout(null);
-        $process->setIdleTimeout(null);
-
-        return $process->run();
+        return Terminal::run($command, $env);
     }
 
     public function runInService(string $service, array $command, array $env = null, bool $withTty = true): int
