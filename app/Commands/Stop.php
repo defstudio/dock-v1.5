@@ -6,8 +6,6 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Services\RecipeService;
-
 class Stop extends Command
 {
     protected $signature = 'stop';

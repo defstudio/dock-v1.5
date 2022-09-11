@@ -6,12 +6,8 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Docker\Service;
-use App\Facades\Env;
 use App\Facades\Terminal;
-use App\Recipes\Recipe;
 use App\Services\RecipeService;
-use Illuminate\Support\Facades\Storage;
 
 class Shell extends Command
 {
@@ -24,7 +20,7 @@ class Shell extends Command
     {
         $availableServices = $cookbook->recipe()->services()->keys()->toArray();
 
-        $service = $this->argument('service') ?? Terminal::choose("Select a service", $availableServices);
+        $service = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices);
 
         $this->runInService($service, ['/bin/bash']);
 

@@ -78,6 +78,7 @@ abstract class Service
         $process = new Process(['docker-compose', 'ps', $this->name]);
         $process->run();
         $output = Str::of($process->getOutput());
+
         return $output->contains('Up') && !$output->contains('Exit') && !$output->contains('Restarting');
     }
 
@@ -92,6 +93,7 @@ abstract class Service
     {
         $this->volumes->push(app(Volume::class, ['hostPath' => $hostPath, 'containerPath' => $containerPath]));
         $this->serviceDefinition->push('volumes', "$hostPath:$containerPath");
+
         return $this;
     }
 

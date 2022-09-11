@@ -2,7 +2,6 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-
 use App\Commands\Command;
 
 class Install extends Command

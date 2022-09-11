@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpUnused */
 
 declare(strict_types=1);
@@ -6,10 +8,7 @@ declare(strict_types=1);
 namespace App\Commands;
 
 use App\Services\RecipeService;
-use Illuminate\Support\Str;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use function Termwind\render;
 use function Termwind\terminal;
@@ -35,14 +34,14 @@ abstract class Command extends \Illuminate\Console\Command
 
     public function runInService(string $service, array $command, array $env = null, bool $withTty = true): int
     {
-        if(app(RecipeService::class)->recipe()->getService($service)->isRunning()){
+        if (app(RecipeService::class)->recipe()->getService($service)->isRunning()) {
             $dockerComposeCommand = ['docker-compose', 'exec'];
-        }else{
+        } else {
             $dockerComposeCommand = ['docker-compose', 'run', '--service-ports', '--rm'];
 
             if (!$withTty) {
                 $dockerComposeCommand[] = '-T';
-            };
+            }
         }
 
         $command = [
@@ -75,7 +74,7 @@ abstract class Command extends \Illuminate\Console\Command
     }
 
     /**
-     * @param array<string, callable(): bool> $tasks
+     * @param  array<string, callable(): bool>  $tasks
      */
     public function tasks(array $tasks): bool
     {
@@ -92,7 +91,6 @@ abstract class Command extends \Illuminate\Console\Command
 
             $width = min(terminal()->width(), 150);
             $dots = max($width - $runTimeWidth - 10, 0);
-
 
             $this->output->write(str_repeat('<fg=gray>.</>', $dots));
             $this->output->write("<fg=gray>$runTime</>");

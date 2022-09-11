@@ -6,12 +6,8 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Docker\Service;
-use App\Facades\Env;
 use App\Facades\Terminal;
-use App\Recipes\Recipe;
 use App\Services\RecipeService;
-use Illuminate\Support\Facades\Storage;
 
 class Log extends Command
 {
@@ -24,10 +20,10 @@ class Log extends Command
     {
         $availableServices = $cookbook->recipe()->services()->keys()->prepend('all')->toArray();
 
-        $service = $this->argument('service') ?? Terminal::choose("Select a service", $availableServices, 'all');
+        $service = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices, 'all');
 
         $command = ['docker-compose', 'logs', '--follow', '--tail=50'];
-        if($service !== 'all'){
+        if ($service !== 'all') {
             $command[] = $service;
         }
 
