@@ -5,25 +5,20 @@
 declare(strict_types=1);
 
 use App\Docker\Service;
-use App\Docker\Services\Composer;
 use App\Docker\Services\Nginx;
-use App\Docker\Services\Php;
 use App\Facades\Env;
-use App\Recipes\Laravel\Services\Scheduler;
-use App\Recipes\Laravel\Services\Websocket;
-use App\Recipes\Laravel\Services\Worker;
 use Symfony\Component\Process\Process;
 use function Termwind\render;
 
 test('docker test build', function (bool $hostNotFound) {
-    $notFoundLabel = $hostNotFound ? " with host not found" : '';
+    $notFoundLabel = $hostNotFound ? ' with host not found' : '';
     render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST NGINX$notFoundLabel</div>");
 
     Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'foo.com']);
     Service::fake();
 
     $nginx = new Nginx();
-    if($hostNotFound){
+    if ($hostNotFound) {
         $nginx->enableHostNotFoundPage();
     }
     $nginx->publishAssets();

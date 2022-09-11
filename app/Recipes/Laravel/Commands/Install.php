@@ -2,8 +2,8 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+
+use App\Commands\Command;
 
 class Install extends Command
 {
@@ -13,8 +13,18 @@ class Install extends Command
 
     public function handle(): int
     {
-        Terminal::error('Coming soon');
+        return $this->tasks([
+            'Laravel Installation' => $this->install(...),
+        ]) ? self::SUCCESS : self::FAILURE;
+    }
 
-        return self::FAILURE;
+    private function install(): bool
+    {
+        $exitCode = $this->runInService(
+            'composer',
+            ['composer', 'create-project', '--prefer-dist', 'laravel/laravel', '.']
+        );
+
+        return $exitCode === 0;
     }
 }

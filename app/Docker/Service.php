@@ -77,7 +77,7 @@ abstract class Service
     public function addVolume(string $hostPath, string $containerPath = null): static
     {
         $this->volumes->push(app(Volume::class, ['hostPath' => $hostPath, 'containerPath' => $containerPath]));
-
+        $this->serviceDefinition->push('volumes', "$hostPath:$containerPath");
         return $this;
     }
 

@@ -116,6 +116,7 @@ abstract class Recipe
     public function publishAssets(): bool
     {
         $this->services->each(fn (Service $service) => $service->publishAssets());
+
         return true;
     }
 

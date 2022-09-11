@@ -244,7 +244,7 @@ class Nginx extends Service
 
     private function publishHostNotFoundSite(): void
     {
-        if(!$this->hostNotFoundPageEnabled()){
+        if (!$this->hostNotFoundPageEnabled()) {
             return;
         }
 
@@ -257,6 +257,5 @@ class Nginx extends Service
             self::ASSET_SITES_AVAILABLE_DIRECTORY.'/host_not_found.conf',
             view('services.nginx.misc.host_not_found_conf')->with('service', $this)->render()
         );
-
     }
 }

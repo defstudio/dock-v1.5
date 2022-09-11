@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use App\Docker\Service;
 use App\Docker\Services\Commands\Npm;
-use App\Docker\Services\Nginx;
 use App\Docker\Services\Node;
-use App\Docker\Services\Php;
 use App\Facades\Env;
 
 beforeEach(function () {

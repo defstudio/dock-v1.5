@@ -147,10 +147,10 @@ it('publishes assets', function (string $asset, array $env, Closure $setup = nul
     'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
     'host not found enabled' => [
         'env' => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
-        'setup' => fn() => fn (Nginx $nginx) => $nginx->enableHostNotFoundPage(),
+        'setup' => fn () => fn (Nginx $nginx) => $nginx->enableHostNotFoundPage(),
     ],
     'with php service' => [
         'env' => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
-        'setup' => fn() => fn (Nginx $nginx) => $nginx->phpService(new Php()),
+        'setup' => fn () => fn (Nginx $nginx) => $nginx->phpService(new Php()),
     ],
 ]);
