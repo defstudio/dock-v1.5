@@ -2,5 +2,11 @@
     "preset": "laravel",
     "rules": {
         "not_operator_with_successor_space": false
-    }
+    },
+    "exclude": [
+        "services",
+        "src",
+        "vendor",
+        "volumes"
+    ]
 }
