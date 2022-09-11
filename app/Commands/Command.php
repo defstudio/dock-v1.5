@@ -1,10 +1,15 @@
-<?php /** @noinspection PhpUnused */
+<?php /** @noinspection PhpUnhandledExceptionInspection */
+/** @noinspection PhpUnused */
 
 declare(strict_types=1);
 
 namespace App\Commands;
 
+use App\Services\RecipeService;
+use Illuminate\Support\Str;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use function Termwind\render;
 use function Termwind\terminal;
@@ -13,7 +18,7 @@ abstract class Command extends \Illuminate\Console\Command
 {
     private int $writeCount = 0;
 
-    public function runInTerminal(array $command, array $env = null, bool $withTty = false): int
+    public function runInTerminal(array $command, array $env = null): int
     {
         $process = new Process(command: $command, env: $env);
 
@@ -21,45 +26,32 @@ abstract class Command extends \Illuminate\Console\Command
             $process->setInput($stream);
         }
 
-        $process->setTty($withTty && Process::isTtySupported());
+        $process->setTty(Process::isTtySupported());
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
 
-        return $process->run(function ($type, $message) {
-            if ($this->writeCount() === 0) {
-                $this->output->newLine();
-            }
-
-            $firstWrite = true;
-            while (strlen($message) > 0) {
-                $piece = substr($message, 0, terminal()->width() - 6);
-                $message = substr($message, strlen($piece));
-
-                $piece = str_replace("\n", "      \n", $piece);
-                if ($firstWrite) {
-                    $this->write("    <fg=green>> </>$piece");
-                    $firstWrite = false;
-                } else {
-                    $this->write("      $piece");
-                }
-            }
-        });
+        return $process->run();
     }
 
-    public function runInService(string $service, array $command, array $env = null, bool $withTty = false): int
+    public function runInService(string $service, array $command, array $env = null, bool $withTty = true): int
     {
-        $containerCommand = ['docker-compose', 'run', '--service-ports', '--rm'];
+        if(app(RecipeService::class)->recipe()->getService($service)->isRunning()){
+            $dockerComposeCommand = ['docker-compose', 'exec'];
+        }else{
+            $dockerComposeCommand = ['docker-compose', 'run', '--service-ports', '--rm'];
 
-        if ($withTty) {
-            $containerCommand[] = '-T';
+            if (!$withTty) {
+                $dockerComposeCommand[] = '-T';
+            };
         }
 
-        $containerCommand[] = $service;
-
-        return $this->runInTerminal([
-            ...$containerCommand,
+        $command = [
+            ...$dockerComposeCommand,
+            $service,
             ...$command,
-        ], $env, $withTty);
+        ];
+
+        return $this->runInTerminal($command, $env);
     }
 
     public function warn($string, $verbosity = null)
@@ -88,9 +80,8 @@ abstract class Command extends \Illuminate\Console\Command
     public function tasks(array $tasks): bool
     {
         foreach ($tasks as $title => $task) {
-            $this->output->write("  <bg=gray>$title</>");
+            $this->output->writeln("  <bg=gray>$title</>");
 
-            $titleWidth = mb_strlen($title);
             $startTime = microtime(true);
 
             $this->resetWriteCount();
@@ -100,12 +91,9 @@ abstract class Command extends \Illuminate\Console\Command
             $runTimeWidth = mb_strlen($runTime);
 
             $width = min(terminal()->width(), 150);
-            $dots = max($width - $titleWidth - $runTimeWidth - 10, 0);
+            $dots = max($width - $runTimeWidth - 10, 0);
 
 
-            if ($this->writeCount() > 0) {
-                $this->write("    ".str_repeat('<fg=gray>.</>', $titleWidth));
-            }
             $this->output->write(str_repeat('<fg=gray>.</>', $dots));
             $this->output->write("<fg=gray>$runTime</>");
 

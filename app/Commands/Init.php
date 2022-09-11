@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace App\Commands;
 
 use App\Facades\Env;
+use App\Facades\Terminal;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +26,7 @@ class Init extends Command
             return self::INVALID;
         }
 
-        $recipeSlug = $this->argument('recipe') ?? $this->components->choice('Select a recipe', $cookbook->availableRecipes()->map(fn (Recipe $recipe) => $recipe->name())->toArray());
+        $recipeSlug = $this->argument('recipe') ?? Terminal::choose('Select a recipe', $cookbook->availableRecipes()->map(fn (Recipe $recipe) => $recipe->name())->toArray());
 
         $cookbook->activate($recipeSlug);
 

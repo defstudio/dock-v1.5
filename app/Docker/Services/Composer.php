@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class Composer extends Php
 {
+    public const ASSET_START_SCRIPT_PATH = 'build/composer/start_script.sh';
+
     protected function configure(): void
     {
         parent::configure();
@@ -16,6 +18,7 @@ class Composer extends Php
 
         $this->target('composer');
 
+        $this->serviceDefinition->set('restart', 'no');
         $this->serviceDefinition->unset('depends_on');
     }
 
@@ -28,7 +31,14 @@ class Composer extends Php
 
     public function publishAssets(): void
     {
+        $this->publishStartScript();
         $this->appendDockerfile();
+    }
+
+    private function publishStartScript(): void
+    {
+        $script = view('services.php.composer.start_script')->with('service', $this);
+        $this->assets()->put(self::ASSET_START_SCRIPT_PATH, $script);
     }
 
     private function appendDockerfile(): void

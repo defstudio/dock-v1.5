@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use Symfony\Component\Process\Process;
 
 abstract class Service
 {
@@ -51,6 +52,11 @@ abstract class Service
         if (!isset($this->serviceDefinition)) {
             throw DockerServiceException::serviceNotConfigured($this->name);
         }
+
+        $this->serviceDefinition->set('logging.options', [
+            'max-size' => '10m',
+            'max-file' => '3',
+        ]);
     }
 
     abstract protected function configure(): void;
@@ -65,6 +71,14 @@ abstract class Service
         $this->name = $name;
 
         return $this;
+    }
+
+    public function isRunning(): bool
+    {
+        $process = new Process(['docker-compose', 'ps', $this->name]);
+        $process->run();
+        $output = Str::of($process->getOutput());
+        return $output->contains('Up') && !$output->contains('Exit') && !$output->contains('Restarting');
     }
 
     protected function recipe(): Recipe
@@ -193,7 +207,7 @@ abstract class Service
 
     public function internalNetworkName(): string
     {
-        return $this->recipe()->slug().'_internal_network';
+        return $this->host().'_internal_network';
     }
 
     public function getUserId(): int
