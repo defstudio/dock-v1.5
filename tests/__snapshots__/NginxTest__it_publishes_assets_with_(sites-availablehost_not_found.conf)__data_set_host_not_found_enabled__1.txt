@@ -7,13 +7,13 @@ server {
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
     server_name _;
-    root /var/backend_not_found;
+    root /var/host_not_found;
 
     charset UTF-8;
 
-    error_page 404 /backend-not-found.html;
+    error_page 404 /index.html;
 
-    location = /backend-not-found.html {
+    location = /index.html {
         allow   all;
     }
 

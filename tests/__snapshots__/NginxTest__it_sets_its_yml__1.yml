@@ -2,7 +2,15 @@ restart: unless-stopped
 working_dir: /var/www
 build:
     context: ./services/nginx/build
+volumes:
+    - './src:/var/www'
+    - './services/nginx/nginx.conf:/etc/nginx/nginx.conf'
+    - './services/nginx/sites-available:/etc/nginx/sites-available'
 ports:
     - '80:80'
 expose:
     - 80
+networks:
+    - foo.test_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

@@ -3,3 +3,9 @@ working_dir: /var/www
 environment:
     JAVA_OPTS: '-Dwebdriver.chrome.whitelistedIps='
 image: selenium/standalone-chrome
+volumes:
+    - './src:/var/www'
+networks:
+    - test.ktm_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

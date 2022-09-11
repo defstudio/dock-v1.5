@@ -9,7 +9,14 @@ expose:
     - 6001
 environment:
     DOCK: 1
+volumes:
+    - './src:/var/www'
+    - './services/php/php.ini:/usr/local/etc/php/php.ini'
+networks:
+    - foo_internal_network
 depends_on:
     - php
 ports:
     - '6001:6001'
+logging:
+    options: { max-size: 10m, max-file: '3' }

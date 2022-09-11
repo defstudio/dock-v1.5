@@ -26,7 +26,7 @@ it('can set a custom port', function () {
 });
 
 it('adds internal network', function () {
-    expect(new PhpMyAdmin())->toHaveNetwork('test-recipe_internal_network');
+    expect(new PhpMyAdmin())->toHaveNetwork('bar.ktm_internal_network');
 });
 
 it('sets credentials from mysql configuration', function () {

@@ -6,7 +6,7 @@ use App\Docker\Services\Redis;
 use App\Facades\Env;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.com']);
 });
 
 it('sets its service name', function () {
@@ -23,7 +23,7 @@ it('can set redis version from env', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Redis())->toHaveNetwork('test-recipe_internal_network');
+    expect(new Redis())->toHaveNetwork('test.com_internal_network');
 });
 
 test('commands', function () {

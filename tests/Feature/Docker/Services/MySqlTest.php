@@ -6,7 +6,7 @@ use App\Docker\Services\MySql;
 use App\Facades\Env;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm']);
 });
 
 it('sets its service name', function () {
@@ -74,7 +74,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new MySql())->toHaveNetwork('test-recipe_internal_network');
+    expect(new MySql())->toHaveNetwork('test.ktm_internal_network');
 });
 
 test('commands', function () {

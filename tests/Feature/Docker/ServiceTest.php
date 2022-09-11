@@ -6,6 +6,8 @@ use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 
 beforeEach(function () {
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm']);
+
     $this->service = new class extends Service
     {
         protected function configure(): void
@@ -65,21 +67,19 @@ it('can add a network', function () {
 });
 
 it('can return internal network name', function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
-
     expect($this->service)
-        ->internalNetworkName()->toBe('test-recipe_internal_network');
+        ->internalNetworkName()->toBe('test.ktm_internal_network');
 });
 
 it('can return current user id', function () {
-    Env::fake(['USER_ID' => 999]);
+    Env::put('USER_ID', 999);
 
     expect($this->service)
         ->getUserId()->toBe(999);
 });
 
 it('can return current group id', function () {
-    Env::fake(['USER_ID' => 999]);
+    Env::put('USER_ID', 999);
 
     expect($this->service)
         ->getGroupId()->toBe(999);
@@ -91,8 +91,6 @@ it('can return current group id', function () {
 });
 
 it('can return current HOST', function () {
-    Env::fake(['HOST' => 'foo.com']);
-
     expect($this->service)
-        ->host()->toBe('foo.com');
+        ->host()->toBe('test.ktm');
 });

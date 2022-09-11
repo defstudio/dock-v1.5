@@ -1,4 +1,4 @@
-restart: unless-stopped
+restart: 'no'
 working_dir: /var/www
 build:
     context: ./services/php/build
@@ -8,3 +8,10 @@ expose:
     - 9000
 environment:
     DOCK: 1
+volumes:
+    - './src:/var/www'
+    - './services/php/php.ini:/usr/local/etc/php/php.ini'
+networks:
+    - foo_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.5'
 services:
     php:
         restart: unless-stopped
@@ -11,15 +11,31 @@ services:
             - 9000
         environment:
             DOCK: 1
+        volumes:
+            - './src:/var/www'
+            - './services/php/php.ini:/usr/local/etc/php/php.ini'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     nginx:
         restart: unless-stopped
         working_dir: /var/www
         build:
             context: ./services/nginx/build
+        volumes:
+            - './src:/var/www'
+            - './services/nginx/nginx.conf:/etc/nginx/nginx.conf'
+            - './services/nginx/sites-available:/etc/nginx/sites-available'
+            - './services/nginx/conf.d/upstream.conf:/etc/nginx/conf.d/upstream.conf'
         ports:
             - '80:80'
         expose:
             - 80
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
         depends_on:
             - php
     scheduler:
@@ -33,6 +49,13 @@ services:
             - 9000
         environment:
             DOCK: 1
+        volumes:
+            - './src:/var/www'
+            - './services/php/php.ini:/usr/local/etc/php/php.ini'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     worker:
         restart: unless-stopped
         working_dir: /var/www
@@ -44,8 +67,15 @@ services:
             - 9000
         environment:
             DOCK: 1
+        volumes:
+            - './src:/var/www'
+            - './services/php/php.ini:/usr/local/etc/php/php.ini'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     composer:
-        restart: unless-stopped
+        restart: 'no'
         working_dir: /var/www
         build:
             context: ./services/php/build
@@ -55,6 +85,13 @@ services:
             - 9000
         environment:
             DOCK: 1
+        volumes:
+            - './src:/var/www'
+            - './services/php/php.ini:/usr/local/etc/php/php.ini'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     node:
         working_dir: /var/www
         build:
@@ -63,6 +100,12 @@ services:
             - '5173:5173'
         expose:
             - 5173
+        volumes:
+            - './src:/var/www'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     mysql:
         restart: unless-stopped
         command: '--character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=mysql_native_password'
@@ -76,15 +119,27 @@ services:
             MYSQL_USER: dbuser
             MYSQL_PASSWORD: dbpassword
             MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - './volumes/mysql/db:/var/lib/mysql'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
     dusk:
         restart: unless-stopped
         working_dir: /var/www
         environment:
             JAVA_OPTS: '-Dwebdriver.chrome.whitelistedIps='
         image: selenium/standalone-chrome
+        volumes:
+            - './src:/var/www'
+        networks:
+            - foo.com_internal_network
+        logging:
+            options: { max-size: 10m, max-file: '3' }
         links:
             - 'nginx:foo.com'
 networks:
-    laravel_internal_network:
-        name: laravel_internal_network
+    foo.com_internal_network:
+        name: foo.com_internal_network
         driver: bridge

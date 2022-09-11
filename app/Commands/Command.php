@@ -19,7 +19,7 @@ abstract class Command extends \Illuminate\Console\Command
 
     public function runInTerminal(array $command, array $env = null): int
     {
-        $process = new Process(command: $command, env: $env);
+        $process = app(Process::class, ['command' => $command, 'env' => $env]);
 
         if ($this->input instanceof StreamableInputInterface && $stream = $this->input->getStream()) {
             $process->setInput($stream);

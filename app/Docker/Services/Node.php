@@ -59,7 +59,7 @@ class Node extends Service
         $this->publishDockerfile();
     }
 
-    private function publishDockerfile()
+    private function publishDockerfile(): void
     {
         $this->assets()->put(
             self::ASSET_DOCKERFILE_PATH,

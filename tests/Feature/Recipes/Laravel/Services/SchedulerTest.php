@@ -7,7 +7,7 @@ use App\Facades\Env;
 use App\Recipes\Laravel\Services\Scheduler;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'foo']);
 });
 
 it('sets its service name', function () {
@@ -38,5 +38,5 @@ it('publishes assets', function (string $asset, array $env, string $phpVersion) 
     'build/Dockerfile',
     'build/scheduler/start_script.sh',
 ])->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo'],
 ])->with('php versions');

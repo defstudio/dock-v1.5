@@ -9,7 +9,7 @@ use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'foo']);
 });
 
 it('sets its service name', function () {
@@ -47,7 +47,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Php())->toHaveNetwork('test-recipe_internal_network');
+    expect(new Php())->toHaveNetwork('foo_internal_network');
 });
 
 test('default php version', function () {
@@ -95,8 +95,8 @@ it('returns system packages to be installed', function (array $env) {
     Env::fake($env);
     expect(new Php())->systemPackages()->toMatchSnapshot();
 })->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-    'with mysql client' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client'],
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo'],
+    'with mysql client' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo', 'EXTRA_TOOLS' => 'mysql_client'],
 ]);
 
 it('returns php extensions to be installed', function () {
@@ -137,7 +137,7 @@ it('computes PHP minor version', function (string|float $version, float $expecte
     ['version' => '8.2.0RC1', 'expected' => 8.2],
 ]);
 
-it('foces asset folder to services/php', function () {
+it('forces asset folder to services/php', function () {
     $php = new Php();
     $php->setServiceName('foo');
 
@@ -163,9 +163,9 @@ it('publishes assets', function (string $asset, string $phpVersion, array $env) 
 ])
     ->with('php versions')
     ->with([
-        'default' => fn () => ['RECIPE' => 'test-recipe'],
-        'production' => fn () => ['RECIPE' => 'test-recipe', 'ENV' => 'production'],
-        'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
-        'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'xdebug'],
-        'with redis' => fn () => ['RECIPE' => 'test-recipe', 'REDIS_ENABLED' => true],
+        'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com'],
+        'production' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'ENV' => 'production'],
+        'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
+        'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'xdebug'],
+        'with redis' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'REDIS_ENABLED' => true],
     ]);

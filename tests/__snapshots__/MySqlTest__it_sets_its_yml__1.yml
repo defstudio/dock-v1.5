@@ -10,3 +10,9 @@ environment:
     MYSQL_USER: dbuser
     MYSQL_PASSWORD: dbpassword
     MYSQL_ROOT_PASSWORD: root
+volumes:
+    - './volumes/mysql/db:/var/lib/mysql'
+networks:
+    - test.ktm_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

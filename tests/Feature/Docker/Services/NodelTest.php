@@ -8,7 +8,7 @@ use App\Docker\Services\Node;
 use App\Facades\Env;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm']);
 });
 
 it('sets its service name', function () {
@@ -30,7 +30,7 @@ it('sets its node version from env', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Node())->toHaveNetwork('test-recipe_internal_network');
+    expect(new Node())->toHaveNetwork('test.ktm_internal_network');
 });
 
 it("doesn't map vite port if in production mode", function () {
@@ -67,6 +67,6 @@ it('publishes assets', function (string $asset, array $env, Closure $setup = nul
 })->with([
     'build/Dockerfile',
 ])->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-    'custom version' => fn () => ['RECIPE' => 'test-recipe', 'NODE_VERSION' => '18'],
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm'],
+    'custom version' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm', 'NODE_VERSION' => '18'],
 ]);

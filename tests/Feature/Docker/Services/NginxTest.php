@@ -38,7 +38,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Nginx())->toHaveNetwork('test-recipe_internal_network');
+    expect(new Nginx())->toHaveNetwork('foo.test_internal_network');
 });
 
 it('can add reverse proxy network', function () {

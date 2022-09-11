@@ -13,7 +13,7 @@ use function Termwind\render;
 test('docker test build', function (string $version) {
     render("<div class='mx-1 my-1 text-black bg-green'>BUILD TEST NODE $version</div>");
 
-    Env::fake(['RECIPE' => 'test-recipe', 'NODE_VERSION' => $version]);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm', 'NODE_VERSION' => $version]);
     Service::fake();
 
     $node = new Node();

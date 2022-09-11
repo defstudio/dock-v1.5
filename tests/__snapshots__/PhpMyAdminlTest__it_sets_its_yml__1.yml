@@ -4,3 +4,7 @@ environment:
     UPLOAD_LIMIT: 3000000000
 expose:
     - 80
+networks:
+    - bar.ktm_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

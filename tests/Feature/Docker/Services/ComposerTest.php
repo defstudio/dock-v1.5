@@ -7,7 +7,7 @@ use App\Docker\Services\Composer;
 use App\Facades\Env;
 
 beforeEach(function () {
-    Env::fake(['RECIPE' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'foo']);
 });
 
 it('sets its service name', function () {
@@ -35,8 +35,8 @@ it('publish assets', function (array $env, string $phpVersion) {
 
     expect($composer->assets()->get('build/Dockerfile'))->toMatchSnapshot();
 })->with([
-    'default' => fn () => ['RECIPE' => 'test-recipe'],
-    'pcov' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov'],
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo'],
+    'pcov' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov', 'HOST' => 'foo'],
 ])->with('php versions');
 
 test('commands', function () {

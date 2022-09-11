@@ -236,7 +236,7 @@ abstract class Service
 
     public function host(): string
     {
-        $host = Env::get('HOST');
+        $host = $this->env('HOST');
 
         if (empty($host)) {
             throw DockerServiceException::missingHost();

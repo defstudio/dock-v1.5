@@ -24,7 +24,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Dusk())->toHaveNetwork('test-recipe_internal_network');
+    expect(new Dusk())->toHaveNetwork('test.ktm_internal_network');
 });
 
 it('add a link to nginx service', function () {

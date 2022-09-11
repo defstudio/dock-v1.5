@@ -1,7 +1,5 @@
 FROM nginx:stable
 
-RUN mkdir /var/backend_not_found
-COPY ./backend_not_found.html /var/backend_not_found/index.html
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends openssl

@@ -3,3 +3,7 @@ expose:
     - 8025
     - 1025
 image: 'mailhog/mailhog:latest'
+networks:
+    - bar.ktm_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

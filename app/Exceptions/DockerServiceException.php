@@ -38,6 +38,8 @@ class DockerServiceException extends Exception
 
     public static function missingHost(): self
     {
+        debug_print_backtrace();
+
         return new self('Missing HOST variable in .env file');
     }
 }

@@ -2,3 +2,7 @@ restart: unless-stopped
 image: 'redis:7-alpine'
 expose:
     - 6379
+networks:
+    - test.com_internal_network
+logging:
+    options: { max-size: 10m, max-file: '3' }

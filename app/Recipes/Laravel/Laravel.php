@@ -254,9 +254,8 @@ class Laravel extends Recipe
     {
         $php = $this->addService(Php::class);
 
-        $nginx = $this->addService(Nginx::class)
-            ->phpService($php)
-            ->sites()->first()->root('/var/www/public');
+        $nginx = $this->addService(Nginx::class)->phpService($php);
+        $nginx->sites()->first()?->root('/var/www/public');
 
         $this->addService(Scheduler::class);
         $this->addService(Worker::class);
