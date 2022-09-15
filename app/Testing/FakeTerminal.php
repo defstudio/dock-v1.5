@@ -22,7 +22,7 @@ class FakeTerminal extends Terminal
     private array $sentMessages = [];
     private array $ranCommands = [];
 
-    public function __construct(private array $messages, private array $commands)
+    public function __construct(private array $messages, private readonly array $commands)
     {
         $this->messages = collect($this->messages)
             ->mapWithKeys(fn ($value, $key) => is_int($key)
@@ -110,8 +110,12 @@ class FakeTerminal extends Terminal
         assertContains($message, $this->sentMessages, "Failed to assert [$message] was sent. (sent $count messages so far).");
     }
 
-    public function assertRan(array $command, array $env = null)
+    public function assertRan(array|string $command, array $env = null)
     {
+        if (is_string($command)) {
+            $command = explode(" ", $command);
+        }
+
         $sent = collect($this->ranCommands)
             ->filter(fn (array $ranCommand) => $ranCommand['command'] === $command)
             ->when($env !== null, fn (Collection $ranCommands) => $ranCommands->filter(fn (array $ranCommand) => $ranCommand['env'] === $env))
@@ -126,5 +130,15 @@ class FakeTerminal extends Terminal
             $env = collect($env)->map(fn ($value, $key) => "$key=$value")->join(', ');
             assertTrue($sent, "Failed to assert [$command] command was run with env [$env]. (ran $count commands so far).");
         }
+    }
+
+    public function dumpRanCommands(): void
+    {
+        dump($this->ranCommands);
+    }
+
+    public function dumpSentMessages(): void
+    {
+        dump($this->sentMessages);
     }
 }

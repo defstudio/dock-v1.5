@@ -6,11 +6,13 @@ use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
 
 it('prevents running if .env file exists', function () {
-    Env::fake(['recipe' => 'test-recipe']);
+    Env::fake(['RECIPE' => 'test-recipe']);
+    Terminal::fake();
 
     $this->artisan('init')
-        ->expectsOutputToContain('A .env configuration file exist for this project. Run  init --force  to overwrite it with a new configuration')
         ->assertFailed();
+
+    Terminal::assertSent('Error A .env configuration file exist for this project. Run  init --force  to overwrite it with a new configuration');
 });
 
 it('asks for confirmation before overriding an .env file', function () {

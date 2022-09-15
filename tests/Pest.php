@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +12,7 @@
 */
 
 use App\Docker\Volume;
+use App\Facades\Env;
 use App\Facades\Terminal;
 use App\Services\RecipeService;
 use Symfony\Component\Console\Output\NullOutput;
@@ -70,5 +71,13 @@ function fakeConsoleRenderer(): NullOutput
 
 function restoreDefaultRecipes(): void
 {
-    app()->bind(RecipeService::class, fn () => new RecipeService());
+    $service = new RecipeService();
+
+    if(!empty(Env::get('RECIPE'))){
+        $service->recipe()->build();
+    }
+
+    app()->bind(RecipeService::class, fn () => $service);
+
+
 }

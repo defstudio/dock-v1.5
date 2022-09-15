@@ -41,6 +41,7 @@ class Init extends Command
             return false;
         }
 
+
         if (!$this->option('force')) {
             $this->error('A .env configuration file exist for this project. Run <span class="text-yellow px-1">init --force</span> to overwrite it with a new configuration');
 

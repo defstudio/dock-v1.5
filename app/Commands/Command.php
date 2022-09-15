@@ -16,12 +16,12 @@ abstract class Command extends \Illuminate\Console\Command
 {
     private int $writeCount = 0;
 
-    public function runInTerminal(array $command, array $env = null): int
+    public function runInTerminal(array $command, array $env = []): int
     {
         return Terminal::run($command, $env);
     }
 
-    public function runInService(string $service, array $command, array $env = null, bool $withTty = true): int
+    public function runInService(string $service, array $command, array $env = [], bool $withTty = true): int
     {
         if (app(RecipeService::class)->recipe()->getService($service)->isRunning()) {
             $dockerComposeCommand = ['docker-compose', 'exec'];
@@ -44,7 +44,7 @@ abstract class Command extends \Illuminate\Console\Command
 
     public function warn($string, $verbosity = null)
     {
-        render((string) view('message', [
+        Terminal::render((string) view('message', [
             'label' => 'Warning',
             'background' => 'yellow-300',
             'color' => 'black',
@@ -54,7 +54,7 @@ abstract class Command extends \Illuminate\Console\Command
 
     public function error($string, $verbosity = null)
     {
-        render((string) view('message', [
+        Terminal::render((string) view('message', [
             'label' => 'Error',
             'background' => 'red-500',
             'color' => 'black',
@@ -63,7 +63,7 @@ abstract class Command extends \Illuminate\Console\Command
     }
 
     /**
-     * @param  array<string, callable(): bool>  $tasks
+     * @param array<string, callable(): bool> $tasks
      */
     public function tasks(array $tasks): bool
     {

@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static void error(string $message)
  * @method static void assertAllExpectedMessageSent()
  * @method static void assertSent(string $message)
- * @method static void assertRan(array $command, array $env = null)
+ * @method static void assertRan(array|string $command, array $env = null)
+ * @method static void dumpRanCommands()
+ * @method static void dumpSentMessages()
  */
 class Terminal extends Facade
 {
