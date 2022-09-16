@@ -11,6 +11,6 @@ ports:
 expose:
     - 80
 networks:
-    - foo.test_internal_network
+    - foo_test_internal_network
 logging:
     options: { max-size: 10m, max-file: '3' }

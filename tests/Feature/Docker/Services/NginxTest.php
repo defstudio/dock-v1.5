@@ -38,7 +38,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Nginx())->toHaveNetwork('foo.test_internal_network');
+    expect(new Nginx())->toHaveNetwork('foo_test_internal_network');
 });
 
 it('can add reverse proxy network', function () {
@@ -55,7 +55,9 @@ it('can set php service dependency', function () {
 
     $nginx->phpService($php);
 
-    expect($nginx)->yml('depends_on')->toBe(['php']);
+    expect($nginx)
+        ->toHaveVolume('./services/nginx/conf.d/upstream.conf', '/etc/nginx/conf.d/upstream.conf')
+        ->yml('depends_on')->toBe(['php']);
 });
 
 it('adds upstream.conf volume when php service is set', function () {
@@ -104,7 +106,7 @@ it('map added site port', function () {
     expect($nginx)->yml('ports')->toBe(['80:80', '42:42']);
 });
 
-it('can enable proxy target not found page', function () {
+it('can enable proxy host not found page', function () {
     $nginx = new Nginx();
     $nginx->enableHostNotFoundPage();
 

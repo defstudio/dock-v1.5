@@ -26,7 +26,7 @@ it('can set its port', function () {
 });
 
 it('add internal network', function () {
-    expect(new MailHog())->toHaveNetwork('bar.ktm_internal_network');
+    expect(new MailHog())->toHaveNetwork('bar_ktm_internal_network');
 });
 
 it('adds its subdomain to Nginx service', function () {

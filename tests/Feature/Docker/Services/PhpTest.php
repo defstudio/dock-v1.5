@@ -148,7 +148,7 @@ test('commands', function () {
     expect(new Php())->commands()->toBe([]);
 });
 
-it('publishes assets', function (string $asset, string $phpVersion, array $env) {
+it('publishes assets', function (string $asset, array $env, string $phpVersion) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
 
     Service::fake();
@@ -160,12 +160,10 @@ it('publishes assets', function (string $asset, string $phpVersion, array $env) 
 })->with([
     'build/Dockerfile',
     'php.ini',
-])
-    ->with('php versions')
-    ->with([
-        'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com'],
-        'production' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'ENV' => 'production'],
-        'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
-        'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'xdebug'],
-        'with redis' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'REDIS_ENABLED' => true],
-    ]);
+])->with([
+    'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com'],
+    'production' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'ENV' => 'production'],
+    'with extra tools' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'mysql_client,libreoffice_writer,xdebug,pcov'],
+    'with libreoffice writer' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'EXTRA_TOOLS' => 'xdebug'],
+    'with redis' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'test.com', 'REDIS_ENABLED' => true],
+])->with('php versions');

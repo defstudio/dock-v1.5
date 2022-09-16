@@ -74,7 +74,7 @@ it('sets its volumes', function () {
 });
 
 it('adds internal network', function () {
-    expect(new MySql())->toHaveNetwork('test.ktm_internal_network');
+    expect(new MySql())->toHaveNetwork('test_ktm_internal_network');
 });
 
 test('commands', function () {

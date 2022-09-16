@@ -208,7 +208,7 @@ abstract class Service
 
     public function internalNetworkName(): string
     {
-        return $this->host().'_internal_network';
+        return Str::of($this->host())->replace('.', '_')->append('_internal_network')->slug('_')->toString();
     }
 
     public function getUserId(): int

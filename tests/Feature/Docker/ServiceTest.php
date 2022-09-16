@@ -4,6 +4,7 @@ use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
+use App\Facades\Terminal;
 
 beforeEach(function () {
     Env::fake(['RECIPE' => 'test-recipe', 'HOST' => 'test.ktm']);
@@ -68,7 +69,7 @@ it('can add a network', function () {
 
 it('can return internal network name', function () {
     expect($this->service)
-        ->internalNetworkName()->toBe('test.ktm_internal_network');
+        ->internalNetworkName()->toBe('test_ktm_internal_network');
 });
 
 it('can return current user id', function () {
@@ -93,4 +94,21 @@ it('can return current group id', function () {
 it('can return current HOST', function () {
     expect($this->service)
         ->host()->toBe('test.ktm');
+});
+
+it('can check if the service is running', function(){
+    $service = new class extends Service{
+
+        protected function configure(): void
+        {
+            $this->setServiceName('foo');
+            $this->serviceDefinition = new ServiceDefinition([]);
+        }
+    };
+
+    Terminal::fake(commands: ['docker-compose ps foo' => 'Up']);
+    expect($service->isRunning())->toBeTrue();
+
+    Terminal::fake(commands: ['docker-compose ps foo' => 'Exit']);
+    expect($service->isRunning())->toBeFalse();
 });

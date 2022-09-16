@@ -5,6 +5,6 @@ environment:
 expose:
     - 80
 networks:
-    - bar.ktm_internal_network
+    - bar_ktm_internal_network
 logging:
     options: { max-size: 10m, max-file: '3' }

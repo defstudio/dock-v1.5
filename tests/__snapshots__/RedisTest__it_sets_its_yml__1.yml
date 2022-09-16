@@ -1,8 +1,9 @@
 restart: unless-stopped
 image: 'redis:7-alpine'
+command: 'redis-server --loglevel warning'
 expose:
     - 6379
 networks:
-    - test.com_internal_network
+    - test_com_internal_network
 logging:
     options: { max-size: 10m, max-file: '3' }

@@ -8,6 +8,6 @@ expose:
 volumes:
     - './src:/var/www'
 networks:
-    - test.ktm_internal_network
+    - test_ktm_internal_network
 logging:
     options: { max-size: 10m, max-file: '3' }

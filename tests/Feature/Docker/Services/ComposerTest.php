@@ -26,15 +26,18 @@ it('clears its dependencies', function () {
     expect(new Composer())->yml('depends_on')->toBe(null);
 });
 
-it('publish assets', function (array $env, string $phpVersion) {
+it('publish assets', function (string $asset, array $env, string $phpVersion) {
     Env::fake($env)->put('PHP_VERSION', $phpVersion);
     Service::fake();
 
     $composer = new Composer();
     $composer->publishAssets();
 
-    expect($composer->assets()->get('build/Dockerfile'))->toMatchSnapshot();
+    expect($composer->assets()->get($asset) ?? '')->toMatchTextSnapshot();
 })->with([
+    'build/Dockerfile',
+    'build/composer/start_script.sh',
+])->with([
     'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo'],
     'pcov' => fn () => ['RECIPE' => 'test-recipe', 'EXTRA_TOOLS' => 'pcov', 'HOST' => 'foo'],
 ])->with('php versions');

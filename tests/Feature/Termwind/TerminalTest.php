@@ -12,7 +12,7 @@ test('render', function () {
 
     $terminal->render('<div class="m-2"><span class="bg-blue text-red">foo</span><div>');
 
-    expect(collect($output->output)->join("\n"))->toMatchSnapshot();
+    expect(collect($output->output)->join(""))->toMatchSnapshot();
 });
 
 test('success banner', function () {
@@ -21,7 +21,7 @@ test('success banner', function () {
 
     $terminal->successBanner('yahoo!');
 
-    expect(collect($output->output)->join("\n"))->toMatchSnapshot();
+    expect(collect($output->output)->join(''))->toMatchSnapshot();
 });
 
 test('error', function () {

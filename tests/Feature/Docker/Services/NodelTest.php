@@ -30,7 +30,7 @@ it('sets its node version from env', function () {
 });
 
 it('adds internal network', function () {
-    expect(new Node())->toHaveNetwork('test.ktm_internal_network');
+    expect(new Node())->toHaveNetwork('test_ktm_internal_network');
 });
 
 it("doesn't map vite port if in production mode", function () {

@@ -124,11 +124,6 @@ class Laravel extends Recipe
                     ->confirm()
                     ->default('no')
                     ->when(fn (Configuration $configuration) => !Str::of((string) $configuration->get('PHP_VERSION'))->startsWith('5.')),
-                ConfigurationOption::make('REDIS_VERSION')
-                    ->description('Redis Version')
-                    ->choices(['5', '6', '7'])
-                    ->default('7')
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
             ]),
 
             ConfigurationSection::make('Network Configuration', [
@@ -247,6 +242,32 @@ class Laravel extends Recipe
                     ->validate(fn ($value) => is_numeric($value))
                     ->when(fn (Configuration $configuration) => $configuration->get('WEBSOCKET_ENABLED') && !$configuration->get('BEHIND_PROXY')),
             ]),
+
+            ConfigurationSection::make('Redis Configuration', [
+                ConfigurationOption::make('REDIS_VERSION')
+                    ->description('Redis Version')
+                    ->choices(['5', '6', '7'])
+                    ->default('7')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
+                ConfigurationOption::make('REDIS_PASSWORD')
+                    ->description('Redis password (leave blank to disable)')
+                    ->optional()
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
+                ConfigurationOption::make('REDIS_SNAPSHOT')
+                    ->description('Should Redis data be persisted between container reboots?')
+                    ->confirm()
+                    ->default('yes')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
+                ConfigurationOption::make('REDIS_SNAPSHOT_EVERY_SECONDS')
+                    ->description('After how many seconds should Redis dump the snapshot?')
+                    ->default(60)
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_SNAPSHOT')),
+                ConfigurationOption::make('REDIS_SNAPSHOT_EVERY_WRITES')
+                    ->description('How many key changes are required to dump the snapshot?')
+                    ->default(1)
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_SNAPSHOT')),
+            ]),
+
         ];
     }
 

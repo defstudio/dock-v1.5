@@ -23,10 +23,20 @@ class FakeEnv extends Env
         return $this->values[$key] ?? $default;
     }
 
-    public function put(string $key, mixed $value): static
+    public function put(string|array $key, mixed $value = ''): static
     {
-        $this->values[$key] = $value;
+        if(!is_array($key)){
+            $key = [$key => $value];
+        }
+
+        foreach ($key as $item_key => $item_value)
+        $this->values[$item_key] = $item_value;
 
         return $this;
+    }
+
+    public function dump(): void
+    {
+        dump($this->values);
     }
 }

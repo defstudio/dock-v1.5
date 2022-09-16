@@ -15,7 +15,7 @@ services:
             - './src:/var/www'
             - './services/php/php.ini:/usr/local/etc/php/php.ini'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     nginx:
@@ -33,7 +33,7 @@ services:
         expose:
             - 80
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
         depends_on:
@@ -53,7 +53,7 @@ services:
             - './src:/var/www'
             - './services/php/php.ini:/usr/local/etc/php/php.ini'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     worker:
@@ -71,7 +71,7 @@ services:
             - './src:/var/www'
             - './services/php/php.ini:/usr/local/etc/php/php.ini'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     composer:
@@ -89,7 +89,7 @@ services:
             - './src:/var/www'
             - './services/php/php.ini:/usr/local/etc/php/php.ini'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     node:
@@ -103,7 +103,7 @@ services:
         volumes:
             - './src:/var/www'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     mysql:
@@ -122,7 +122,7 @@ services:
         volumes:
             - './volumes/mysql/db:/var/lib/mysql'
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
     phpmyadmin:
@@ -135,12 +135,12 @@ services:
         expose:
             - 80
         networks:
-            - foo.com_internal_network
+            - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
         depends_on:
             - mysql
 networks:
-    foo.com_internal_network:
-        name: foo.com_internal_network
+    foo_com_internal_network:
+        name: foo_com_internal_network
         driver: bridge

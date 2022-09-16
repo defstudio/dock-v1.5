@@ -50,15 +50,29 @@ expect()->extend('toHaveNetwork', function (string $network) {
 
 function fakeConsoleRenderer(): NullOutput
 {
-    $output = new class extends NullOutput
-    {
+    $output = new class extends NullOutput {
         public array $output = [];
+
+        public function write(iterable|string $messages, bool $newline = false, int $options = self::OUTPUT_NORMAL)
+        {
+            $messages = \Illuminate\Support\Arr::wrap($messages);
+
+            foreach ($messages as $message) {
+                if(!str_ends_with($message, "\n") && $newline){
+                    $message = "$message\n";
+                }
+                $this->output[] = $message;
+            }
+        }
 
         public function writeln(iterable|string $messages, int $options = self::OUTPUT_NORMAL)
         {
             $messages = \Illuminate\Support\Arr::wrap($messages);
 
             foreach ($messages as $message) {
+                if(!str_ends_with($message, "\n")){
+                    $message = "$message\n";
+                }
                 $this->output[] = $message;
             }
         }
@@ -73,11 +87,9 @@ function restoreDefaultRecipes(): void
 {
     $service = new RecipeService();
 
-    if(!empty(Env::get('RECIPE'))){
+    if (!empty(Env::get('RECIPE'))) {
         $service->recipe()->build();
     }
 
     app()->bind(RecipeService::class, fn () => $service);
-
-
 }
