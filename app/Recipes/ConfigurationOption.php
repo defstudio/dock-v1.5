@@ -7,8 +7,10 @@ declare(strict_types=1);
 namespace App\Recipes;
 
 use App\Facades\Terminal;
+use BackedEnum;
 use Closure;
 use Illuminate\Support\Str;
+use UnitEnum;
 
 class ConfigurationOption
 {
@@ -40,7 +42,7 @@ class ConfigurationOption
     /** @var Closure(string|int|bool, Configuration): void */
     protected Closure $afterSet;
 
-    /** @var (Closure(Configuration): array<array-key, string|int|bool>)|array<array-key, string|int|bool> */
+    /** @var (Closure(Configuration): array<array-key, string|int|bool|BackedEnum|UnitEnum>)|array<array-key, string|int|bool> */
     protected Closure|array $choices = [];
 
     protected bool $multiple = false;
@@ -207,6 +209,17 @@ class ConfigurationOption
             : call_user_func($this->choices, $configuration);
 
         return collect($choices)
+            ->map(function($choice){
+                if($choice instanceof BackedEnum){
+                    return $choice->value;
+                }
+
+                if($choice instanceof UnitEnum){
+                    return $choice->name;
+                }
+
+                return $choice;
+            })
             ->map(fn (string|int|bool $choice) => match ($choice) {
                 true => 'yes',
                 false => 'no',

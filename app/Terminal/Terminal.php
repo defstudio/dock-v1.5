@@ -101,10 +101,10 @@ class Terminal
         $this->render("<div class='mx-5 mb-1'><span class='text-red font-bold'>Error:</span> $message");
     }
 
-    private function makeProcess(array $command, array $env): Process
+    private function makeProcess(array $command, array $env, bool $tty = true): Process
     {
         $process = new Process(command: $command, env: $env);
-        $process->setTty(Process::isTtySupported());
+        $process->setTty($tty && Process::isTtySupported());
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
 
@@ -118,7 +118,7 @@ class Terminal
 
     public function runAndReturnOutput(array $command, array $env = []): string
     {
-        $process = $this->makeProcess($command, $env);
+        $process = $this->makeProcess($command, $env, false);
         $process->run();
 
         return $process->getOutput();

@@ -1,6 +1,7 @@
 <?php
 
 use App\Commands\Command;
+use App\Docker\Services\Php;
 use App\Facades\Env;
 use App\Facades\Terminal;
 use Illuminate\Console\OutputStyle;
@@ -30,7 +31,7 @@ it('can run a command in a running service', function () {
     {
     };
 
-    $command->runInService('php', ['qux', 'quux']);
+    $command->runInService(Php::class, ['qux', 'quux']);
 
     Terminal::assertRan('docker-compose exec php qux quux');
 });
@@ -47,7 +48,7 @@ it('can run a command in a non-running service', function () {
     {
     };
 
-    $command->runInService('php', ['qux', 'quux']);
+    $command->runInService(Php::class, ['qux', 'quux']);
 
     Terminal::assertRan('docker-compose run --service-ports --rm php qux quux');
 });

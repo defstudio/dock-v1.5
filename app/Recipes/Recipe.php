@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 /** @noinspection PhpCastIsUnnecessaryInspection */
 
@@ -73,17 +73,24 @@ abstract class Recipe
         /** @var CLASS $service */
         $service = app($serviceClass);
 
-        $this->services->put($service->name(), $service);
+        $this->services->put($serviceClass, $service);
 
         return $service;
     }
 
-    public function getService(string $name): Service
+    /**
+     * @template CLASS
+     *
+     * @param class-string<CLASS> $serviceClass
+     *
+     * @return CLASS&Service
+     */
+    public function getService(string $serviceClass)
     {
-        $service = $this->services->get($name);
+        $service = $this->services->get($serviceClass);
 
         if (empty($service)) {
-            throw DockerServiceException::serviceNotFound($name);
+            throw DockerServiceException::serviceNotFound($serviceClass);
         }
 
         return $service;
@@ -123,5 +130,10 @@ abstract class Recipe
     private function networksYml(): array
     {
         return $this->services->flatMap(fn (Service $service) => $service->getNetworks())->toArray();
+    }
+
+    public function getDatabaseService()
+    {
+
     }
 }

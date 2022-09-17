@@ -15,6 +15,7 @@ use App\Docker\Services\Node;
 use App\Docker\Services\Php;
 use App\Docker\Services\PhpMyAdmin;
 use App\Docker\Services\Redis;
+use App\Enums\DbEngine;
 use App\Facades\Env;
 use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
@@ -107,7 +108,7 @@ class Laravel extends Recipe
             ConfigurationSection::make('Services', [
                 ConfigurationOption::make('DB_ENGINE')
                     ->question('Which database engine should be used?')
-                    ->choices(['mysql'])
+                    ->choices(DbEngine::cases())
                     ->default('mysql'),
 
                 ConfigurationOption::make('MAILHOG_ENABLED')

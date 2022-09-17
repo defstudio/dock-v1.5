@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDocMissingThrowsInspection */
 
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpUnused */
@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
+use App\Docker\Service;
 use App\Facades\Terminal;
 use App\Services\RecipeService;
 use function Termwind\terminal;
@@ -20,9 +21,14 @@ abstract class Command extends \Illuminate\Console\Command
         return Terminal::run($command, $env);
     }
 
-    public function runInService(string $service, array $command, array $env = [], bool $withTty = true): int
+    /**
+     * @param class-string<Service> $serviceClass
+     */
+    public function runInService(string $serviceClass, array $command, array $env = [], bool $withTty = true): int
     {
-        if (app(RecipeService::class)->recipe()->getService($service)->isRunning()) {
+        $service = app(RecipeService::class)->recipe()->getService($serviceClass);
+
+        if ($service->isRunning()) {
             $dockerComposeCommand = ['docker-compose', 'exec'];
         } else {
             $dockerComposeCommand = ['docker-compose', 'run', '--service-ports', '--rm'];
@@ -34,7 +40,7 @@ abstract class Command extends \Illuminate\Console\Command
 
         $command = [
             ...$dockerComposeCommand,
-            $service,
+            $service->name(),
             ...$command,
         ];
 
@@ -61,12 +67,25 @@ abstract class Command extends \Illuminate\Console\Command
         ]));
     }
 
+    public function step(string $string, string $color = 'green'): void
+    {
+        Terminal::render((string) view('step', [
+            'color' => $color,
+            'message' => $string,
+        ]));
+    }
+
     /**
      * @param  array<string, callable(): bool>  $tasks
      */
     public function tasks(array $tasks): bool
     {
         foreach ($tasks as $title => $task) {
+            if(is_numeric($title)){
+                return $task();
+            }
+
+            $this->output->newLine();
             $this->output->writeln("  <bg=gray>$title</>");
 
             $startTime = microtime(true);

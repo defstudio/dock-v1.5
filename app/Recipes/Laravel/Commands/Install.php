@@ -3,6 +3,8 @@
 namespace App\Recipes\Laravel\Commands;
 
 use App\Commands\Command;
+use App\Docker\Services\Composer;
+use Storage;
 
 class Install extends Command
 {
@@ -14,16 +16,23 @@ class Install extends Command
     {
         return $this->tasks([
             'Laravel Installation' => $this->install(...),
+            $this->setup(...),
         ]) ? self::SUCCESS : self::FAILURE;
     }
 
     private function install(): bool
     {
-        $exitCode = $this->runInService(
-            'composer',
-            ['composer', 'create-project', '--prefer-dist', 'laravel/laravel', '.']
-        );
+        if($this->runInService(Composer::class,['composer', 'create-project', '--prefer-dist', 'laravel/laravel', '.']) !== self::SUCCESS){
+            return false;
+        }
 
-        return $exitCode === 0;
+        Storage::disk('src')->delete('.env');
+
+        return true;
+    }
+
+    private function setup(): bool
+    {
+        return $this->call('laravel:init') === self::SUCCESS;
     }
 }
