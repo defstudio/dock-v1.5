@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +52,8 @@ expect()->extend('toHaveNetwork', function (string $network) {
 
 function fakeConsoleRenderer(): NullOutput
 {
-    $output = new class extends NullOutput {
+    $output = new class extends NullOutput
+    {
         public array $output = [];
 
         public function write(iterable|string $messages, bool $newline = false, int $options = self::OUTPUT_NORMAL)
@@ -58,7 +61,7 @@ function fakeConsoleRenderer(): NullOutput
             $messages = \Illuminate\Support\Arr::wrap($messages);
 
             foreach ($messages as $message) {
-                if(!str_ends_with($message, "\n") && $newline){
+                if (!str_ends_with($message, "\n") && $newline) {
                     $message = "$message\n";
                 }
                 $this->output[] = $message;
@@ -70,7 +73,7 @@ function fakeConsoleRenderer(): NullOutput
             $messages = \Illuminate\Support\Arr::wrap($messages);
 
             foreach ($messages as $message) {
-                if(!str_ends_with($message, "\n")){
+                if (!str_ends_with($message, "\n")) {
                     $message = "$message\n";
                 }
                 $this->output[] = $message;

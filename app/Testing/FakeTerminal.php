@@ -7,7 +7,6 @@ declare(strict_types=1);
 namespace App\Testing;
 
 use App\Terminal\Terminal;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use function PHPUnit\Framework\assertContains;
@@ -19,7 +18,9 @@ use function PHPUnit\Framework\assertTrue;
 class FakeTerminal extends Terminal
 {
     private bool $fakeAll = false;
+
     private array $sentMessages = [];
+
     private array $ranCommands = [];
 
     public function __construct(private array $messages, private readonly array $commands)
@@ -42,7 +43,8 @@ class FakeTerminal extends Terminal
             'command' => $command,
             'env' => $env,
         ];
-        return $this->commands[implode(" ", $command)] ?? 0;
+
+        return $this->commands[implode(' ', $command)] ?? 0;
     }
 
     public function runAndReturnOutput(array $command, array $env = []): string
@@ -52,7 +54,7 @@ class FakeTerminal extends Terminal
             'env' => $env,
         ];
 
-        return $this->commands[implode(" ", $command)] ?? '';
+        return $this->commands[implode(' ', $command)] ?? '';
     }
 
     public function ask(string $question, bool|string $default = null, bool $allowEmpty = false): mixed
@@ -110,10 +112,10 @@ class FakeTerminal extends Terminal
         assertContains($message, $this->sentMessages, "Failed to assert [$message] was sent. (sent $count messages so far).");
     }
 
-    public function assertRan(array|string $command, array $env = null)
+    public function assertRan(array|string $command, array $env = null): void
     {
         if (is_string($command)) {
-            $command = explode(" ", $command);
+            $command = explode(' ', $command);
         }
 
         $sent = collect($this->ranCommands)
@@ -121,7 +123,7 @@ class FakeTerminal extends Terminal
             ->when($env !== null, fn (Collection $ranCommands) => $ranCommands->filter(fn (array $ranCommand) => $ranCommand['env'] === $env))
             ->isNotEmpty();
 
-        $command = implode(" ", $command);
+        $command = implode(' ', $command);
         $count = count($this->ranCommands);
 
         if ($env === null) {

@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Facades\Env;
 use App\Facades\Terminal;
 
-it('can enter in shell for a running service', function(){
+it('can enter in shell for a running service', function () {
     Env::fake(['RECIPE' => 'laravel', 'HOST' => 'test.it']);
     Storage::fake('cwd');
     Terminal::fake(commands: [
@@ -15,10 +16,10 @@ it('can enter in shell for a running service', function(){
 
     $this->artisan('shell php')->assertSuccessful();
 
-    Terminal::assertRan("docker-compose exec php /bin/bash");
+    Terminal::assertRan('docker-compose exec php /bin/bash');
 });
 
-it('can enter in shell for a non-running service', function(){
+it('can enter in shell for a non-running service', function () {
     Env::fake(['RECIPE' => 'laravel', 'HOST' => 'test.it']);
     Storage::fake('cwd');
     Terminal::fake(commands: [
@@ -29,5 +30,5 @@ it('can enter in shell for a non-running service', function(){
 
     $this->artisan('shell composer')->assertSuccessful();
 
-    Terminal::assertRan("docker-compose run --service-ports --rm composer /bin/bash");
+    Terminal::assertRan('docker-compose run --service-ports --rm composer /bin/bash');
 });

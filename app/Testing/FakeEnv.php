@@ -25,12 +25,13 @@ class FakeEnv extends Env
 
     public function put(string|array $key, mixed $value = ''): static
     {
-        if(!is_array($key)){
+        if (!is_array($key)) {
             $key = [$key => $value];
         }
 
-        foreach ($key as $item_key => $item_value)
-        $this->values[$item_key] = $item_value;
+        foreach ($key as $item_key => $item_value) {
+            $this->values[$item_key] = $item_value;
+        }
 
         return $this;
     }

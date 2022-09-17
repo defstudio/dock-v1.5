@@ -96,9 +96,9 @@ it('can return current HOST', function () {
         ->host()->toBe('test.ktm');
 });
 
-it('can check if the service is running', function(){
-    $service = new class extends Service{
-
+it('can check if the service is running', function () {
+    $service = new class extends Service
+    {
         protected function configure(): void
         {
             $this->setServiceName('foo');

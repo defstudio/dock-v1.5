@@ -6,8 +6,6 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
-use App\Facades\Env;
-use Carbon\CarbonInterval;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
@@ -35,7 +33,7 @@ class Redis extends Service
 
     protected function shouldPersistData(): bool
     {
-        return !!$this->env('REDIS_PERSIST_DATA');
+        return (bool) $this->env('REDIS_PERSIST_DATA');
     }
 
     protected function getPassword(): string
@@ -47,7 +45,7 @@ class Redis extends Service
     {
         return Str::of('redis-server')
             ->append(' --loglevel', ' ', $this->getLogLevel())
-            ->when($this->shouldPersistData(), fn(Stringable $str) => $str->append(' --save', ' ', $this->getPersistenceSeconds(), ' ', $this->getPersistenceChangedKeys()))
+            ->when($this->shouldPersistData(), fn (Stringable $str) => $str->append(' --save', ' ', $this->getPersistenceSeconds(), ' ', $this->getPersistenceChangedKeys()))
             ->when($this->getPassword(), fn (Stringable $str, string $password) => $str->append(' --requirepass', ' ', $password))
             ->toString();
     }

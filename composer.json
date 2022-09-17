@@ -56,8 +56,8 @@
     "prefer-stable": true,
     "bin": ["dock"],
     "scripts": {
-        "lint": "pint -v",
-        "test:lint": "pint --test -v",
+        "lint": "pint",
+        "test:lint": "pint --test",
         "test:types": "phpstan analyse --ansi",
         "test:verbose": "@php ./vendor/bin/pest -v --colors=always --parallel --exclude-group=builds",
         "test:unit": "@php ./vendor/bin/pest --colors=always --parallel --exclude-group=builds",

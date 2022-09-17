@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Facades\Env;
 use App\Facades\Terminal;
 
-it('can stop all services', function(){
+it('can stop all services', function () {
     Env::fake(['RECIPE' => 'laravel', 'HOST' => 'test.it']);
     Storage::fake('cwd');
     Terminal::fake();
@@ -13,5 +14,5 @@ it('can stop all services', function(){
 
     $this->artisan('stop')->assertSuccessful();
 
-    Terminal::assertRan("docker-compose down");
+    Terminal::assertRan('docker-compose down');
 });

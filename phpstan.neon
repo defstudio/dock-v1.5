@@ -2,6 +2,8 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
     paths:
         - app
 
@@ -13,3 +15,5 @@ parameters:
         - '#Access to protected property Spatie\\Invade\\Invader#'
 
     checkMissingIterableValueType: false
+
+

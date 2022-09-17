@@ -104,10 +104,10 @@ class Terminal
     private function makeProcess(array $command, array $env): Process
     {
         $process = new Process(command: $command, env: $env);
-        $process->setInput(self::getStreamableInput());
         $process->setTty(Process::isTtySupported());
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
+
         return $process;
     }
 

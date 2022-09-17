@@ -9,7 +9,6 @@ namespace App\Commands;
 
 use App\Facades\Terminal;
 use App\Services\RecipeService;
-use function Termwind\render;
 use function Termwind\terminal;
 
 abstract class Command extends \Illuminate\Console\Command
@@ -63,7 +62,7 @@ abstract class Command extends \Illuminate\Console\Command
     }
 
     /**
-     * @param array<string, callable(): bool> $tasks
+     * @param  array<string, callable(): bool>  $tasks
      */
     public function tasks(array $tasks): bool
     {
