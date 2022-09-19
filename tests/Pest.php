@@ -14,6 +14,7 @@
 */
 
 use App\Docker\Volume;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Facades\Terminal;
 use App\Services\RecipeService;
@@ -90,7 +91,7 @@ function restoreDefaultRecipes(): void
 {
     $service = new RecipeService();
 
-    if (!empty(Env::get('RECIPE'))) {
+    if (!empty(Env::get(EnvKey::recipe))) {
         $service->recipe()->build();
     }
 

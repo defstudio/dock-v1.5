@@ -7,6 +7,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 
 class MailHog extends Service
 {
@@ -20,7 +21,7 @@ class MailHog extends Service
             'image' => 'mailhog/mailhog:latest',
         ]);
 
-        if (!empty($port = (int) $this->env('MAILHOG_PORT'))) {
+        if (!empty($port = (int) $this->env(EnvKey::mailhog_port))) {
             $this->mapPort($port, 8025);
         }
 
@@ -29,7 +30,7 @@ class MailHog extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (!empty($subdomain = $this->env('MAILHOG_SUBDOMAIN'))) {
+        if (!empty($subdomain = $this->env(EnvKey::mailhog_subdomain))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,

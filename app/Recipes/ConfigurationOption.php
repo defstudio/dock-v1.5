@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace App\Recipes;
 
+use App\Enums\EnvKey;
 use App\Facades\Terminal;
 use BackedEnum;
 use Closure;
@@ -14,7 +15,7 @@ use UnitEnum;
 
 class ConfigurationOption
 {
-    protected string $key;
+    protected EnvKey $key;
 
     protected string $description;
 
@@ -42,12 +43,12 @@ class ConfigurationOption
     /** @var Closure(string|int|bool, Configuration): void */
     protected Closure $afterSet;
 
-    /** @var (Closure(Configuration): array<array-key, string|int|bool|BackedEnum|UnitEnum>)|array<array-key, string|int|bool> */
+    /** @var (Closure(Configuration): array<array-key, string|int|bool|BackedEnum|UnitEnum>)|array<array-key, string|int|bool|BackedEnum|UnitEnum> */
     protected Closure|array $choices = [];
 
     protected bool $multiple = false;
 
-    public static function make(string $key, string|int|bool $value = null): self
+    public static function make(EnvKey $key, string|int|bool $value = null): self
     {
         $option = app(self::class);
 
@@ -112,7 +113,7 @@ class ConfigurationOption
     }
 
     /**
-     * @param (Closure(Configuration $configuration): array<array-key, string|int|bool>)|array<array-key, string|int|bool> $choices
+     * @param (Closure(Configuration $configuration): array<array-key, string|int|bool|BackedEnum|UnitEnum>)|array<array-key, string|int|bool|BackedEnum|UnitEnum> $choices
      */
     public function choices(array|Closure $choices, bool $multiple = false): self
     {
@@ -203,18 +204,18 @@ class ConfigurationOption
 
     protected function computeChoices(Configuration $configuration): array
     {
-        /** @var array<array-key, string|int|bool> $choices */
+        /** @var array<array-key, string|int|bool|BackedEnum|UnitEnum> $choices */
         $choices = is_array($this->choices)
             ? $this->choices
             : call_user_func($this->choices, $configuration);
 
         return collect($choices)
-            ->map(function($choice){
-                if($choice instanceof BackedEnum){
+            ->map(function ($choice) {
+                if ($choice instanceof BackedEnum) {
                     return $choice->value;
                 }
 
-                if($choice instanceof UnitEnum){
+                if ($choice instanceof UnitEnum) {
                     return $choice->name;
                 }
 
@@ -324,7 +325,7 @@ class ConfigurationOption
         return call_user_func($this->when, $configuration);
     }
 
-    public function key(): string
+    public function key(): EnvKey
     {
         return $this->key;
     }

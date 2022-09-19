@@ -2,6 +2,7 @@
 
 namespace App\Testing;
 
+use App\Enums\EnvKey;
 use App\Repositories\Env;
 
 class FakeEnv extends Env
@@ -18,20 +19,14 @@ class FakeEnv extends Env
         return !empty($this->values);
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get(EnvKey $key, mixed $default = null): mixed
     {
-        return $this->values[$key] ?? $default;
+        return $this->values[$key->value] ?? $default;
     }
 
-    public function put(string|array $key, mixed $value = ''): static
+    public function put(EnvKey $key, mixed $value): static
     {
-        if (!is_array($key)) {
-            $key = [$key => $value];
-        }
-
-        foreach ($key as $item_key => $item_value) {
-            $this->values[$item_key] = $item_value;
-        }
+        $this->values[$key->value] = $value;
 
         return $this;
     }

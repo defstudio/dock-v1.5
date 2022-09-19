@@ -97,15 +97,18 @@ it('can execute a list of tasks', function () {
     ]);
 
     expect($output->output)->toBe([
+        "\n",
         "  <bg=gray>one</>\n",
         'test',
         str_repeat('<fg=gray>.</>', max(min(terminal()->width(), 150) - 3 - 10, 0)),
         '<fg=gray>0ms</>',
         " <fg=green;options=bold>DONE</>\n",
+        "\n",
         "  <bg=gray>two</>\n",
         str_repeat('<fg=gray>.</>', max(min(terminal()->width(), 150) - 3 - 10, 0)),
         '<fg=gray>0ms</>',
         " <fg=green;options=bold>DONE</>\n",
+        "\n",
         "  <bg=gray>three</>\n",
         str_repeat('<fg=gray>.</>', max(min(terminal()->width(), 150) - 3 - 10, 0)),
         '<fg=gray>0ms</>',

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Docker\Services\MySql;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -17,15 +18,15 @@ it('sets its yml', function () {
     expect(new MySql())->yml()->toMatchSnapshot();
 });
 
-it('can set database data from env', function (string $key, string $value) {
+it('can set database data from env', function (EnvKey $key, string $value, string $imageEnvKey) {
     Env::put($key, $value);
 
-    expect(new MySql())->yml("environment.$key")->toBe($value);
+    expect(new MySql())->yml("environment.$imageEnvKey")->toBe($value);
 })->with([
-    ['MYSQL_DATABASE', 'foo'],
-    ['MYSQL_USER', 'bar'],
-    ['MYSQL_PASSWORD', 'baz'],
-    ['MYSQL_ROOT_PASSWORD', 'zap'],
+    [EnvKey::db_name, 'foo', 'MYSQL_DATABASE'],
+    [EnvKey::db_user, 'bar', 'MYSQL_USER'],
+    [EnvKey::db_password, 'baz', 'MYSQL_PASSWORD'],
+    [EnvKey::db_root_password, 'zap', 'MYSQL_ROOT_PASSWORD'],
 ]);
 
 it('can set database name', function () {
@@ -57,12 +58,12 @@ it('can set database root password', function () {
 });
 
 it('can disable strict mode', function () {
-    Env::put('MYSQL_DISABLE_STRICT_MODE', '1');
+    Env::put(EnvKey::db_disable_strict_mode, '1');
     expect(new MySql())->yml('command')->toEndWith('--sql_mode=""');
 });
 
 it('can set its port', function () {
-    Env::put('MYSQL_PORT', 42);
+    Env::put(EnvKey::db_port, 42);
 
     expect(new MySql())
         ->yml('ports')->toBe(['42:3306'])

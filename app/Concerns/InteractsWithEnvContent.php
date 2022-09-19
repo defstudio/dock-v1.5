@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnused */
+<?php
+
+/** @noinspection PhpUnused */
 
 namespace App\Concerns;
 
@@ -16,7 +18,7 @@ trait InteractsWithEnvContent
         $envContent = preg_replace("/^#$key=/m", "$key=", $envContent);
     }
 
-    protected function setEnvValue(string &$envContent, string $key, $value): void
+    protected function setEnvValue(string &$envContent, string $key, string|int $value): void
     {
         $this->uncommentEnvValue($envContent, $key);
         if (Str::contains($envContent, $key)) {
@@ -24,7 +26,6 @@ trait InteractsWithEnvContent
         } else {
             $envContent .= "\n$key=$value";
         }
-
     }
 
     protected function getEnvValue(string $envContent, string $key): string|int
@@ -33,7 +34,7 @@ trait InteractsWithEnvContent
         if (preg_match("/^$key=(.*)\$/m", $envContent, $matches)) {
             return $matches[1];
         } else {
-            return "";
+            return '';
         }
     }
 }

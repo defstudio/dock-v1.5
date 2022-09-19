@@ -19,7 +19,7 @@ class Shell extends Command
 
     public function handle(RecipeService $cookbook): int
     {
-        $availableServices = $cookbook->recipe()->services()->keys()->mapWithKeys(fn(Service $service, string $class) => [$service->name() => $class])->toArray();
+        $availableServices = $cookbook->recipe()->services()->mapWithKeys(fn (Service $service, string $class) => [$service->name() => $class])->toArray();
 
         $serviceName = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices);
 

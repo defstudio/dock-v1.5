@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpDocMissingThrowsInspection */
+<?php
+
+/** @noinspection PhpDocMissingThrowsInspection */
 
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpUnused */
@@ -22,7 +24,7 @@ abstract class Command extends \Illuminate\Console\Command
     }
 
     /**
-     * @param class-string<Service> $serviceClass
+     * @param  class-string<Service>  $serviceClass
      */
     public function runInService(string $serviceClass, array $command, array $env = [], bool $withTty = true): int
     {
@@ -76,12 +78,12 @@ abstract class Command extends \Illuminate\Console\Command
     }
 
     /**
-     * @param  array<string, callable(): bool>  $tasks
+     * @param  array<array-key, callable(): bool>  $tasks
      */
     public function tasks(array $tasks): bool
     {
         foreach ($tasks as $title => $task) {
-            if(is_numeric($title)){
+            if (is_numeric($title)) {
                 return $task();
             }
 

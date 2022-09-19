@@ -21,7 +21,7 @@ it('sets its yml', function () {
 });
 
 it('can expose docker host', function () {
-    Env::put('EXPOSE_DOCKER_HOST', 1);
+    Env::put(\App\Enums\EnvKey::expose_docker_host, 1);
 
     expect(new Php())->yml('extra_hosts')->toBe([
         'host.docker.internal:host-gateway',
@@ -29,13 +29,13 @@ it('can expose docker host', function () {
 });
 
 it('can set its dependency from redis', function () {
-    Env::put('REDIS_ENABLED', 1);
+    Env::put(\App\Enums\EnvKey::redis_enabled, 1);
 
     expect(new Php())->yml('depends_on')->toContain('redis');
 });
 
 it('can set its dependency from mysql', function () {
-    Env::put('DB_ENGINE', 'mysql');
+    Env::put(\App\Enums\EnvKey::db_engine, 'mysql');
 
     expect(new Php())->yml('depends_on')->toContain('mysql');
 });
@@ -55,7 +55,7 @@ test('default php version', function () {
 });
 
 test('can customize php version', function () {
-    Env::put('PHP_VERSION', '7.4.91');
+    Env::put(\App\Enums\EnvKey::php_version, '7.4.91');
     expect(new Php())->getPhpVersion()->toBe('7.4.91');
 });
 
@@ -72,7 +72,7 @@ it('prevents to set up an invalid target', function () {
 })->throws(DockerServiceException::class, 'Invalid PHP target: [foo]');
 
 it('enables tools from env', function () {
-    Env::put('EXTRA_TOOLS', 'xdebug,libreoffice_writer,mysql_client,pcov');
+    Env::put(\App\Enums\EnvKey::extra_tools, 'xdebug,libreoffice_writer,mysql_client,pcov');
 
     expect(new Php())
         ->isXdebugEnabled()->toBeTrue()
@@ -82,7 +82,7 @@ it('enables tools from env', function () {
 });
 
 it('force xdebug to be disabled in production', function () {
-    Env::put('ENV', 'production')->put('EXTRA_TOOLS', 'xdebug,libreoffice_writer,mysql_client');
+    Env::put(\App\Enums\EnvKey::env, 'production')->put(\App\Enums\EnvKey::extra_tools, 'xdebug,libreoffice_writer,mysql_client');
 
     expect(new Php())
         ->isXdebugEnabled()->toBeFalse()
@@ -105,12 +105,12 @@ it('returns php extensions to be installed', function () {
 
 it('checks if redis is enabled', function () {
     expect(new Php())->isRedisEnabled()->toBeFalse();
-    Env::put('REDIS_ENABLED', 1);
+    Env::put(\App\Enums\EnvKey::redis_enabled, 1);
     expect(new Php())->isRedisEnabled()->toBeTrue();
 });
 
 it('computes PHP major version', function (string|float $version, int $expected) {
-    Env::put('PHP_VERSION', $version);
+    Env::put(\App\Enums\EnvKey::php_version, $version);
 
     expect(new Php())->phpMajorVersion()->toBe($expected);
 })->with([
@@ -123,7 +123,7 @@ it('computes PHP major version', function (string|float $version, int $expected)
 ]);
 
 it('computes PHP minor version', function (string|float $version, float $expected) {
-    Env::put('PHP_VERSION', $version);
+    Env::put(\App\Enums\EnvKey::php_version, $version);
 
     expect(new Php())->getPhpMinorVersion()->toBe($expected);
 })->with([
@@ -149,7 +149,7 @@ test('commands', function () {
 });
 
 it('publishes assets', function (string $asset, array $env, string $phpVersion) {
-    Env::fake($env)->put('PHP_VERSION', $phpVersion);
+    Env::fake($env)->put(\App\Enums\EnvKey::php_version, $phpVersion);
 
     Service::fake();
 

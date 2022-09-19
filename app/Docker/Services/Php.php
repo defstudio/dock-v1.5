@@ -11,6 +11,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
@@ -46,15 +47,15 @@ class Php extends Service
             $this->serviceDefinition->push('extra_hosts', 'host.docker.internal:host-gateway');
         }
 
-        if ($this->env('REDIS_ENABLED')) {
+        if ($this->env(EnvKey::redis_enabled)) {
             $this->dependsOn(app(Redis::class)->name());
         }
 
-        if ($this->env('DB_ENGINE') === 'mysql') {
+        if ($this->env(EnvKey::db_engine) === 'mysql') {
             $this->dependsOn(app(MySql::class)->name());
         }
 
-        $this->version($this->env('PHP_VERSION', 'latest'));
+        $this->version($this->env(EnvKey::php_version, 'latest'));
 
         $this->addVolume(self::HOST_SRC_PATH, $this->getWorkingDir());
         $this->addVolume("{$this->assetsFolder()}/".self::ASSET_PHP_INI_PATH, '/usr/local/etc/php/php.ini');
@@ -139,7 +140,7 @@ class Php extends Service
             return false;
         }
 
-        return Str::of($this->env('EXTRA_TOOLS'))
+        return Str::of($this->env(EnvKey::extra_tools))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('xdebug');
@@ -155,7 +156,7 @@ class Php extends Service
             return false;
         }
 
-        return Str::of($this->env('EXTRA_TOOLS'))
+        return Str::of($this->env(EnvKey::extra_tools))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('pcov');
@@ -167,7 +168,7 @@ class Php extends Service
             return false;
         }
 
-        return Str::of($this->env('EXTRA_TOOLS'))
+        return Str::of($this->env(EnvKey::extra_tools))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('libreoffice_writer');
@@ -175,7 +176,7 @@ class Php extends Service
 
     public function isMySqlClientEnabled(): bool
     {
-        return Str::of($this->env('EXTRA_TOOLS'))
+        return Str::of($this->env(EnvKey::extra_tools))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('mysql_client');
@@ -223,8 +224,8 @@ class Php extends Service
     {
         //TODO Check required and optional extensions
         $installs = [
-            'pdo_mysql' => $this->env('DB_ENGINE', 'mysql') === 'mysql',
-            'mysqli' => $this->env('DB_ENGINE', 'mysql') === 'mysql',
+            'pdo_mysql' => $this->env(EnvKey::db_engine, 'mysql') === 'mysql',
+            'mysqli' => $this->env(EnvKey::db_engine, 'mysql') === 'mysql',
             'pcntl' => true,
             'zip' => true,
             'soap' => true,
@@ -243,7 +244,7 @@ class Php extends Service
             return false;
         }
 
-        return (bool) $this->env('REDIS_ENABLED');
+        return (bool) $this->env(EnvKey::redis_enabled);
     }
 
     protected function assetsFolder(): string

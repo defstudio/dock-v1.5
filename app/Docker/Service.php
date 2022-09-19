@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace App\Docker;
 
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 use App\Facades\Terminal;
@@ -42,6 +43,9 @@ abstract class Service
 
     protected string $name;
 
+    /**
+     * @param  array<string,  mixed>  $customEnv
+     */
     public function __construct(private readonly array $customEnv = [])
     {
         $this->volumes = Collection::empty();
@@ -85,7 +89,7 @@ abstract class Service
     {
         $cookbook = app(RecipeService::class);
 
-        return $cookbook->recipe($this->env('RECIPE'));
+        return $cookbook->recipe($this->env(EnvKey::recipe));
     }
 
     public function addVolume(string $hostPath, string $containerPath = null): static
@@ -187,10 +191,10 @@ abstract class Service
         self::$fake = true;
     }
 
-    public function env(string $key, mixed $default = null): mixed
+    public function env(EnvKey $key, mixed $default = null): mixed
     {
         if (!empty($this->customEnv)) {
-            return $this->customEnv[$key] ?? $default;
+            return $this->customEnv[$key->value] ?? $default;
         }
 
         return Env::get($key, $default);
@@ -198,12 +202,12 @@ abstract class Service
 
     protected function isProductionMode(): bool
     {
-        return Env::get('ENV') === 'production';
+        return Env::get(EnvKey::env) === 'production';
     }
 
     protected function isDockerHostExposed(): bool
     {
-        return (bool) Env::get('EXPOSE_DOCKER_HOST', false);
+        return (bool) Env::get(EnvKey::expose_docker_host, false);
     }
 
     public function internalNetworkName(): string
@@ -213,7 +217,7 @@ abstract class Service
 
     public function getUserId(): int
     {
-        $uid = Env::get('USER_ID', getmyuid());
+        $uid = Env::get(EnvKey::user_id, getmyuid());
 
         if ($uid === false) {
             throw DockerServiceException::unableToDetectCurrentUserId();
@@ -224,7 +228,7 @@ abstract class Service
 
     public function getGroupId(): int
     {
-        $uid = Env::get('GROUP_ID', Env::get('USER_ID', getmyuid()));
+        $uid = Env::get(EnvKey::group_id, Env::get(EnvKey::user_id, getmyuid()));
 
         if ($uid === false) {
             throw DockerServiceException::unableToDetectCurrentGroupId();
@@ -235,7 +239,7 @@ abstract class Service
 
     public function host(): string
     {
-        $host = $this->env('HOST');
+        $host = $this->env(EnvKey::host);
 
         if (empty($host)) {
             throw DockerServiceException::missingHost();
@@ -256,7 +260,7 @@ abstract class Service
 
     protected function reverseProxyNexwork(): string
     {
-        return (string) Env::get('REVERSE_PROXY_NETWORK', '');
+        return (string) Env::get(EnvKey::reverse_proxy_network, '');
     }
 
     public function yml(string $key = null, mixed $default = null): mixed

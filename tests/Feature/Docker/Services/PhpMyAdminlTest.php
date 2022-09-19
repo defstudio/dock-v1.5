@@ -20,7 +20,7 @@ it('sets its yml', function () {
 });
 
 it('can set a custom port', function () {
-    Env::put('PHPMYADMIN_PORT', 44);
+    Env::put(\App\Enums\EnvKey::phpmyadmin_port, 44);
 
     expect(new PhpMyAdmin())->yml('ports')->toBe(['44:80']);
 });
@@ -43,7 +43,7 @@ it('sets credentials from mysql configuration', function () {
 });
 
 it('adds its subdomain to Nginx service', function () {
-    Env::put('PHPMYADMIN_SUBDOMAIN', 'foo');
+    Env::put(\App\Enums\EnvKey::phpmyadmin_subdomain, 'foo');
 
     $nginx = new Nginx();
     $phpmyadmin = new PhpMyAdmin();

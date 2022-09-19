@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace App\Recipes;
 
+use App\Enums\EnvKey;
 use App\Facades\Terminal;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +37,7 @@ class Configuration
         });
     }
 
-    private function find(string $key): ConfigurationOption|null
+    private function find(EnvKey $key): ConfigurationOption|null
     {
         return $this->sections->flatMap(fn (ConfigurationSection $section) => $section->options())->first(fn (ConfigurationOption $option) => $option->key() === $key);
     }
@@ -44,16 +45,16 @@ class Configuration
     public function dump(): void
     {
         $this->sections->flatMap(fn (ConfigurationSection $section) => $section->options())
-            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key() => $option->value()])
+            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key()->value => $option->value()])
             ->dump();
     }
 
-    public function get(string $key, string|int|bool $default = ''): string|int|bool
+    public function get(EnvKey $key, string|int|bool $default = ''): string|int|bool
     {
-        return $this->find($key)?->value() ?? $this->extraOptions[$key] ?? $default;
+        return $this->find($key)?->value() ?? $this->extraOptions[$key->value] ?? $default;
     }
 
-    public function set(string $key, string|int|bool $value): void
+    public function set(EnvKey $key, string|int|bool $value): void
     {
         $option = $this->find($key);
 
@@ -63,7 +64,7 @@ class Configuration
             return;
         }
 
-        $this->extraOptions[$key] = $value;
+        $this->extraOptions[$key->value] = $value;
     }
 
     /**
@@ -82,7 +83,7 @@ class Configuration
 
         if (!empty($this->extraOptions)) {
             $this->sections->push(ConfigurationSection::make('Extra', [
-                ...collect($this->extraOptions)->map(fn (string|int|bool $value, string $key) => ConfigurationOption::make($key, $value)),
+                ...collect($this->extraOptions)->map(fn (string|int|bool $value, string $key) => ConfigurationOption::make(EnvKey::from($key), $value)),
             ]));
         }
 
@@ -101,7 +102,7 @@ class Configuration
                     return null;
                 }
 
-                return Str::of($option->key())
+                return Str::of($option->key()->value)
                     ->append('=')
                     ->append(match ($option->value()) {
                         true => 1,
@@ -133,7 +134,7 @@ class Configuration
     {
         return $this->sections
             ->flatMap(fn (ConfigurationSection $section) => $section->options())
-            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key() => $option->value()])
+            ->mapWithKeys(fn (ConfigurationOption $option) => [$option->key()->value => $option->value()])
             ->toArray();
     }
 }

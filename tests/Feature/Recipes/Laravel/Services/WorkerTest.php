@@ -28,7 +28,7 @@ test('commands', function () {
 });
 
 it('publishes assets', function (string $asset, array $env, string $phpVersion) {
-    Env::fake($env)->put('PHP_VERSION', $phpVersion);
+    Env::fake($env)->put(\App\Enums\EnvKey::php_version, $phpVersion);
     Service::fake();
 
     $scheduler = new Scheduler();

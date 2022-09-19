@@ -24,7 +24,7 @@ test('default node version', function () {
 });
 
 it('sets its node version from env', function () {
-    Env::put('NODE_VERSION', 8);
+    Env::put(\App\Enums\EnvKey::node_version, 8);
 
     expect(new Node())->getNodeVersion()->toBe(8);
 });
@@ -34,7 +34,7 @@ it('adds internal network', function () {
 });
 
 it("doesn't map vite port if in production mode", function () {
-    Env::put('ENV', 'production');
+    Env::put(\App\Enums\EnvKey::env, 'production');
 
     expect(new Node())->yml('ports')->toBeEmpty();
 });

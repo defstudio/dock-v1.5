@@ -7,6 +7,7 @@ namespace App\Docker\Services;
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\Npm;
+use App\Enums\EnvKey;
 
 class Node extends Service
 {
@@ -23,7 +24,7 @@ class Node extends Service
             ],
         ]);
 
-        $this->version($this->env('NODE_VERSION', 'lts'));
+        $this->version($this->env(EnvKey::node_version, 'lts'));
 
         if (!$this->isProductionMode()) {
             $this->mapPort(5173); //Vite port

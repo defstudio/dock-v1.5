@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\EnvKey;
 use App\Exceptions\RecipeException;
 use App\Facades\Env;
 use App\Recipes\Recipe;
@@ -40,7 +41,7 @@ class RecipeService
                 throw RecipeException::missingEnvFile();
             }
 
-            if (empty($recipe = Env::get('RECIPE'))) {
+            if (empty($recipe = Env::get(EnvKey::recipe))) {
                 throw RecipeException::noActiveRecipe();
             }
 

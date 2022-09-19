@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 use App\Facades\Terminal;
@@ -73,19 +76,19 @@ it('can return internal network name', function () {
 });
 
 it('can return current user id', function () {
-    Env::put('USER_ID', 999);
+    Env::put(EnvKey::user_id, 999);
 
     expect($this->service)
         ->getUserId()->toBe(999);
 });
 
 it('can return current group id', function () {
-    Env::put('USER_ID', 999);
+    Env::put(EnvKey::user_id, 999);
 
     expect($this->service)
         ->getGroupId()->toBe(999);
 
-    Env::put('GROUP_ID', 42);
+    Env::put(EnvKey::group_id, 42);
 
     expect($this->service)
         ->getGroupId()->toBe(42);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\EnvKey;
 use App\Recipes\ConfigurationOption;
 use App\Recipes\ConfigurationSection;
 
@@ -10,7 +11,7 @@ it('returns its name', function () {
 });
 
 it('returns its options', function () {
-    $section = ConfigurationSection::make('foo', [ConfigurationOption::make('bar')]);
+    $section = ConfigurationSection::make('bar', [ConfigurationOption::make(EnvKey::foo)]);
 
-    expect($section->options())->first()->key()->toBe('bar');
+    expect($section->options())->first()->key()->toBe(EnvKey::foo);
 });

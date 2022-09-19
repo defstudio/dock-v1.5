@@ -7,6 +7,7 @@ use App\Docker\Services\Commands\Composer as ComposerCommand;
 use App\Docker\Services\Commands\NginxRestart as NginxRestartCommand;
 use App\Docker\Services\Commands\Node as NodeCommand;
 use App\Docker\Services\Commands\Npm as NpmCommand;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Facades\Terminal;
 use App\Recipes\Laravel\Commands\Artisan as ArtisanCommand;
@@ -334,46 +335,46 @@ it('publishes docker-compose file', function (array $env) {
 })->with([
     'default' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
         ],
     ],
     'redis enabled' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
-            'REDIS_ENABLED' => 1,
-            'REDIS_PERSIST_DATA' => 1,
-            'REDIS_SNAPSHOT_EVERY_SECONDS' => 40,
-            'REDIS_SNAPSHOT_EVERY_WRITES' => 42,
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
+            EnvKey::redis_enabled->value => 1,
+            EnvKey::redis_persist_data->value => 1,
+            EnvKey::redis_snapshot_every_seconds->value => 40,
+            EnvKey::redis_snapshot_every_writes->value => 42,
         ],
     ],
     'mailhog enabled' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
-            'MAILHOG_ENABLED' => 1,
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
+            EnvKey::mailhog_enabled->value => 1,
         ],
     ],
     'websocket enabled' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
-            'WEBSOCKET_ENABLED' => 1,
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
+            EnvKey::websocket_enabled->value => 1,
         ],
     ],
     'phpmyadmin enabled' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
-            'PHPMYADMIN_ENABLED' => 1,
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
+            EnvKey::phpmyadmin_enabled->value => 1,
         ],
     ],
     'dusk enabled' => [
         [
-            'RECIPE' => 'laravel',
-            'HOST' => 'foo.com',
-            'EXTRA_TOOLS' => 'browser_tests',
+            EnvKey::recipe->value => 'laravel',
+            EnvKey::host->value => 'foo.com',
+            EnvKey::extra_tools->value => 'browser_tests',
         ],
     ],
 ]);

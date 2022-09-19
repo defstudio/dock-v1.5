@@ -6,6 +6,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
@@ -15,7 +16,7 @@ class Redis extends Service
     {
         $this->setServiceName('redis');
 
-        $version = $this->env('REDIS_VERSION', 7);
+        $version = $this->env(EnvKey::redis_version, 7);
 
         $this->serviceDefinition = new ServiceDefinition([
             'restart' => 'unless-stopped',
@@ -33,12 +34,12 @@ class Redis extends Service
 
     protected function shouldPersistData(): bool
     {
-        return (bool) $this->env('REDIS_PERSIST_DATA');
+        return (bool) $this->env(EnvKey::redis_persist_data);
     }
 
     protected function getPassword(): string
     {
-        return $this->env('REDIS_PASSWORD', '');
+        return $this->env(EnvKey::redis_password, '');
     }
 
     protected function buildCommand(): string
@@ -52,12 +53,12 @@ class Redis extends Service
 
     protected function getPersistenceSeconds(): int
     {
-        return $this->env('REDIS_SNAPSHOT_EVERY_SECONDS', 60);
+        return $this->env(EnvKey::redis_snapshot_every_seconds, 60);
     }
 
     protected function getPersistenceChangedKeys(): int
     {
-        return $this->env('REDIS_SNAPSHOT_EVERY_WRITES', 1);
+        return $this->env(EnvKey::redis_snapshot_every_writes, 1);
     }
 
     protected function getLogLevel(): string

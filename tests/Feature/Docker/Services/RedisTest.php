@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Docker\Services\Redis;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -18,19 +19,19 @@ it('sets its yml', function () {
 });
 
 it('can set redis version from env', function () {
-    Env::put('REDIS_VERSION', '5.4');
+    Env::put(EnvKey::redis_version, '5.4');
     expect(new Redis())->yml('image')->toBe('redis:5.4-alpine');
 });
 
 it('can enable persistence from env', function () {
-    Env::put('REDIS_PERSIST_DATA', 1);
+    Env::put(EnvKey::redis_persist_data, 1);
     expect(new Redis())->yml('command')->toBe('redis-server --loglevel warning --save 60 1');
 });
 
 it('can customize persistence configs from env', function () {
-    Env::put('REDIS_PERSIST_DATA', 1);
-    Env::put('REDIS_SNAPSHOT_EVERY_SECONDS', 42);
-    Env::put('REDIS_SNAPSHOT_EVERY_WRITES', 18);
+    Env::put(EnvKey::redis_persist_data, 1);
+    Env::put(EnvKey::redis_snapshot_every_seconds, 42);
+    Env::put(EnvKey::redis_snapshot_every_writes, 18);
     expect(new Redis())->yml('command')->toBe('redis-server --loglevel warning --save 42 18');
 });
 
@@ -39,7 +40,7 @@ it('adds internal network', function () {
 });
 
 it('sets its volumes', function () {
-    Env::put('REDIS_PERSIST_DATA', 1);
+    Env::put(EnvKey::redis_persist_data, 1);
     expect(new Redis())
         ->toHaveVolume('./volumes/redis/data', '/data');
 });

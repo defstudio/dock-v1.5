@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Docker\Services\MailHog;
 use App\Docker\Services\Nginx;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 
 beforeEach(function () {
@@ -19,7 +20,7 @@ it('sets its yml', function () {
 });
 
 it('can set its port', function () {
-    Env::put('MAILHOG_PORT', 99);
+    Env::put(EnvKey::mailhog_port, 99);
     expect(new MailHog())
         ->yml('ports')->toBe(['99:8025'])
         ->yml('expose')->toBe([8025, 1025]);
@@ -30,7 +31,7 @@ it('add internal network', function () {
 });
 
 it('adds its subdomain to Nginx service', function () {
-    Env::put('MAILHOG_SUBDOMAIN', 'foo');
+    Env::put(EnvKey::mailhog_subdomain, 'foo');
 
     $nginx = new Nginx();
     $mailhog = new MailHog();

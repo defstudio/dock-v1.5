@@ -4,6 +4,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\EnvKey;
 use Illuminate\Support\Facades\Storage;
 
 class Env
@@ -13,8 +14,8 @@ class Env
         return Storage::disk('cwd')->exists('.env');
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get(EnvKey $key, mixed $default = null): mixed
     {
-        return env($key, $default);
+        return env($key->value, $default);
     }
 }

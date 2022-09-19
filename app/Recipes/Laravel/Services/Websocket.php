@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace App\Recipes\Laravel\Services;
 
 use App\Docker\Services\Php;
+use App\Enums\EnvKey;
 use Illuminate\Support\Str;
 
 class Websocket extends Php
@@ -26,7 +27,7 @@ class Websocket extends Php
         if ($this->isBehindReverseProxy()) {
             $this->addNetwork($this->reverseProxyNexwork())->external();
         } else {
-            $port = (int) $this->env('WEBSOCKET_PORT', 6001);
+            $port = (int) $this->env(EnvKey::websocket_port, 6001);
             $this->mapPort($port, 6001);
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 declare(strict_types=1);
 
 use App\Docker\Service;
@@ -7,6 +9,7 @@ use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Services\Nginx;
 use App\Docker\Services\Php;
 use App\Docker\Site;
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
 use App\Facades\Env;
 
@@ -23,7 +26,7 @@ it('sets its yml', function () {
 });
 
 it('can expose docker host', function () {
-    Env::put('EXPOSE_DOCKER_HOST', 1);
+    Env::put(EnvKey::expose_docker_host, 1);
 
     expect(new Nginx())->yml('extra_hosts')->toBe([
         'host.docker.internal:host-gateway',
@@ -42,7 +45,7 @@ it('adds internal network', function () {
 });
 
 it('can add reverse proxy network', function () {
-    Env::put('REVERSE_PROXY_NETWORK', 'foo-network');
+    Env::put(EnvKey::reverse_proxy_network, 'foo-network');
 
     expect(new Nginx())
         ->toHaveNetwork('foo-network')
@@ -70,7 +73,7 @@ it('adds upstream.conf volume when php service is set', function () {
 });
 
 it('sets up the site from env', function (array $env) {
-    collect($env)->each(fn ($value, $key) => Env::put($key, $value));
+    collect($env)->each(fn ($value, $key) => Env::put(EnvKey::from($key), $value));
 
     $nginx = new Nginx();
 
@@ -79,15 +82,15 @@ it('sets up the site from env', function (array $env) {
         ->first()->configuration()->toMatchTextSnapshot();
 })->with([
     'default' => fn () => [],
-    'custom port' => fn () => ['NGINX_PORT' => 42],
-    'with websockets' => fn () => ['WEBSOCKET_ENABLED' => 1],
-    'ssl' => fn () => ['NGINX_PORT' => 443],
-    'ssl with websockets' => fn () => ['NGINX_PORT' => 443, 'WEBSOCKET_ENABLED' => 1],
+    'custom port' => fn () => [EnvKey::nginx_port->value => 42],
+    'with websockets' => fn () => [EnvKey::websocket_enabled->value => 1],
+    'ssl' => fn () => [EnvKey::nginx_port->value => 443],
+    'ssl with websockets' => fn () => [EnvKey::nginx_port->value => 443, EnvKey::websocket_enabled->value => 1],
 ]);
 
 it('can set an external certificate folder', function () {
     Storage::disk('cwd')->makeDirectory('certificates');
-    Env::put('NGINX_PORT', 443)->put('NGINX_EXTERNAL_CERTIFICATE_FOLDER', 'certificates');
+    Env::put(EnvKey::nginx_port, 443)->put(EnvKey::nginx_external_certificate_folder, 'certificates');
 
     $nginx = new Nginx();
 
@@ -95,7 +98,7 @@ it('can set an external certificate folder', function () {
 });
 
 it('requires external certificate folder to exist', function () {
-    Env::put('NGINX_PORT', 443)->put('NGINX_EXTERNAL_CERTIFICATE_FOLDER', 'foo');
+    Env::put(EnvKey::nginx_port, 443)->put(EnvKey::nginx_external_certificate_folder, 'foo');
     new Nginx();
 })->throws(DockerServiceException::class, 'Path [foo] not found on host system');
 

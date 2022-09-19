@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Docker\Service;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Recipes\Laravel\Services\Scheduler;
 use App\Recipes\Laravel\Services\Websocket;
@@ -28,7 +29,7 @@ it('can add php service dependency', function () {
 });
 
 it('can add reverse proxy network', function () {
-    Env::put('REVERSE_PROXY_NETWORK', 'foo-network');
+    Env::put(EnvKey::reverse_proxy_network, 'foo-network');
 
     expect(new Websocket())
         ->toHaveNetwork('foo-network')
@@ -40,7 +41,7 @@ test('commands', function () {
 });
 
 it('publishes assets', function (string $asset, array $env, string $phpVersion) {
-    Env::fake($env)->put('PHP_VERSION', $phpVersion);
+    Env::fake($env)->put(EnvKey::php_version, $phpVersion);
     Service::fake();
 
     $scheduler = new Scheduler();

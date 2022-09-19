@@ -12,6 +12,7 @@ use App\Docker\Service;
 use App\Docker\ServiceDefinition;
 use App\Docker\Services\Commands\NginxRestart;
 use App\Docker\Site;
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -82,7 +83,7 @@ class Nginx extends Service
 
     protected function setExternalCertificate(): void
     {
-        $externalCertificatesFolder = $this->env('NGINX_EXTERNAL_CERTIFICATE_FOLDER');
+        $externalCertificatesFolder = $this->env(EnvKey::nginx_external_certificate_folder);
 
         if (empty($externalCertificatesFolder)) {
             return;
@@ -101,7 +102,7 @@ class Nginx extends Service
 
     protected function setupSite(): void
     {
-        $port = (int) $this->env('NGINX_PORT', 80);
+        $port = (int) $this->env(EnvKey::nginx_port, 80);
 
         if ($port === 443) {
             $this->setupSslSite();
@@ -111,15 +112,15 @@ class Nginx extends Service
 
         $this->addSite($this->host(), $port)
             ->root($this->getWorkingDir())
-            ->proxyWebsocket((bool) $this->env('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) $this->env(EnvKey::websocket_enabled));
     }
 
     protected function setupSslSite(): void
     {
         $this->setExternalCertificate();
 
-        if ($this->env('NGINX_EXTERNAL_CERTIFICATE_FOLDER')) {
-            $certificateHostname = (string) $this->env('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME', $this->host());
+        if ($this->env(EnvKey::nginx_external_certificate_folder)) {
+            $certificateHostname = (string) $this->env(EnvKey::nginx_external_certificate_hostname, $this->host());
 
             $sslCertificate = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/fullchain.pem";
             $sslCertificateKey = self::LETSENCRYPT_FOLDER."/live/$certificateHostname/privkey.pem";
@@ -129,7 +130,7 @@ class Nginx extends Service
             ->root($this->getWorkingDir())
             ->certificatePath($sslCertificate ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/fullchain.pem")
             ->certificateKeyPath($sslCertificateKey ?? self::LETSENCRYPT_FOLDER."/live/{$this->host()}/privkey.pem")
-            ->proxyWebsocket((bool) $this->env('WEBSOCKET_ENABLED'));
+            ->proxyWebsocket((bool) $this->env(EnvKey::websocket_enabled));
     }
 
     public function addSite(string $host, int $port): Site

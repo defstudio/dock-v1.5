@@ -22,7 +22,7 @@ class Install extends Command
 
     private function install(): bool
     {
-        if($this->runInService(Composer::class,['composer', 'create-project', '--prefer-dist', 'laravel/laravel', '.']) !== self::SUCCESS){
+        if ($this->runInService(Composer::class, ['composer', 'create-project', '--prefer-dist', 'laravel/laravel', '.']) !== self::SUCCESS) {
             return false;
         }
 

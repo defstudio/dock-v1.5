@@ -1,4 +1,6 @@
-<?php /** @noinspection ALL */
+<?php
+
+/** @noinspection ALL */
 
 /** @noinspection PhpCastIsUnnecessaryInspection */
 
@@ -9,7 +11,9 @@ declare(strict_types=1);
 namespace App\Recipes;
 
 use App\Docker\Service;
+use App\Enums\EnvKey;
 use App\Exceptions\DockerServiceException;
+use App\Facades\Env;
 use App\Facades\Terminal;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -63,7 +67,7 @@ abstract class Recipe
     }
 
     /**
-     * @template CLASS
+     * @template CLASS of Service
      *
      * @param  class-string<CLASS>  $serviceClass
      * @return CLASS
@@ -79,18 +83,33 @@ abstract class Recipe
     }
 
     /**
-     * @template CLASS
+     * @template CLASS of Service
      *
-     * @param class-string<CLASS> $serviceClass
-     *
-     * @return CLASS&Service
+     * @param  class-string<CLASS>  $serviceClass
+     * @return CLASS
      */
     public function getService(string $serviceClass)
     {
+        /** @var CLASS|null $service */
         $service = $this->services->get($serviceClass);
 
-        if (empty($service)) {
+        if ($service === null) {
             throw DockerServiceException::serviceNotFound($serviceClass);
+        }
+
+        return $service;
+    }
+
+    /**
+     * @param  string  $name
+     * @return Service
+     */
+    public function getServiceByName(string $name)
+    {
+        $service = $this->services->first(fn (Service $service) => $service->name() === $name);
+
+        if ($service === null) {
+            throw DockerServiceException::serviceNotFound($name);
         }
 
         return $service;
@@ -132,8 +151,11 @@ abstract class Recipe
         return $this->services->flatMap(fn (Service $service) => $service->getNetworks())->toArray();
     }
 
+    /**
+     * @return Service
+     */
     public function getDatabaseService()
     {
-
+        return $this->getServiceByName(Env::get(EnvKey::db_engine));
     }
 }

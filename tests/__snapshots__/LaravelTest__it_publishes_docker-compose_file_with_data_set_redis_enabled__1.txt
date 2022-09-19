@@ -1,6 +1,6 @@
 version: '3.5'
 services:
-    php:
+    App\Docker\Services\Php:
         restart: unless-stopped
         working_dir: /var/www
         build:
@@ -20,7 +20,7 @@ services:
             - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
-    nginx:
+    App\Docker\Services\Nginx:
         restart: unless-stopped
         working_dir: /var/www
         build:
@@ -40,7 +40,7 @@ services:
             options: { max-size: 10m, max-file: '3' }
         depends_on:
             - php
-    scheduler:
+    App\Recipes\Laravel\Services\Scheduler:
         restart: unless-stopped
         working_dir: /var/www
         build:
@@ -60,7 +60,7 @@ services:
             - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
-    worker:
+    App\Recipes\Laravel\Services\Worker:
         restart: unless-stopped
         working_dir: /var/www
         build:
@@ -80,7 +80,7 @@ services:
             - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
-    composer:
+    App\Docker\Services\Composer:
         restart: 'no'
         working_dir: /var/www
         build:
@@ -98,7 +98,7 @@ services:
             - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
-    node:
+    App\Docker\Services\Node:
         working_dir: /var/www
         build:
             context: ./services/node/build
@@ -112,7 +112,7 @@ services:
             - foo_com_internal_network
         logging:
             options: { max-size: 10m, max-file: '3' }
-    redis:
+    App\Docker\Services\Redis:
         restart: unless-stopped
         image: 'redis:7-alpine'
         command: 'redis-server --loglevel warning --save 40 42'
@@ -124,7 +124,7 @@ services:
             - './volumes/redis/data:/data'
         logging:
             options: { max-size: 10m, max-file: '3' }
-    mysql:
+    App\Docker\Services\MySql:
         restart: unless-stopped
         command: '--character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=mysql_native_password'
         image: 'mysql:8'

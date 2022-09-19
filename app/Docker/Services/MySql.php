@@ -10,6 +10,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 
 class MySql extends Service
 {
@@ -27,16 +28,16 @@ class MySql extends Service
             'expose' => [3306],
         ]);
 
-        $this->setDatabaseName((string) $this->env('MYSQL_DATABASE', 'database'));
-        $this->setDatabaseUser((string) $this->env('MYSQL_USER', 'dbuser'));
-        $this->setDatabasePassword((string) $this->env('MYSQL_PASSWORD', 'dbpassword'));
-        $this->setDatabaseRootPassword((string) $this->env('MYSQL_ROOT_PASSWORD', 'root'));
+        $this->setDatabaseName((string) $this->env(EnvKey::db_name, 'database'));
+        $this->setDatabaseUser((string) $this->env(EnvKey::db_user, 'dbuser'));
+        $this->setDatabasePassword((string) $this->env(EnvKey::db_password, 'dbpassword'));
+        $this->setDatabaseRootPassword((string) $this->env(EnvKey::db_root_password, 'root'));
 
-        if ($this->env('MYSQL_DISABLE_STRICT_MODE')) {
+        if ($this->env(EnvKey::db_disable_strict_mode)) {
             $this->disableStrictMode();
         }
 
-        if (!empty($port = (int) $this->env('MYSQL_PORT'))) {
+        if (!empty($port = (int) $this->env(EnvKey::db_port))) {
             $this->mapPort($port, 3306);
         }
 

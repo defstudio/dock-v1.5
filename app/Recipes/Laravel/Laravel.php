@@ -16,6 +16,7 @@ use App\Docker\Services\Php;
 use App\Docker\Services\PhpMyAdmin;
 use App\Docker\Services\Redis;
 use App\Enums\DbEngine;
+use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Recipes\Configuration;
 use App\Recipes\ConfigurationOption;
@@ -52,42 +53,42 @@ class Laravel extends Recipe
     {
         return [
             ConfigurationSection::make('General', [
-                ConfigurationOption::make('RECIPE', $this->slug()),
-                ConfigurationOption::make('HOST')
+                ConfigurationOption::make(EnvKey::recipe, $this->slug()),
+                ConfigurationOption::make(EnvKey::host)
                     ->description('Host exposed to external environments')
                     ->question('Application hostname')
                     ->default('laravel.ktm'),
-                ConfigurationOption::make('ENV')
+                ConfigurationOption::make(EnvKey::env)
                     ->description('Application environment')
                     ->choices(['local', 'production'])
                     ->default('local'),
-                ConfigurationOption::make('PHP_VERSION')
+                ConfigurationOption::make(EnvKey::php_version)
                     ->description('PHP Version')
                     ->default('latest'),
-                ConfigurationOption::make('NODE_VERSION')
+                ConfigurationOption::make(EnvKey::node_version)
                     ->description('Node Version')
                     ->default('lts'),
-                ConfigurationOption::make('EXPOSE_DOCKER_HOST')
+                ConfigurationOption::make(EnvKey::expose_docker_host)
                     ->description('Should Docker Host be exposed to containers (Docker > v20.04 only)?')
                     ->confirm()
                     ->default(false),
-                ConfigurationOption::make('BEHIND_PROXY')
+                ConfigurationOption::make(EnvKey::behind_proxy)
                     ->question('Is the application behind a reverse proxy?')
                     ->afterSet(function (string|int|bool $set, Configuration $configuration) {
                         if ($set) {
-                            $configuration->set('REVERSE_PROXY_NETWORK', 'reverse_proxy_network');
+                            $configuration->set(EnvKey::reverse_proxy_network, 'reverse_proxy_network');
                         }
                     })
                     ->confirm()
                     ->default(false)
                     ->hidden(),
-                ConfigurationOption::make('EXTRA_TOOLS')
+                ConfigurationOption::make(EnvKey::extra_tools)
                     ->description('Extra tools to be installed')
                     ->question('Install any extra tools?')
                     ->choices(function (Configuration $configuration) {
                         $tools = ['mysql_client', 'libreoffice_writer'];
 
-                        if ($configuration->get('ENV') === 'production') {
+                        if ($configuration->get(EnvKey::env) === 'production') {
                             return $tools;
                         }
 
@@ -106,37 +107,37 @@ class Laravel extends Recipe
                     ->optional(true),
             ]),
             ConfigurationSection::make('Services', [
-                ConfigurationOption::make('DB_ENGINE')
+                ConfigurationOption::make(EnvKey::db_engine)
                     ->question('Which database engine should be used?')
                     ->choices(DbEngine::cases())
                     ->default('mysql'),
 
-                ConfigurationOption::make('MAILHOG_ENABLED')
+                ConfigurationOption::make(EnvKey::mailhog_enabled)
                     ->question('Should MailHog be enabled?')
                     ->confirm()
                     ->default('no')
-                    ->when(fn (Configuration $configuration) => $configuration->get('ENV') !== 'production'),
-                ConfigurationOption::make('WEBSOCKET_ENABLED')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::env) !== 'production'),
+                ConfigurationOption::make(EnvKey::websocket_enabled)
                     ->question('Should Websocket server be enabled?')
                     ->confirm()
                     ->default('no'),
-                ConfigurationOption::make('REDIS_ENABLED')
+                ConfigurationOption::make(EnvKey::redis_enabled)
                     ->question('Should Redis be enabled?')
                     ->confirm()
                     ->default('no')
-                    ->when(fn (Configuration $configuration) => !Str::of((string) $configuration->get('PHP_VERSION'))->startsWith('5.')),
+                    ->when(fn (Configuration $configuration) => !Str::of((string) $configuration->get(EnvKey::php_version))->startsWith('5.')),
             ]),
 
             ConfigurationSection::make('Network Configuration', [
-                ConfigurationOption::make('NGINX_PORT')
+                ConfigurationOption::make(EnvKey::nginx_port)
                     ->question('Enter nginx exposed port')
                     ->default(80)
                     ->validate(function ($value) {
                         return is_numeric($value);
                     })
-                    ->when(fn (Configuration $configuration) => !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => !$configuration->get(EnvKey::behind_proxy)),
 
-                ConfigurationOption::make('EXTERNAL_CERTIFICATE')
+                ConfigurationOption::make(EnvKey::nginx_external_certificate)
                     ->question("Do you want to set up a custom ssl certificate?
                                         <div class='ml-2'>This setup will allow you to define an external folder to load ssl certificates into nginx setup</div>
                                         <div class='ml-2'>Note: the folder must contain at least the following files:</div>
@@ -146,8 +147,8 @@ class Laravel extends Recipe
                     ->confirm()
                     ->default(false)
                     ->hidden()
-                    ->when(fn (Configuration $configuration) => (!$configuration->get('BEHIND_PROXY') && $configuration->get('NGINX_PORT') == 443) || $configuration->get('BEHIND_PROXY')),
-                ConfigurationOption::make('NGINX_EXTERNAL_CERTIFICATE_FOLDER')
+                    ->when(fn (Configuration $configuration) => (!$configuration->get(EnvKey::behind_proxy) && $configuration->get(EnvKey::nginx_port) == 443) || $configuration->get(EnvKey::behind_proxy)),
+                ConfigurationOption::make(EnvKey::nginx_external_certificate_folder)
                     ->question('Enter the path to the ssl certificates folder (absolute or relative to dock folder)')
                     ->validate(function (string|int|bool $path): string|bool {
                         $path = "$path";
@@ -162,111 +163,111 @@ class Laravel extends Recipe
 
                         return true;
                     })
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('EXTERNAL_CERTIFICATE')),
-                ConfigurationOption::make('NGINX_EXTERNAL_CERTIFICATE_HOSTNAME')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::nginx_external_certificate)),
+                ConfigurationOption::make(EnvKey::nginx_external_certificate_hostname)
                     ->question('Enter the hostname contained in the certificate')
-                    ->default(fn (Configuration $configuration) => $configuration->get('HOST'))
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('EXTERNAL_CERTIFICATE')),
+                    ->default(fn (Configuration $configuration) => $configuration->get(EnvKey::host))
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::nginx_external_certificate)),
 
             ]),
 
             ConfigurationSection::make('Database Configuration', [
-                ConfigurationOption::make('MYSQL_PORT')
+                ConfigurationOption::make(EnvKey::db_port)
                     ->question('Enter mysql exposed port')
                     ->default(3306)
                     ->validate(fn ($value) => is_numeric($value))
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql')
                     ->optional(),
 
-                ConfigurationOption::make('MYSQL_DATABASE')
+                ConfigurationOption::make(EnvKey::db_name)
                     ->description('Database name')
                     ->default('database')
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
-                ConfigurationOption::make('MYSQL_USER')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql'),
+                ConfigurationOption::make(EnvKey::db_user)
                     ->description('Database user')
                     ->default('dbuser')
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
-                ConfigurationOption::make('MYSQL_PASSWORD')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql'),
+                ConfigurationOption::make(EnvKey::db_password)
                     ->description('Database password')
                     ->default('dbpassword')
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
-                ConfigurationOption::make('MYSQL_ROOT_PASSWORD')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql'),
+                ConfigurationOption::make(EnvKey::db_root_password)
                     ->description('Database root password')
                     ->default('root')
-                    ->validate(fn (string|int|bool $value, Configuration $configuration) => $value === 'root' && $configuration->get('ENV') === 'production'
+                    ->validate(fn (string|int|bool $value, Configuration $configuration) => $value === 'root' && $configuration->get(EnvKey::env) === 'production'
                         ? "you should not use 'root' in production environments"
                         : true
                     )
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
-                ConfigurationOption::make('MYSQL_DISABLE_STRICT_MODE')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql'),
+                ConfigurationOption::make(EnvKey::db_disable_strict_mode)
                     ->description('Disable strict mode')
                     ->confirm()
                     ->default('no')
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql'),
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql'),
 
-                ConfigurationOption::make('PHPMYADMIN_ENABLED')
+                ConfigurationOption::make(EnvKey::phpmyadmin_enabled)
                     ->question('Should PHPMyAdmin be enabled?')
                     ->confirm()
                     ->default('no')
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('ENV') !== 'production'),
-                ConfigurationOption::make('PHPMYADMIN_PORT')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql' && $configuration->get(EnvKey::env) !== 'production'),
+                ConfigurationOption::make(EnvKey::phpmyadmin_port)
                     ->question('Enter PHPMyAdmin exposed port')
                     ->default(8081)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED') && !$configuration->get('BEHIND_PROXY')),
-                ConfigurationOption::make('PHPMYADMIN_SUBDOMAIN')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql' && $configuration->get(EnvKey::phpmyadmin_enabled) && !$configuration->get(EnvKey::behind_proxy)),
+                ConfigurationOption::make(EnvKey::phpmyadmin_subdomain)
                     ->question('Enter PHPMyAdmin exposed subdomain')
                     ->default('db')
                     ->optional()
-                    ->when(fn (Configuration $configuration) => $configuration->get('DB_ENGINE') === 'mysql' && $configuration->get('PHPMYADMIN_ENABLED')),
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::db_engine) === 'mysql' && $configuration->get(EnvKey::phpmyadmin_enabled)),
             ]),
 
             ConfigurationSection::make('MailHog Configuration', [
-                ConfigurationOption::make('MAILHOG_PORT')
+                ConfigurationOption::make(EnvKey::mailhog_port)
                     ->question('Enter MailHog exposed port')
                     ->default(8025)
                     ->validate(fn ($value) => is_numeric($value))
                     ->optional()
-                    ->when(fn (Configuration $configuration) => $configuration->get('MAILHOG_ENABLED') && !$configuration->get('BEHIND_PROXY')),
-                ConfigurationOption::make('MAILHOG_SUBDOMAIN')
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::mailhog_enabled) && !$configuration->get(EnvKey::behind_proxy)),
+                ConfigurationOption::make(EnvKey::mailhog_subdomain)
                     ->question('Enter MailHog exposed subdomain')
                     ->default('mail')
                     ->optional()
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('MAILHOG_ENABLED')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::mailhog_enabled)),
             ]),
 
             ConfigurationSection::make('Websocket Configuration', [
-                ConfigurationOption::make('WEBSOCKET_PORT')
+                ConfigurationOption::make(EnvKey::websocket_port)
                     ->question('Enter Websocket server exposed port')
                     ->default(6001)
                     ->validate(fn ($value) => is_numeric($value))
-                    ->when(fn (Configuration $configuration) => $configuration->get('WEBSOCKET_ENABLED') && !$configuration->get('BEHIND_PROXY')),
+                    ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::websocket_enabled) && !$configuration->get(EnvKey::behind_proxy)),
             ]),
 
             ConfigurationSection::make('Redis Configuration', [
-                ConfigurationOption::make('REDIS_VERSION')
+                ConfigurationOption::make(EnvKey::redis_version)
                     ->description('Redis Version')
                     ->choices(['5', '6', '7'])
                     ->default('7')
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
-                ConfigurationOption::make('REDIS_PASSWORD')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_enabled)),
+                ConfigurationOption::make(EnvKey::redis_password)
                     ->description('Redis password (leave blank to disable)')
                     ->optional()
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
-                ConfigurationOption::make('REDIS_SNAPSHOT')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_enabled)),
+                ConfigurationOption::make(EnvKey::redis_persist_data)
                     ->description('Should Redis data be persisted between container reboots?')
                     ->confirm()
                     ->default('yes')
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_ENABLED')),
-                ConfigurationOption::make('REDIS_SNAPSHOT_EVERY_SECONDS')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_enabled)),
+                ConfigurationOption::make(EnvKey::redis_snapshot_every_seconds)
                     ->description('After how many seconds should Redis dump the snapshot?')
                     ->default(60)
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_SNAPSHOT')),
-                ConfigurationOption::make('REDIS_SNAPSHOT_EVERY_WRITES')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_persist_data)),
+                ConfigurationOption::make(EnvKey::redis_snapshot_every_writes)
                     ->description('How many key changes are required to dump the snapshot?')
                     ->default(1)
-                    ->when(fn (Configuration $configuration) => (bool) $configuration->get('REDIS_SNAPSHOT')),
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_persist_data)),
             ]),
 
         ];
@@ -284,30 +285,30 @@ class Laravel extends Recipe
         $this->addService(Composer::class);
         $this->addService(Node::class);
 
-        if (Env::get('REDIS_ENABLED')) {
+        if (Env::get(EnvKey::redis_enabled)) {
             $this->addService(Redis::class);
         }
 
-        if (Env::get('MAILHOG_ENABLED')) {
+        if (Env::get(EnvKey::mailhog_enabled)) {
             $this->addService(MailHog::class)
                 ->nginxService($nginx);
         }
 
-        if (Env::get('WEBSOCKET_ENABLED')) {
+        if (Env::get(EnvKey::websocket_enabled)) {
             $this->addService(Websocket::class);
         }
 
-        if (Env::get('DB_ENGINE', 'mysql') === 'mysql') {
+        if (Env::get(EnvKey::db_engine, 'mysql') === 'mysql') {
             $mysql = $this->addService(MySql::class);
 
-            if (Env::get('PHPMYADMIN_ENABLED')) {
+            if (Env::get(EnvKey::phpmyadmin_enabled)) {
                 $this->addService(PhpMyAdmin::class)
                     ->mysqlService($mysql)
                     ->nginxService($nginx);
             }
         }
 
-        $browserTests = Str::of(Env::get('EXTRA_TOOLS'))
+        $browserTests = Str::of(Env::get(EnvKey::extra_tools))
             ->explode(',')
             ->each(fn (string $tool) => trim($tool))
             ->contains('browser_tests');
@@ -328,7 +329,7 @@ class Laravel extends Recipe
             Migrate::class,
             RestartQueue::class,
             Tinker::class,
-        ])->when(Env::get('ENV') !== 'production', fn (Collection $c) => $c->push(Vite::class))
+        ])->when(Env::get(EnvKey::env) !== 'production', fn (Collection $c) => $c->push(Vite::class))
             ->push(...$this->services->flatMap(fn (Service $service) => $service->commands()))
             ->toArray();
     }

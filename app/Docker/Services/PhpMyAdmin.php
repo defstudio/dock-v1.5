@@ -8,6 +8,7 @@ namespace App\Docker\Services;
 
 use App\Docker\Service;
 use App\Docker\ServiceDefinition;
+use App\Enums\EnvKey;
 
 class PhpMyAdmin extends Service
 {
@@ -24,7 +25,7 @@ class PhpMyAdmin extends Service
             'expose' => [80],
         ]);
 
-        if (!empty($port = (int) $this->env('PHPMYADMIN_PORT'))) {
+        if (!empty($port = (int) $this->env(EnvKey::phpmyadmin_port))) {
             $this->mapPort($port, 80);
         }
 
@@ -42,7 +43,7 @@ class PhpMyAdmin extends Service
 
     public function nginxService(Nginx $nginx): static
     {
-        if (!empty($subdomain = $this->env('PHPMYADMIN_SUBDOMAIN'))) {
+        if (!empty($subdomain = $this->env(EnvKey::phpmyadmin_subdomain))) {
             $nginx->addSite(
                 "$subdomain.{$this->host()}",
                 80,
