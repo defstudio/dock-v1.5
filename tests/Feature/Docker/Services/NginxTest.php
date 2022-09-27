@@ -109,6 +109,13 @@ it('map added site port', function () {
     expect($nginx)->yml('ports')->toBe(['80:80', '42:42']);
 });
 
+it('replaces port 80 from .env', function () {
+    Env::put(EnvKey::nginx_port, 81);
+    $nginx = new Nginx();
+
+    expect($nginx)->yml('ports')->toBe(['81:81']);
+});
+
 it('can enable proxy host not found page', function () {
     $nginx = new Nginx();
     $nginx->enableHostNotFoundPage();

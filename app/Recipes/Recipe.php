@@ -136,7 +136,7 @@ abstract class Recipe
 
     private function servicesYml(): array
     {
-        return $this->services->map(fn (Service $service) => $service->yml())->toArray();
+        return $this->services->mapWithKeys(fn (Service $service) => [$service->name() => $service->yml()])->toArray();
     }
 
     public function publishAssets(): bool

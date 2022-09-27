@@ -2,8 +2,8 @@
 
 namespace App\Docker\Services\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
+use App\Docker\Services\Nginx;
 
 class NginxRestart extends Command
 {
@@ -13,8 +13,8 @@ class NginxRestart extends Command
 
     public function handle(): int
     {
-        Terminal::error('Coming soon');
+        $this->runInService(Nginx::class, ['service', 'nginx', 'restart']);
 
-        return self::FAILURE;
+        return self::SUCCESS;
     }
 }
