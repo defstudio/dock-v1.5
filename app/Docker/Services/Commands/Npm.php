@@ -1,20 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Docker\Services\Commands;
 
+use App\Commands\Command;
+use App\Concerns\ForwardsShellCommands;
 use App\Facades\Terminal;
-use Illuminate\Console\Command;
 
 class Npm extends Command
 {
-    protected $signature = 'npm';
+    use ForwardsShellCommands;
 
+    protected $signature = 'npm';
     protected $description = 'Run an npm command';
 
-    public function handle(): int
-    {
-        Terminal::error('Coming soon');
-
-        return self::FAILURE;
-    }
+    protected string $targetService = \App\Docker\Services\Node::class;
 }

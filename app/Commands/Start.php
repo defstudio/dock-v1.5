@@ -12,8 +12,7 @@ use Storage;
 class Start extends Command
 {
     protected $signature = 'start
-                            {--build : rebuilds images before starting}
-                            {--remove-orphans : remove orphans containers}';
+                            {--build : rebuilds images before starting}';
 
     protected $description = 'Launch docker containers';
 
@@ -52,15 +51,12 @@ class Start extends Command
 
     private function startContainers(): bool
     {
-        $command = ['docker-compose', 'up', '-d'];
+        $command = ['docker-compose', 'up', '-d', '--remove-orphans'];
 
         if ($this->option('build')) {
             $command[] = '--build';
         }
 
-        if ($this->option('remove-orphans')) {
-            $command[] = '--remove-orphans';
-        }
 
         $exitCode = $this->runInTerminal(
             $command,

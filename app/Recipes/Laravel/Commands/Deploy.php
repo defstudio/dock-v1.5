@@ -2,8 +2,7 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
 
 class Deploy extends Command
 {
@@ -14,8 +13,10 @@ class Deploy extends Command
 
     public function handle(): int
     {
-        Terminal::error('Coming soon');
+        $this->title("Starting Laravel Deploy");
 
-        return self::FAILURE;
+        return $this->tasks([
+
+        ]) ? self::SUCCESS : self::FAILURE;
     }
 }

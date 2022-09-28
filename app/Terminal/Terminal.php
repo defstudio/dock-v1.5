@@ -92,8 +92,13 @@ class Terminal
 
     public function successBanner(string $message): void
     {
-        $this->render("<div class='mx-1 mt-1 pt-1 px-1 min-w-50 bg-gray bg-green text-black text-center'>SUCCESS!</div>");
-        $this->render("<div class='mx-1 mb-1 p-1 min-w-50 bg-gray bg-green text-black text-center'>$message</div>");
+        $this->render("<div class='mx-1 mt-1 pt-1 px-1 min-w-50 bg-green text-black text-center'>SUCCESS!</div>");
+        $this->render("<div class='mx-1 mb-1 p-1 min-w-50 bg-green text-black text-center'>$message</div>");
+    }
+
+    public function titleBanner(string $title): void
+    {
+        $this->render("<div class='mx-1 mt-1 py-1 px-1 min-w-50 bg-cyan text-black text-center'>$title</div>");
     }
 
     public function error(string $message): void

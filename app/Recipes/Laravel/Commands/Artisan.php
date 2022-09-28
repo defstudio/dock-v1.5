@@ -2,19 +2,17 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
+use App\Concerns\ForwardsShellCommands;
+use App\Docker\Services\Php;
 
 class Artisan extends Command
 {
-    protected $signature = 'artisan';
+    use ForwardsShellCommands;
 
+    protected $signature = 'artisan';
     protected $description = 'Run an Artisan command';
 
-    public function handle(): int
-    {
-        Terminal::error('Coming soon');
-
-        return self::FAILURE;
-    }
+    protected string $command = 'php artisan';
+    protected string $targetService = Php::class;
 }

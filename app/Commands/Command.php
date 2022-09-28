@@ -49,6 +49,10 @@ abstract class Command extends \Illuminate\Console\Command
         return $this->runInTerminal($command, $env);
     }
 
+    public function title(string $string)
+    {
+        Terminal::titleBanner($string);
+    }
     public function warn($string, $verbosity = null)
     {
         Terminal::render((string) view('message', [

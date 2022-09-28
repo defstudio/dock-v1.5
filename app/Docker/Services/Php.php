@@ -286,4 +286,13 @@ class Php extends Service
 
         $this->assets()->put(self::ASSET_PHP_INI_PATH, $phpini);
     }
+
+    public function commands(): array
+    {
+        return [
+            Commands\Php::class,
+        ];
+    }
+
+
 }

@@ -2,19 +2,13 @@
 
 namespace App\Docker\Services\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
+use App\Concerns\ForwardsShellCommands;
 
 class Node extends Command
 {
+    use ForwardsShellCommands;
+
     protected $signature = 'node';
-
     protected $description = 'Run a node command';
-
-    public function handle(): int
-    {
-        Terminal::error('Coming soon');
-
-        return self::FAILURE;
-    }
 }
