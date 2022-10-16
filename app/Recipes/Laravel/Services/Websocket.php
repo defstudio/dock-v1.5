@@ -53,4 +53,11 @@ class Websocket extends Php
         $dockerfile = view('services.php.dockerfile.websocket')->with('service', $this)->render();
         $this->assets()->append(self::ASSET_DOCKERFILE_PATH, $dockerfile);
     }
+
+    public function commands(): array
+    {
+        return [];
+    }
+
+
 }

@@ -26,7 +26,7 @@ class Build extends Command
         $this->runInTerminal([
             'docker-compose',
             'pull',
-            $availableServices[$serviceName],
+            $serviceName,
         ]);
 
         $this->runInTerminal([
@@ -35,7 +35,7 @@ class Build extends Command
             '-d',
             '--no-deps',
             '--build',
-            $availableServices[$serviceName],
+            $serviceName,
         ], [
             'COMPOSE_DOCKER_CLI_BUILD' => 1,
             'DOCKER_BUILDKIT' => 1,

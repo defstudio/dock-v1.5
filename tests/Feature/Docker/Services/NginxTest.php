@@ -154,7 +154,7 @@ it('publishes assets', function (string $asset, array $env, Closure $setup = nul
     'sites-available/host_not_found.conf',
     'nginx.conf',
     'conf.d/upstream.conf',
-    'sites-available/foo.com_80.conf',
+    'sites-available/_foo.com_80.conf',
 ])->with([
     'default' => fn () => ['RECIPE' => 'test-recipe', 'HOST' => 'foo.com'],
     'host not found enabled' => [

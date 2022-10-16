@@ -41,4 +41,11 @@ class Scheduler extends Php
         $dockerfile = view('services.php.dockerfile.scheduler')->with('service', $this)->render();
         $this->assets()->append(self::ASSET_DOCKERFILE_PATH, $dockerfile);
     }
+
+    public function commands(): array
+    {
+        return [];
+    }
+
+
 }

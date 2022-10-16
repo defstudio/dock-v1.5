@@ -41,4 +41,11 @@ class Worker extends Php
         $dockerfile = view('services.php.dockerfile.worker')->with('service', $this)->render();
         $this->assets()->append(self::ASSET_DOCKERFILE_PATH, $dockerfile);
     }
+
+    public function commands(): array
+    {
+        return [];
+    }
+
+
 }

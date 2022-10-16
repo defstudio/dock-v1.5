@@ -7,6 +7,7 @@ use App\Docker\Services\Commands\Composer as ComposerCommand;
 use App\Docker\Services\Commands\NginxRestart as NginxRestartCommand;
 use App\Docker\Services\Commands\Node as NodeCommand;
 use App\Docker\Services\Commands\Npm as NpmCommand;
+use App\Docker\Services\Commands\Php;
 use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Facades\Terminal;
@@ -232,6 +233,7 @@ test('commands', function () {
             RestartQueueCommand::class,
             TinkerCommand::class,
             ViteCommand::class,
+            Php::class,
             NginxRestartCommand::class,
             ComposerCommand::class,
             NodeCommand::class,
@@ -261,6 +263,7 @@ test('commands in production', function () {
             MigrateCommand::class,
             RestartQueueCommand::class,
             TinkerCommand::class,
+            Php::class,
             NginxRestartCommand::class,
             ComposerCommand::class,
             NodeCommand::class,

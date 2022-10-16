@@ -145,7 +145,7 @@ it('forces asset folder to services/php', function () {
 });
 
 test('commands', function () {
-    expect(new Php())->commands()->toBe([]);
+    expect(new Php())->commands()->toBe([\App\Docker\Services\Commands\Php::class]);
 });
 
 it('publishes assets', function (string $asset, array $env, string $phpVersion) {
