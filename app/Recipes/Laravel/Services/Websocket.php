@@ -58,6 +58,4 @@ class Websocket extends Php
     {
         return [];
     }
-
-
 }

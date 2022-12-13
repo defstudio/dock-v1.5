@@ -1,9 +1,15 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 namespace App\Recipes\Laravel\Commands;
 
 use App\Commands\Command;
 use App\Docker\Services\Composer;
+use App\Docker\Services\Php;
+use App\Enums\EnvKey;
+use App\Facades\Env;
+use App\Services\RecipeService;
 use Storage;
 
 class Install extends Command
@@ -12,12 +18,50 @@ class Install extends Command
 
     protected $description = 'Set up a new Laravel project';
 
+    public function __construct(private readonly RecipeService $cookbook)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
+        $this->title('Laravel installation');
+
+        if (Env::get(EnvKey::git_enabled)) {
+            return $this->installFromGitRepository() ? self::SUCCESS : self::FAILURE;
+        }
+
         return $this->tasks([
-            'Laravel Installation' => $this->install(...),
-            $this->setup(...),
+            'Creating Laravel project' => $this->install(...),
+            $this->init(...),
         ]) ? self::SUCCESS : self::FAILURE;
+    }
+
+    private function installFromGitRepository(): bool
+    {
+        return $this->tasks([
+            'Deploying code from '.Env::get(EnvKey::git_repository) => $this->deployFromGit(...),
+            $this->init(...),
+        ]);
+    }
+
+    private function deployFromGit(): bool
+    {
+        $repository = Env::get(EnvKey::git_repository);
+        $branch = Env::get(EnvKey::git_branch);
+
+        return $this->step("Checking out [$branch] branch", fn () => $this->runInShell([
+            'cd', 'src',
+            '&&', 'git', 'clone', '--branch', $branch,
+            Env::production() ? '--single-branch' : '',
+            $repository,
+            '.',
+        ]) === self::SUCCESS)
+            && $this->step('Fixing files permissions', function () {
+                $php = $this->cookbook->recipe()->getService(Php::class);
+
+                return $this->runInTerminal(['chown', '-R', "{$php->getUserId()}:{$php->getUserId()}", 'src']) === self::SUCCESS;
+            });
     }
 
     private function install(): bool
@@ -31,7 +75,7 @@ class Install extends Command
         return true;
     }
 
-    private function setup(): bool
+    private function init(): bool
     {
         return $this->call('laravel:init') === self::SUCCESS;
     }

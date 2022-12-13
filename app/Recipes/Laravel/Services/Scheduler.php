@@ -46,6 +46,4 @@ class Scheduler extends Php
     {
         return [];
     }
-
-
 }

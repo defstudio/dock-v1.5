@@ -237,7 +237,7 @@ class Nginx extends Service
         $this->sites->values()->each(fn (Site $site, int $index) => $this->assets()->put(
             Str::of(self::ASSET_SITES_AVAILABLE_DIRECTORY)
                 ->append(DIRECTORY_SEPARATOR)
-                ->when($index === 0, fn(Stringable $str) => $str->append("_"))
+                ->when($index === 0, fn (Stringable $str) => $str->append('_'))
                 ->append($site->getHost(), '_', $site->getPort())
                 ->append('.conf')
                 ->toString(),

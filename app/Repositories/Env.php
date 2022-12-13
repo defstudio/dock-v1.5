@@ -18,4 +18,9 @@ class Env
     {
         return env($key->value, $default);
     }
+
+    public function production(): bool
+    {
+        return $this->get(EnvKey::env) === 'production';
+    }
 }

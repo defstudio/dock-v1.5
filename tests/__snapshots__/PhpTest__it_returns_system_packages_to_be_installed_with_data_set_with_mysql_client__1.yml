@@ -3,7 +3,6 @@
 - git
 - unzip
 - sqlite3
-- default-mysql-client
 - libmemcached-dev
 - libz-dev
 - libjpeg-dev

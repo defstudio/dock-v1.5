@@ -53,6 +53,10 @@ enum EnvKey: string
 
     case node_version = 'NODE_VERSION';
 
+    case git_enabled = 'GIT_REPOSITORY_ENABLED';
+    case git_repository = 'GIT_REPOSITORY';
+    case git_branch = 'GIT_BRANCH';
+
     case foo = 'FOO';
     case bar = 'BAR';
     case baz = 'BAZ';

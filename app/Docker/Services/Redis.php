@@ -53,12 +53,12 @@ class Redis extends Service
 
     protected function getPersistenceSeconds(): int
     {
-        return $this->env(EnvKey::redis_snapshot_every_seconds, 60);
+        return (int) $this->env(EnvKey::redis_snapshot_every_seconds, 60);
     }
 
     protected function getPersistenceChangedKeys(): int
     {
-        return $this->env(EnvKey::redis_snapshot_every_writes, 1);
+        return (int) $this->env(EnvKey::redis_snapshot_every_writes, 1);
     }
 
     protected function getLogLevel(): string

@@ -46,6 +46,4 @@ class Worker extends Php
     {
         return [];
     }
-
-
 }

@@ -3,13 +3,13 @@ FROM php:7.3-fpm as base_php
 LABEL org.opencontainers.image.authors="def:studio (https://github.com/def-studio)"
 
 # Packages installation
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     apt-get install -y --no-install-recommends nano && \
     apt-get install -y --no-install-recommends git && \
     apt-get install -y --no-install-recommends unzip && \
     apt-get install -y --no-install-recommends sqlite3 && \
-    apt-get install -y --no-install-recommends default-mysql-client && \
     apt-get install -y --no-install-recommends libmemcached-dev && \
     apt-get install -y --no-install-recommends libz-dev && \
     apt-get install -y --no-install-recommends libjpeg-dev && \
@@ -25,6 +25,13 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends libxext6 && \
     apt-get install -y --no-install-recommends ca-certificates && \
     apt-get install -y --no-install-recommends libnss3
+
+    RUN apt-get update && apt-get install -y --no-install-recommends wget lsb-release && \
+    wget -O mysql-apt-config.deb  https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb && \
+    DEBIAN_FRONTEND=noninteractive dpkg -i mysql-apt-config.deb && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends mysql-client && \
+    rm mysql-apt-config.deb; \
 
 # LibreOffice Writer installation
 RUN mkdir -p /usr/share/man/man1 \

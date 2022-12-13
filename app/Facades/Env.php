@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static bool exists()
  * @method static mixed get(EnvKey $key, mixed $default = null)
+ * @method static bool production()
  * @method static FakeEnv put(EnvKey $key, mixed $value = '')
  * @method static void dump()
  */

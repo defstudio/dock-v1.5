@@ -195,8 +195,6 @@ class Php extends Service
             'git' => true,
             'unzip' => true,
             'sqlite3' => true,
-            'default-mysql-client' => $this->isMySqlClientEnabled(),
-
             'libmemcached-dev' => true,
             'libz-dev' => true,
             'libjpeg-dev' => true,
@@ -293,6 +291,4 @@ class Php extends Service
             Commands\Php::class,
         ];
     }
-
-
 }

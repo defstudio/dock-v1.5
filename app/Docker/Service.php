@@ -200,6 +200,11 @@ abstract class Service
         return Env::get($key, $default);
     }
 
+    public function production(): bool
+    {
+        return $this->env(EnvKey::env) === 'production';
+    }
+
     protected function isProductionMode(): bool
     {
         return Env::get(EnvKey::env) === 'production';

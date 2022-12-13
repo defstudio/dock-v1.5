@@ -146,7 +146,6 @@ it('publishes assets', function (string $asset, array $env, Closure $setup = nul
     }
 
     $nginx->publishAssets();
-
     expect($nginx->assets()->get($asset) ?? '')->toMatchTextSnapshot();
 })->with([
     'build/Dockerfile',

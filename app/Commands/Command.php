@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpDocSignatureInspection */
+
 /** @noinspection PhpDocMissingThrowsInspection */
 
 /** @noinspection PhpUnhandledExceptionInspection */
@@ -21,6 +23,21 @@ abstract class Command extends \Illuminate\Console\Command
     public function runInTerminal(array $command, array $env = []): int
     {
         return Terminal::run($command, $env);
+    }
+
+    public function runInTerminalAndReturnOutput(array $command, array $env = []): string
+    {
+        return Terminal::runAndReturnOutput($command, $env);
+    }
+
+    public function runInShell(array $command, array $env = []): int
+    {
+        return Terminal::runInShell($command, $env);
+    }
+
+    public function runInShellAndReturnOutput(array $command, array $env = []): string
+    {
+        return Terminal::runInShellAndReturnOutput($command, $env);
     }
 
     /**
@@ -49,10 +66,21 @@ abstract class Command extends \Illuminate\Console\Command
         return $this->runInTerminal($command, $env);
     }
 
-    public function title(string $string)
+    public function title(string $title): void
     {
-        Terminal::titleBanner($string);
+        Terminal::titleBanner($title);
     }
+
+    public function failureBanner(string $message): void
+    {
+        Terminal::failureBanner($message);
+    }
+
+    public function successBanner(string $message): void
+    {
+        Terminal::successBanner($message);
+    }
+
     public function warn($string, $verbosity = null)
     {
         Terminal::render((string) view('message', [
@@ -73,12 +101,21 @@ abstract class Command extends \Illuminate\Console\Command
         ]));
     }
 
-    public function step(string $string, string $color = 'green'): void
+    /**
+     * @param  callable(): bool  $execute
+     */
+    public function step(string $string, callable $execute = null, string $color = 'green'): bool
     {
         Terminal::render((string) view('step', [
             'color' => $color,
             'message' => $string,
         ]));
+
+        if ($execute === null) {
+            return true;
+        }
+
+        return $execute();
     }
 
     /**
@@ -88,27 +125,27 @@ abstract class Command extends \Illuminate\Console\Command
     {
         foreach ($tasks as $title => $task) {
             if (is_numeric($title)) {
-                return $task();
+                $result = $task();
+            } else {
+                $this->output->newLine();
+                $this->output->writeln("  <bg=gray>$title</>");
+
+                $startTime = microtime(true);
+
+                $this->resetWriteCount();
+                $result = $task();
+
+                $runTime = number_format((microtime(true) - $startTime) * 1000).'ms';
+                $runTimeWidth = mb_strlen($runTime);
+
+                $width = min(terminal()->width(), 150);
+                $dots = max($width - $runTimeWidth - 10, 0);
+
+                $this->output->write(str_repeat('<fg=gray>.</>', $dots));
+                $this->output->write("<fg=gray>$runTime</>");
+
+                $this->output->writeln($result !== false ? ' <fg=green;options=bold>DONE</>' : ' <fg=red;options=bold>FAIL</>');
             }
-
-            $this->output->newLine();
-            $this->output->writeln("  <bg=gray>$title</>");
-
-            $startTime = microtime(true);
-
-            $this->resetWriteCount();
-            $result = $task();
-
-            $runTime = number_format((microtime(true) - $startTime) * 1000).'ms';
-            $runTimeWidth = mb_strlen($runTime);
-
-            $width = min(terminal()->width(), 150);
-            $dots = max($width - $runTimeWidth - 10, 0);
-
-            $this->output->write(str_repeat('<fg=gray>.</>', $dots));
-            $this->output->write("<fg=gray>$runTime</>");
-
-            $this->output->writeln($result !== false ? ' <fg=green;options=bold>DONE</>' : ' <fg=red;options=bold>FAIL</>');
 
             if (!$result) {
                 return false;

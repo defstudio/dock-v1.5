@@ -270,6 +270,18 @@ class Laravel extends Recipe
                     ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::redis_persist_data)),
             ]),
 
+            ConfigurationSection::make('Git Configuration', [
+                ConfigurationOption::make(EnvKey::git_enabled)
+                    ->question('Should code be deployed from a git repository?')
+                    ->confirm()
+                    ->default('yes'),
+                ConfigurationOption::make(EnvKey::git_repository)
+                    ->question('Enter git repository address')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::git_enabled)),
+                ConfigurationOption::make(EnvKey::git_branch)
+                    ->question('Enter git branch to deploy')
+                    ->when(fn (Configuration $configuration) => (bool) $configuration->get(EnvKey::git_branch)),
+            ]),
         ];
     }
 
@@ -329,7 +341,7 @@ class Laravel extends Recipe
             Migrate::class,
             RestartQueue::class,
             Tinker::class,
-        ])->when(Env::get(EnvKey::env) !== 'production', fn (Collection $c) => $c->push(Vite::class))
+        ])->when(!Env::production(), fn (Collection $c) => $c->push(Vite::class))
             ->push(...$this->services->flatMap(fn (Service $service) => $service->commands()))
             ->toArray();
     }

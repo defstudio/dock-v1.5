@@ -43,5 +43,5 @@ it('follows the right steps', function () {
             'publish assets',
         ]);
 
-    Terminal::assertRan(['docker-compose', 'up', '-d']);
+    Terminal::assertRan(['docker-compose', 'up', '-d', '--remove-orphans']);
 });

@@ -19,7 +19,7 @@ class Log extends Command
 
     public function handle(RecipeService $cookbook): int
     {
-        $availableServices = $cookbook->recipe()->services()->map(fn(Service $service) => $service->name())->prepend('all')->toArray();
+        $availableServices = $cookbook->recipe()->services()->map(fn (Service $service) => $service->name())->prepend('all')->toArray();
 
         $service = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices, 'all');
 

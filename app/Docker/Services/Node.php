@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 declare(strict_types=1);
 
 namespace App\Docker\Services;
@@ -22,6 +24,7 @@ class Node extends Service
             'build' => [
                 'context' => "{$this->assetsFolder()}/build",
             ],
+            'user' => "{$this->getUserId()}:{$this->getGroupId()}",
         ]);
 
         $this->version($this->env(EnvKey::node_version, 'lts'));

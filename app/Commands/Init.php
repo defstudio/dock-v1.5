@@ -11,6 +11,7 @@ use App\Facades\Terminal;
 use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Init extends Command
 {
@@ -28,7 +29,7 @@ class Init extends Command
 
         $recipeSlug = $this->argument('recipe') ?? Terminal::choose('Select a recipe', $cookbook->availableRecipes()->map(fn (Recipe $recipe) => $recipe->name())->toArray());
 
-        $cookbook->activate($recipeSlug);
+        $cookbook->activate(Str::lower($recipeSlug));
 
         $cookbook->recipe()->setup();
 

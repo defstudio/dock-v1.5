@@ -33,8 +33,10 @@ class Start extends Command
     private function ensureSrcFolderExists(): bool
     {
         if (!Storage::disk('cwd')->exists('src')) {
-            return Storage::disk('cwd')->makeDirectory('src');
+            Storage::disk('cwd')->makeDirectory('src');
         }
+
+        Storage::disk('cwd')->setVisibility('src', 'public');
 
         return true;
     }
@@ -56,7 +58,6 @@ class Start extends Command
         if ($this->option('build')) {
             $command[] = '--build';
         }
-
 
         $exitCode = $this->runInTerminal(
             $command,

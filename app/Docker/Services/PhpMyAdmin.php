@@ -44,7 +44,7 @@ class PhpMyAdmin extends Service
     public function nginxService(Nginx $nginx): static
     {
         if (!empty($subdomain = $this->env(EnvKey::phpmyadmin_subdomain))) {
-            $nginx->addSite("$subdomain.{$this->host()}",(int)$this->env(EnvKey::nginx_port, 80))
+            $nginx->addSite("$subdomain.{$this->host()}", (int) $this->env(EnvKey::nginx_port, 80))
                 ->proxy($this->name, 80);
         }
 

@@ -10,5 +10,6 @@ class Node extends Command
     use ForwardsShellCommands;
 
     protected $signature = 'node';
+
     protected $description = 'Run a node command';
 }
