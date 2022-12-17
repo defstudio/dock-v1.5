@@ -232,7 +232,7 @@ class ConfigurationOption
     {
         $choices = $this->computeChoices($configuration);
 
-        if (empty($choices)) {
+        if (count($choices) === 0) {
             $this->value = Terminal::ask(
                 $this->question ?? $this->description,
                 $this->computeDefaultValue($configuration),
@@ -249,6 +249,8 @@ class ConfigurationOption
         }
 
         $values = [];
+
+        /** @phpstan-ignore-next-line  */
         while (!empty($choices)) {
             while (!isset($value) || !$this->valid($configuration, $value, true)) {
                 $value = Terminal::choose($this->question ?? $this->description, $choices, allowEmpty: '') ?? '';

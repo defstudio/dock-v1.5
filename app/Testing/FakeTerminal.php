@@ -88,7 +88,6 @@ class FakeTerminal extends Terminal
 
         $nextMessageKey = array_key_first($this->messages);
 
-        /** @phpstan-ignore-next-line */
         $nextMessage = Str::of($nextMessageKey)->stripTags()->squish()->toString();
 
         assertEquals($nextMessage, $message, "Unexpected message [$message]. Next message should be [$nextMessage]");
