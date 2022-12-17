@@ -28,7 +28,7 @@ class Install extends Command
         $this->title('Laravel installation');
 
         if (Env::get(EnvKey::git_enabled)) {
-            return $this->installFromGitRepository() ? self::SUCCESS : self::FAILURE;
+            return $this->cloneFromGitRepository() ? self::SUCCESS : self::FAILURE;
         }
 
         return $this->tasks([
@@ -37,7 +37,7 @@ class Install extends Command
         ]) ? self::SUCCESS : self::FAILURE;
     }
 
-    private function installFromGitRepository(): bool
+    private function cloneFromGitRepository(): bool
     {
         return $this->tasks([
             'Deploying code from '.Env::get(EnvKey::git_repository) => $this->deployFromGit(...),

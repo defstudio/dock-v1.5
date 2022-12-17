@@ -2,8 +2,8 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
+use App\Docker\Services\Php;
 
 class Tinker extends Command
 {
@@ -13,8 +13,6 @@ class Tinker extends Command
 
     public function handle(): int
     {
-        Terminal::error('Coming soon');
-
-        return self::FAILURE;
+        return $this->runInService(Php::class, ['php', 'artisan', 'tinker']);
     }
 }

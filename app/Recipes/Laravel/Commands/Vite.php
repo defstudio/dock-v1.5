@@ -2,8 +2,8 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-use App\Facades\Terminal;
-use Illuminate\Console\Command;
+use App\Commands\Command;
+use App\Docker\Services\Node;
 
 class Vite extends Command
 {
@@ -13,8 +13,6 @@ class Vite extends Command
 
     public function handle(): int
     {
-        Terminal::error('Coming soon');
-
-        return self::FAILURE;
+        return $this->runInService(Node::class, ['npm', 'run', 'dev']);
     }
 }
