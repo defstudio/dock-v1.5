@@ -2,7 +2,6 @@
 
 namespace App\Recipes\Laravel\Commands;
 
-
 use App\Commands\Command;
 use App\Docker\Services\Php;
 
