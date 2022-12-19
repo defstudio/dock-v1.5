@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static void error(string $message)
  * @method static void assertAllExpectedMessageSent()
  * @method static void assertSent(string $message)
+ * @method static void assertSentMessagesMatchSnapshot(): void
+ * @method static void assertSentHtml(string $html)
  * @method static void assertRan(array|string $command, array $env = null)
+ * @method static void assertRanInShell(array|string $command, array $env = null)
  * @method static void dumpRanCommands()
  * @method static void dumpSentMessages()
  */

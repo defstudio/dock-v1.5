@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Facades\Env;
 use App\Facades\Terminal;
 
-it('can run tinker', function () {
+it('can start vite dev server', function () {
     Env::fake([
         'RECIPE' => 'laravel',
         'HOST' => 'test.it',

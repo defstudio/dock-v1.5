@@ -33,7 +33,11 @@ class Start extends Command
     private function ensureSrcFolderExists(): bool
     {
         if (!Storage::disk('cwd')->exists('src')) {
-            Storage::disk('cwd')->makeDirectory('src');
+            $result = Storage::disk('cwd')->makeDirectory('src');
+
+            if (!$result) {
+                return false;
+            }
         }
 
         Storage::disk('cwd')->setVisibility('src', 'public');

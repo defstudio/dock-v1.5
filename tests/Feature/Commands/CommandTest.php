@@ -19,6 +19,42 @@ it('can run a command in terminal', function () {
     Terminal::assertRan(['foo', 'bar', 'baz']);
 });
 
+it('can run a command in terminal and return output', function () {
+    Terminal::fake(commands: ['foo bar baz' => 'qux']);
+
+    $command = new class extends Command
+    {
+    };
+
+    $output = $command->runInTerminalAndReturnOutput(['foo', 'bar', 'baz']);
+
+    expect($output)->toBe('qux');
+});
+
+it('can run a command in shell', function () {
+    Terminal::fake();
+
+    $command = new class extends Command
+    {
+    };
+
+    $command->runInShell(['foo', 'bar', 'baz']);
+
+    Terminal::assertRanInShell(['foo', 'bar', 'baz']);
+});
+
+it('can run a command in shell and return output', function () {
+    Terminal::fake(commands: ['foo bar baz' => 'qux']);
+
+    $command = new class extends Command
+    {
+    };
+
+    $output = $command->runInShellAndReturnOutput(['foo', 'bar', 'baz']);
+
+    expect($output)->toBe('qux');
+});
+
 it('can run a command in a running service', function () {
     Env::fake(['RECIPE' => 'laravel', 'HOST' => 'foo.com']);
     restoreDefaultRecipes();
@@ -62,7 +98,7 @@ it('can render a warning message', function () {
 
     $command->warn('warning foo');
 
-    Terminal::assertSent('Warning warning foo');
+    Terminal::assertSentMessagesMatchSnapshot();
 });
 
 it('can render an error message', function () {
@@ -74,7 +110,21 @@ it('can render an error message', function () {
 
     $command->error('error foo');
 
-    Terminal::assertSent('Error error foo');
+    Terminal::assertSentMessagesMatchSnapshot();
+});
+
+it('can execute a step', function () {
+    Terminal::fake();
+
+    $command = new class extends Command
+    {
+    };
+
+    $result = $command->step('foo', fn () => true, 'red');
+
+    expect($result)->toBeTrue();
+
+    Terminal::assertSentMessagesMatchSnapshot();
 });
 
 it('can execute a list of tasks', function () {
@@ -133,4 +183,40 @@ it('can write a line', function () {
         "bar\n",
         "baz\n",
     ]);
+});
+
+it('can render a title', function () {
+    Terminal::fake();
+
+    $command = new class extends Command
+    {
+    };
+
+    $command->title('foo');
+
+    Terminal::assertSentMessagesMatchSnapshot();
+});
+
+it('can render a failure banner', function () {
+    Terminal::fake();
+
+    $command = new class extends Command
+    {
+    };
+
+    $command->failureBanner('foo');
+
+    Terminal::assertSentMessagesMatchSnapshot();
+});
+
+it('can render a success banner', function () {
+    Terminal::fake();
+
+    $command = new class extends Command
+    {
+    };
+
+    $command->successBanner('foo');
+
+    Terminal::assertSentMessagesMatchSnapshot();
 });
