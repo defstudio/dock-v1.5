@@ -1,18 +1,18 @@
 {
-    "name": "laravel-zero/laravel-zero",
-    "description": "The Laravel Zero Framework.",
-    "keywords": ["framework", "laravel", "laravel zero", "console", "cli"],
-    "homepage": "https://laravel-zero.com",
+    "name": "defstudio/dock",
+    "description": "A docker containers manager built with laravel-zero",
+    "keywords": ["dock", "docker", "docker compose", "containers", "manager"],
+    "homepage": "https://github.com/defstudio/dock",
     "type": "project",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/laravel-zero/laravel-zero/issues",
-        "source": "https://github.com/laravel-zero/laravel-zero"
+        "issues": "https://github.com/defstudio/dock/issues",
+        "source": "https://github.com/defstudio/dock"
     },
     "authors": [
         {
-            "name": "Nuno Maduro",
-            "email": "enunomaduro@gmail.com"
+            "name": "Fabio Ivona",
+            "email": "fabio.ivona@defstudio.it"
         }
     ],
     "require": {
