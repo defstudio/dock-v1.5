@@ -106,7 +106,14 @@ class Laravel extends Recipe
                         return $tools;
                     }, true)
                     ->optional(true),
+
+                ConfigurationOption::make(EnvKey::enable_logging)
+                    ->description('Logging Enabled')
+                    ->question('Enable Logging?')
+                    ->confirm()
+                    ->default(false),
             ]),
+
             ConfigurationSection::make('Services', [
                 ConfigurationOption::make(EnvKey::db_engine)
                     ->question('Which database engine should be used?')

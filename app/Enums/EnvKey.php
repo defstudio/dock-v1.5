@@ -13,6 +13,8 @@ enum EnvKey: string
 
     case expose_docker_host = 'EXPOSE_DOCKER_HOST';
 
+    case enable_logging = 'ENABLE_LOGGING';
+
     case behind_proxy = 'BEHIND_PROXY';
     case reverse_proxy_network = 'REVERSE_PROXY_NETWORK';
 

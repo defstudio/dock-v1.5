@@ -44,7 +44,7 @@ abstract class Service
     protected string $name;
 
     /**
-     * @param  array<string,  mixed>  $customEnv
+     * @param array<string,  mixed> $customEnv
      */
     public function __construct(private readonly array $customEnv = [])
     {
@@ -57,10 +57,12 @@ abstract class Service
             throw DockerServiceException::serviceNotConfigured($this->name);
         }
 
-        $this->serviceDefinition->set('logging.options', [
-            'max-size' => '10m',
-            'max-file' => '3',
-        ]);
+        if (Env::get(EnvKey::enable_logging, false)) {
+            $this->serviceDefinition->set('logging.options', [
+                'max-size' => '10m',
+                'max-file' => '3',
+            ]);
+        }
     }
 
     abstract protected function configure(): void;
