@@ -7,11 +7,14 @@ declare(strict_types=1);
 namespace App\Recipes;
 
 use App\Enums\EnvKey;
-use App\Facades\Terminal;
 use BackedEnum;
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use UnitEnum;
+use function Laravel\Prompts\multiselect;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
 
 class ConfigurationOption
 {
@@ -23,8 +26,8 @@ class ConfigurationOption
 
     protected string|int|bool $value;
 
-    /** @var string|int|bool|Closure(Configuration): (string|int|bool) */
-    protected string|int|bool|Closure $defaultValue = '';
+    /** @var string[]|int|bool|Closure(Configuration): (string|int|bool) */
+    protected array|string|int|bool|Closure $defaultValue = '';
 
     protected bool $required = true;
 
@@ -153,10 +156,8 @@ class ConfigurationOption
             return;
         }
 
-        while (!isset($this->value) || !$this->valid($configuration)) {
-            $this->ask($configuration);
-            $this->normalizeValue($configuration);
-        }
+        $this->ask($configuration);
+        $this->normalizeValue($configuration);
 
         if ($this->confirm && !is_bool($this->value)) {
             $this->value = match (Str::of("$this->value")->lower()->toString()) {
@@ -189,11 +190,19 @@ class ConfigurationOption
         }
     }
 
-    protected function computeDefaultValue(Configuration $configuration): string
+    protected function computeDefaultValue(Configuration $configuration): string|array
     {
         $default = $this->defaultValue instanceof Closure
             ? call_user_func($this->defaultValue, $configuration)
             : $this->defaultValue;
+
+        if($this->multiple && !is_array($default)){
+            if(empty($default)){
+                return [];
+            }
+
+            return explode(',', $default);
+        }
 
         return match ($default) {
             true => 'yes',
@@ -233,84 +242,77 @@ class ConfigurationOption
         $choices = $this->computeChoices($configuration);
 
         if (count($choices) === 0) {
-            $this->value = Terminal::ask(
+            $this->value = text(
                 $this->question ?? $this->description,
-                $this->computeDefaultValue($configuration),
-                !$this->required
+                default: $this->computeDefaultValue($configuration),
+                required: $this->required,
+                validate: fn (string $value) => $this->apply_validation($configuration, $value, !$this->required),
+                hint: ($this->question ?? null) !== ($this->description ?? null) ? $this->description ?? '' : '',
             );
 
             return;
         }
 
         if (!$this->multiple) {
-            $this->value = Terminal::choose($this->question ?? $this->description, $choices, $this->computeDefaultValue($configuration), !$this->required) ?? '';
+            $this->value = select(
+                $this->question ?? $this->description,
+                $choices,
+                $this->computeDefaultValue($configuration),
+                validate: fn (string $value) => $this->apply_validation($configuration, $value, !$this->required),
+                hint: ($this->question ?? null) !== ($this->description ?? null) ? $this->description ?? '' : '',
+                required: $this->required,
+            ) ?? '';
 
             return;
         }
 
-        $values = [];
-
-        /** @phpstan-ignore-next-line  */
-        while (!empty($choices)) {
-            while (!isset($value) || !$this->valid($configuration, $value, true)) {
-                $value = Terminal::choose($this->question ?? $this->description, $choices, allowEmpty: '') ?? '';
-            }
-
-            if (empty($value)) {
-                break;
-            }
-
-            $values[] = $value;
-
-            unset($choices[array_search($value, $choices)]);
-
-            unset($value);
-        }
-
-        $this->value = collect($values)->join(',');
+        $this->value = implode(',', multiselect(
+            $this->question ?? $this->description,
+            $choices,
+            $this->computeDefaultValue($configuration),
+            required: $this->required,
+            validate: fn (array $values) => $this->apply_validation($configuration, $values, !$this->required),
+            hint: ($this->question ?? null) !== ($this->description ?? null) ? $this->description ?? 'Use the space bar to select options.' : 'Use the space bar to select options.',
+        ));
     }
 
-    protected function valid(Configuration $configuration, string|int|bool $value = null, bool $optional = null): bool
+    protected function apply_validation(Configuration $configuration, array|string|int|bool $value = null, bool $optional = null): string|null
     {
         $value ??= $this->value;
         $optional ??= !$this->required;
 
         if (empty($value) && $optional) {
-            return true;
+            return null;
         }
 
         if (blank($value)) {
-            Terminal::error('A value is required');
-
-            return false;
+            return 'A value is required';
         }
 
-        if (!empty($this->validationClosure)) {
-            /** @var bool|string $validation */
-            $validation = call_user_func($this->validationClosure, $value, $configuration);
+        $values = Arr::wrap($value);
 
-            if (is_string($validation)) {
-                Terminal::error("$validation");
+        foreach ($values as $value){
+            if (!empty($this->validationClosure)) {
+                /** @var bool|string $validation */
+                $validation = call_user_func($this->validationClosure, $value, $configuration);
 
-                return false;
+                if (is_string($validation)) {
+                    return "$validation";
+                }
+
+                if (!$validation) {
+                    return "[$value] is not a valid value";
+                }
+
+                return null;
             }
 
-            if (!$validation) {
-                Terminal::error("[$value] is not a valid value");
-
-                return false;
+            if (!empty($this->choices) && !$this->multiple && !in_array($value, $this->computeChoices($configuration))) {
+                return "[$value] is not a valid value";
             }
-
-            return true;
         }
 
-        if (!empty($this->choices) && !$this->multiple && !in_array($value, $this->computeChoices($configuration))) {
-            Terminal::error("[$value] is not a valid value");
-
-            return false;
-        }
-
-        return true;
+        return null;
     }
 
     public function hasASettedValue(): bool

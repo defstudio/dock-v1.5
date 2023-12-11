@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static int run(array $command, array $env = [])
  * @method static int runInShell(array $command, array $env = [])
  * @method static string runAndReturnOutput(array $command, array $env = [])
- * @method static mixed ask(string $question, string|bool $default = null, bool $allowEmpty = false)
- * @method static mixed choose(string $question, array $choices, string|bool $default = null, bool|string $allowEmpty = false)
  * @method static void render(string $html)
  * @method static void titleBanner(string $title)
  * @method static void failureBanner(string $message)

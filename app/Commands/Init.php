@@ -12,6 +12,7 @@ use App\Recipes\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use function Laravel\Prompts\select;
 
 class Init extends Command
 {
@@ -27,7 +28,11 @@ class Init extends Command
             return self::INVALID;
         }
 
-        $recipeSlug = $this->argument('recipe') ?? Terminal::choose('Select a recipe', $cookbook->availableRecipes()->map(fn (Recipe $recipe) => $recipe->name())->toArray());
+        /** @var string $recipeSlug */
+        $recipeSlug = $this->argument('recipe') ?? select(
+            'Select a recipe',
+            $cookbook->availableRecipes()->map(fn (Recipe $recipe) => $recipe->name())->toArray()
+        );
 
         $cookbook->activate(Str::lower($recipeSlug));
 

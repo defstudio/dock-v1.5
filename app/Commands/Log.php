@@ -9,6 +9,7 @@ namespace App\Commands;
 use App\Docker\Service;
 use App\Facades\Terminal;
 use App\Services\RecipeService;
+use function Laravel\Prompts\select;
 
 class Log extends Command
 {
@@ -21,9 +22,10 @@ class Log extends Command
     {
         $availableServices = $cookbook->recipe()->services()->map(fn (Service $service) => $service->name())->prepend('all')->toArray();
 
-        $service = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices, 'all');
+        $service = $this->argument('service') ?? select('Select a service', $availableServices, 'all');
 
         $command = ['docker-compose', 'logs', '--follow', '--tail=50'];
+
         if ($service !== 'all') {
             $command[] = $service;
         }

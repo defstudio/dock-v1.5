@@ -9,6 +9,7 @@ namespace App\Commands;
 use App\Docker\Service;
 use App\Facades\Terminal;
 use App\Services\RecipeService;
+use function Laravel\Prompts\select;
 
 class Build extends Command
 {
@@ -21,7 +22,11 @@ class Build extends Command
     {
         $availableServices = $cookbook->recipe()->services()->mapWithKeys(fn (Service $service, string $class) => [$service->name() => $class])->toArray();
 
-        $serviceName = $this->argument('service') ?? Terminal::choose('Select a service', $availableServices);
+        /** @var string $serviceName */
+        $serviceName = $this->argument('service') ?? select(
+            'Select a service',
+            $availableServices,
+        );
 
         $this->runInTerminal([
             'docker-compose',
