@@ -20,7 +20,7 @@ class MySql extends Service
 
         $this->serviceDefinition = new ServiceDefinition([
             'restart' => 'unless-stopped',
-            'command' => '--character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=mysql_native_password',
+            'command' => '--character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=mysql_native_password --sort_buffer_size=10M',
             'image' => 'mysql:8',
             'cap_add' => [
                 'SYS_NICE',
