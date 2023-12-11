@@ -25,6 +25,8 @@ enum EnvKey: string
 
     case extra_tools = 'EXTRA_TOOLS';
 
+    case pulse_enabled = 'PULSE_ENABLED';
+
     case db_engine = 'DB_ENGINE';
     case db_port = 'DB_PORT';
     case db_name = 'DB_DATABASE';

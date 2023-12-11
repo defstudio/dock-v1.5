@@ -19,7 +19,8 @@ use App\Enums\EnvKey;
 use App\Facades\Env;
 use App\Recipes\Laravel\Services\Worker;
 use App\Services\RecipeService;
-use Storage;
+use Illuminate\Support\Facades\Storage;
+
 
 class Init extends Command
 {

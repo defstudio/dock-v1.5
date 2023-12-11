@@ -30,6 +30,7 @@ use App\Recipes\Laravel\Commands\RestartQueue;
 use App\Recipes\Laravel\Commands\Tinker;
 use App\Recipes\Laravel\Commands\Vite;
 use App\Recipes\Laravel\Services\Dusk;
+use App\Recipes\Laravel\Services\Pulse;
 use App\Recipes\Laravel\Services\Scheduler;
 use App\Recipes\Laravel\Services\Websocket;
 use App\Recipes\Laravel\Services\Worker;
@@ -119,6 +120,11 @@ class Laravel extends Recipe
                     ->when(fn (Configuration $configuration) => $configuration->get(EnvKey::env) !== 'production'),
                 ConfigurationOption::make(EnvKey::websocket_enabled)
                     ->question('Should Websocket server be enabled?')
+                    ->confirm()
+                    ->default('no'),
+
+                ConfigurationOption::make(EnvKey::pulse_enabled)
+                    ->question('Should Laravel Pulse server checks be enabled?')
                     ->confirm()
                     ->default('no'),
                 ConfigurationOption::make(EnvKey::redis_enabled)
@@ -296,6 +302,10 @@ class Laravel extends Recipe
         $this->addService(Worker::class);
         $this->addService(Composer::class);
         $this->addService(Node::class);
+
+        if (Env::get(EnvKey::pulse_enabled)) {
+            $this->addService(Pulse::class);
+        }
 
         if (Env::get(EnvKey::redis_enabled)) {
             $this->addService(Redis::class);
