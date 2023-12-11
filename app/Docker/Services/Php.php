@@ -189,6 +189,7 @@ class Php extends Service
     {
         //TODO Check required and optional installs
         $installs = [
+            'procps' => true,
             'curl' => true,
             'ping' => false,
             'nano' => true,
