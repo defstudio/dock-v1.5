@@ -31,7 +31,7 @@
         "illuminate/view": "^10.0",
         "laminas/laminas-text": "^2.9",
         "nunomaduro/termwind": "^1.13",
-        "spatie/invade": "^1.1"
+        "spatie/invade": "^2.0"
     },
     "autoload": {
         "psr-4": {
